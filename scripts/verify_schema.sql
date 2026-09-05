@@ -46,11 +46,17 @@ actual(check_name, actual) as (
   -- The rule the whole tenant model depends on: no table in public may have
   -- RLS switched off. This is the check that should fail a CI build.
   select 'rls_missing',
-         coalesce(
-           (select string_agg(tablename, ', ' order by tablename)
-              from pg_tables
-             where schemaname = 'public' and not rowsecurity),
-           '(none)')
+         -- Guard against a vacuous pass: with zero tables there are trivially
+         -- zero tables missing RLS, which would otherwise report OK on an
+         -- empty database and hide the fact that nothing was ever created.
+         case when (select count(*) from pg_tables where schemaname = 'public') = 0
+              then '(empty database)'
+              else coalesce(
+                     (select string_agg(tablename, ', ' order by tablename)
+                        from pg_tables
+                       where schemaname = 'public' and not rowsecurity),
+                     '(none)')
+         end
 )
 select e.check_name,
        e.expected,
