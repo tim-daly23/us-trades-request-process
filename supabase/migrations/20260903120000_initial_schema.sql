@@ -1311,10 +1311,18 @@ for each row execute function check_site_default_credentials();
 create or replace function recalc_line_fill() returns trigger
 language plpgsql as $fn$
 declare
-  v_line uuid := coalesce(new.requisition_line_id, old.requisition_line_id);
+  -- NOT coalesce(new.…, old.…): in PL/pgSQL, OLD is unassigned during INSERT
+  -- and NEW is unassigned during DELETE, so referencing the wrong one is an
+  -- error rather than a null. Branch on TG_OP instead.
+  v_line uuid := case tg_op when 'DELETE' then old.requisition_line_id
+                            else new.requisition_line_id end;
   v_filled int;
   v_qty int;
 begin
+  if v_line is null then
+    return null;
+  end if;
+
   select count(*) into v_filled
     from placements
    where requisition_line_id = v_line
