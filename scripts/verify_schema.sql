@@ -36,12 +36,22 @@ actual(check_name, actual) as (
            where n.nspname = 'public' and t.typtype = 'e')::text
   union all
   select 'functions',
+         -- Exclude functions owned by an extension: citext and pg_trgm install
+         -- into public here and contribute ~76 of their own.
          (select count(*) from pg_proc p
             join pg_namespace n on n.oid = p.pronamespace
-           where n.nspname = 'public' and p.prokind = 'f')::text
+           where n.nspname = 'public'
+             and p.prokind = 'f'
+             and not exists (select 1 from pg_depend d
+                              where d.objid = p.oid and d.deptype = 'e'))::text
   union all
   select 'triggers',
-         (select count(*) from pg_trigger where not tgisinternal)::text
+         -- Must be scoped to public: Supabase's own auth/storage schemas carry
+         -- triggers that have nothing to do with this migration.
+         (select count(*) from pg_trigger tg
+            join pg_class c on c.oid = tg.tgrelid
+            join pg_namespace n on n.oid = c.relnamespace
+           where n.nspname = 'public' and not tg.tgisinternal)::text
   union all
   -- The rule the whole tenant model depends on: no table in public may have
   -- RLS switched off. This is the check that should fail a CI build.
