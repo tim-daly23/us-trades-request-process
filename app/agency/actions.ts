@@ -106,6 +106,24 @@ export async function updateCustomer(form: FormData): Promise<Result> {
 // Sites
 // =====================================================================
 
+/**
+ * Site-level credential requirements live in sites.default_credential_ids,
+ * which the request form already uses to pre-check the credential boxes.
+ * TWIC is the one that genuinely belongs to the site rather than the job —
+ * a terminal either sits behind a TWIC gate or it does not.
+ */
+async function twicCredentialId(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+): Promise<string | null> {
+  const { data } = await supabase
+    .from("credentials")
+    .select("id")
+    .eq("code", "TWIC")
+    .is("customer_id", null)
+    .maybeSingle();
+  return data?.id ?? null;
+}
+
 export async function createSite(form: FormData): Promise<Result> {
   const guard = await assertAgency();
   if (!guard.ok) return guard;
@@ -117,40 +135,30 @@ export async function createSite(form: FormData): Promise<Result> {
   }
 
   const supabase = await createClient();
-  const { data: site, error } = await supabase
-    .from("sites")
-    .insert({
-      customer_id: customerId,
-      name,
-      address_line1: nz(form.get("address_line1")) ?? "—",
-      city: nz(form.get("city")) ?? "—",
-      state: nz(form.get("state")) ?? "—",
-      postal_code: nz(form.get("postal_code")) ?? "—",
-      default_shift: nz(form.get("default_shift")) ?? "day",
-      default_hours_per_day: num(form.get("default_hours_per_day")) ?? 10,
-      default_days_per_week: num(form.get("default_days_per_week")) ?? 6,
-      default_per_diem_rate: num(form.get("default_per_diem_rate")),
-      safety_council_required: bool(form.get("safety_council_required")),
-      safety_council_name: nz(form.get("safety_council_name")),
-      created_by: guard.profile.id,
-    })
-    .select("id")
-    .single();
+
+  // Schedule, per diem and contacts are deliberately not asked for here: they
+  // vary job to job at the same site. They are editable afterwards as optional
+  // pre-fill defaults.
+  const credentialIds: string[] = [];
+  if (bool(form.get("requires_twic"))) {
+    const twic = await twicCredentialId(supabase);
+    if (twic) credentialIds.push(twic);
+  }
+
+  const { error } = await supabase.from("sites").insert({
+    customer_id: customerId,
+    name,
+    address_line1: nz(form.get("address_line1")) ?? "—",
+    city: nz(form.get("city")) ?? "—",
+    state: nz(form.get("state")) ?? "—",
+    postal_code: nz(form.get("postal_code")) ?? "—",
+    safety_council_required: bool(form.get("safety_council_required")),
+    safety_council_name: nz(form.get("safety_council_name")),
+    default_credential_ids: credentialIds,
+    created_by: guard.profile.id,
+  });
 
   if (error) return { ok: false, error: error.message };
-
-  const contactName = nz(form.get("contact_name"));
-  if (contactName) {
-    await supabase.from("site_contacts").insert({
-      site_id: site.id,
-      customer_id: customerId,
-      name: contactName,
-      phone: nz(form.get("contact_phone")),
-      email: nz(form.get("contact_email")),
-      role: nz(form.get("contact_role")),
-      is_primary: true,
-    });
-  }
 
   revalidatePath(`/agency/customers/${customerId}`);
   return { ok: true };
@@ -165,9 +173,25 @@ export async function updateSite(form: FormData): Promise<Result> {
   if (!id) return { ok: false, error: "Missing site." };
 
   const supabase = await createClient();
+
+  // Preserve any other site-level credentials while toggling TWIC.
+  const { data: existing } = await supabase
+    .from("sites")
+    .select("default_credential_ids")
+    .eq("id", id)
+    .maybeSingle();
+
+  const twic = await twicCredentialId(supabase);
+  let credentialIds: string[] = existing?.default_credential_ids ?? [];
+  if (twic) {
+    credentialIds = credentialIds.filter((c) => c !== twic);
+    if (bool(form.get("requires_twic"))) credentialIds.push(twic);
+  }
+
   const { error } = await supabase
     .from("sites")
     .update({
+      default_credential_ids: credentialIds,
       name: nz(form.get("name")),
       address_line1: nz(form.get("address_line1")) ?? "—",
       address_line2: nz(form.get("address_line2")),

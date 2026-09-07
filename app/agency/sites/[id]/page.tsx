@@ -37,6 +37,15 @@ export default async function SiteDetail({
 
   const customer = Array.isArray(site.customer) ? site.customer[0] : site.customer;
 
+  const { data: twic } = await supabase
+    .from("credentials")
+    .select("id")
+    .eq("code", "TWIC")
+    .is("customer_id", null)
+    .maybeSingle();
+  const requiresTwic =
+    !!twic?.id && (site.default_credential_ids ?? []).includes(twic.id);
+
   const { data: contacts } = await supabase
     .from("site_contacts")
     .select("id, name, role, phone, email, is_primary")
@@ -118,6 +127,16 @@ export default async function SiteDetail({
               <span>ZIP</span>
               <input name="postal_code" defaultValue={site.postal_code ?? ""} />
             </label>
+            <label className="field" style={{ gridColumn: "1 / -1" }}>
+              <span style={{ color: "var(--ink)", fontWeight: 600, marginTop: 6 }}>
+                Optional request defaults
+              </span>
+              <span style={{ fontWeight: 400 }}>
+                Only used to pre-fill a new request. Leave them alone if the
+                schedule changes job to job.
+              </span>
+            </label>
+
             <label className="field">
               <span>Shift</span>
               <select name="default_shift" defaultValue={site.default_shift ?? "day"}>
@@ -173,23 +192,53 @@ export default async function SiteDetail({
             </label>
           </div>
 
-          <label
+          <fieldset
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              marginBottom: 13,
-              fontSize: 12.5,
+              border: "1px solid var(--line)",
+              padding: "12px 14px",
+              margin: "6px 0 14px",
             }}
           >
-            <input
-              type="checkbox"
-              name="safety_council_required"
-              defaultChecked={site.safety_council_required ?? false}
-              style={{ width: 16, height: 16 }}
-            />
-            <span>Safety council training required at this site</span>
-          </label>
+            <legend style={{ fontSize: 12, color: "var(--steel)", padding: "0 6px" }}>
+              Site access requirements
+            </legend>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 8,
+                fontSize: 12.5,
+              }}
+            >
+              <input
+                type="checkbox"
+                name="requires_twic"
+                defaultChecked={requiresTwic}
+                style={{ width: 16, height: 16 }}
+              />
+              <span>
+                TWIC card is required to enter this site — pre-checked on every
+                request for it
+              </span>
+            </label>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 12.5,
+              }}
+            >
+              <input
+                type="checkbox"
+                name="safety_council_required"
+                defaultChecked={site.safety_council_required ?? false}
+                style={{ width: 16, height: 16 }}
+              />
+              <span>Safety council training required at this site</span>
+            </label>
+          </fieldset>
 
           <label className="field">
             <span>Site access notes</span>

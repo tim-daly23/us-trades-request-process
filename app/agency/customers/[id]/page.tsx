@@ -48,6 +48,13 @@ export default async function CustomerDetail({
       .eq("customer_id", id),
   ]);
 
+  const { data: twic } = await supabase
+    .from("credentials")
+    .select("id")
+    .eq("code", "TWIC")
+    .is("customer_id", null)
+    .maybeSingle();
+
   return (
     <>
       <div style={{ marginBottom: 14 }}>
@@ -269,6 +276,15 @@ export default async function CustomerDetail({
                 <tr key={s.id}>
                   <td>
                     <div style={{ fontWeight: 500 }}>{s.name}</div>
+                    <div style={{ display: "flex", gap: 4, marginTop: 3 }}>
+                      {twic?.id &&
+                        (s.default_credential_ids ?? []).includes(twic.id) && (
+                          <span className="badge submitted">TWIC</span>
+                        )}
+                      {s.safety_council_required && (
+                        <span className="badge pending">Safety council</span>
+                      )}
+                    </div>
                   </td>
                   <td style={{ color: "var(--steel)" }}>
                     {s.city}, {s.state}
@@ -355,47 +371,36 @@ export default async function CustomerDetail({
                 <input name="postal_code" placeholder="77520" />
               </label>
               <label className="field">
-                <span>Shift</span>
-                <select name="default_shift" defaultValue="day">
-                  <option value="day">Day</option>
-                  <option value="night">Night</option>
-                  <option value="swing">Swing</option>
-                  <option value="rotating">Rotating</option>
-                </select>
-              </label>
-              <label className="field">
-                <span>Days / week</span>
-                <input name="default_days_per_week" type="number" min="1" max="7" defaultValue={6} />
-              </label>
-              <label className="field">
-                <span>Hours / day</span>
-                <input name="default_hours_per_day" type="number" min="1" max="24" step="0.5" defaultValue={10} />
-              </label>
-              <label className="field">
-                <span>Per diem</span>
-                <input name="default_per_diem_rate" type="number" min="0" step="0.01" />
-              </label>
-              <label className="field">
                 <span>Safety council</span>
                 <input name="safety_council_name" placeholder="Houston Area Safety Council" />
               </label>
-              <label className="field">
-                <span>Site contact</span>
-                <input name="contact_name" placeholder="Dale Fuentes" />
-              </label>
-              <label className="field">
-                <span>Contact phone</span>
-                <input name="contact_phone" type="tel" placeholder="(409) 555-0142" />
-              </label>
-              <label className="field">
-                <span>Contact role</span>
-                <input name="contact_role" placeholder="Superintendent" />
-              </label>
             </div>
-            <Check
-              name="safety_council_required"
-              label="Safety council training required at this site"
-            />
+
+            <fieldset
+              style={{
+                border: "1px solid var(--line)",
+                padding: "12px 14px",
+                margin: "6px 0 14px",
+              }}
+            >
+              <legend style={{ fontSize: 12, color: "var(--steel)", padding: "0 6px" }}>
+                Site access requirements
+              </legend>
+              <Check
+                name="requires_twic"
+                label="TWIC card is required to enter this site"
+              />
+              <Check
+                name="safety_council_required"
+                label="Safety council training required at this site"
+              />
+            </fieldset>
+
+            <div className="hint" style={{ marginTop: 0, marginBottom: 12 }}>
+              Schedule, per diem and site contacts are not asked for here —
+              they change job to job. Set them on the site afterwards if you
+              want them pre-filled on the request form.
+            </div>
           </ActionForm>
         </div>
       </div>
