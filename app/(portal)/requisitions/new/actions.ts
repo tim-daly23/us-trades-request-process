@@ -160,6 +160,7 @@ export async function createRequisition(
   }
 
   revalidatePath("/");
+  revalidatePath("/requests");
   return {
     ok: true,
     id: req.id,

@@ -1,35 +1,37 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { StatusBadge, UrgencyBadge } from "@/components/status-badge";
+import { getProfile } from "@/lib/auth";
+import { StatusBadge } from "@/components/status-badge";
 import { FillProgress } from "@/components/fill-progress";
-import { formatDate } from "@/lib/format";
+import { formatDate, relativeDays } from "@/lib/format";
 
-type SiteRef = { name: string; city: string; state: string } | null;
-
-type Requisition = {
+type Req = {
   id: string;
   req_number: string;
   title: string | null;
   status: string;
   urgency: string;
   start_date: string;
-  duration_weeks: number | string | null;
-  is_ongoing: boolean;
-  site: SiteRef;
+  site: { name: string } | null;
 };
 
-type FillRow = {
+type Fill = {
   requisition_id: string;
   total_requested: number;
   total_filled: number;
   total_onboarding: number;
+  total_open: number;
 };
 
-type LineRow = {
+type Candidate = {
+  placement_id: string;
   requisition_id: string;
-  quantity: number;
+  stage: string;
+  first_name: string;
+  last_initial: string;
   craft_name: string;
   level_name: string;
+  scheduled_start_date: string | null;
 };
 
 const OPEN = new Set([
@@ -38,51 +40,42 @@ const OPEN = new Set([
   "sourcing",
   "partially_filled",
 ]);
-const ON_SITE = new Set(["filled", "active"]);
 const CLOSED = new Set(["completed", "cancelled"]);
+const AWAITING_YOU = new Set(["submitted_to_customer", "customer_reviewing"]);
+const ON_SITE_STAGES = new Set(["started"]);
+const ONBOARDING_STAGES = new Set(["customer_approved", "onboarding", "confirmed"]);
 
-export default async function RequisitionsPage() {
+export default async function CustomerDashboard() {
   const supabase = await createClient();
+  const profile = await getProfile();
 
-  // RLS scopes all three to the caller's tenant; no customer_id filter here.
-  const [{ data: reqs, error }, { data: fills }, { data: lines }] =
+  const [{ data: reqs }, { data: fills }, { data: candidates }, { count: siteCount }] =
     await Promise.all([
       supabase
         .from("requisitions")
         .select(
-          `id, req_number, title, status, urgency, start_date, duration_weeks,
-           is_ongoing, site:sites(name, city, state)`,
+          "id, req_number, title, status, urgency, start_date, site:sites(name)",
         )
         .order("start_date", { ascending: true })
-        .returns<Requisition[]>(),
-      supabase.from("requisition_fill_summary").select("*").returns<FillRow[]>(),
+        .returns<Req[]>(),
+      supabase.from("requisition_fill_summary").select("*").returns<Fill[]>(),
       supabase
-        .from("requisition_lines_visible")
-        .select("requisition_id, quantity, craft_name, level_name")
-        .order("line_number")
-        .returns<LineRow[]>(),
+        .from("customer_candidate_view")
+        .select(
+          "placement_id, requisition_id, stage, first_name, last_initial, craft_name, level_name, scheduled_start_date",
+        )
+        .returns<Candidate[]>(),
+      supabase
+        .from("sites")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "active"),
     ]);
-
-  if (error) {
-    return (
-      <div className="gate">
-        <strong>Could not load requisitions.</strong>
-        <div style={{ marginTop: 4, fontSize: 12.5 }}>{error.message}</div>
-      </div>
-    );
-  }
 
   const rows = reqs ?? [];
   const fillFor = new Map((fills ?? []).map((f) => [f.requisition_id, f]));
-  const linesFor = new Map<string, LineRow[]>();
-  for (const l of lines ?? []) {
-    linesFor.set(l.requisition_id, [
-      ...(linesFor.get(l.requisition_id) ?? []),
-      l,
-    ]);
-  }
-
   const live = rows.filter((r) => !CLOSED.has(r.status));
+  const liveIds = new Set(live.map((r) => r.id));
+
   const totals = live.reduce(
     (acc, r) => {
       const f = fillFor.get(r.id);
@@ -90,154 +83,214 @@ export default async function RequisitionsPage() {
         requested: acc.requested + (f?.total_requested ?? 0),
         filled: acc.filled + (f?.total_filled ?? 0),
         onboarding: acc.onboarding + (f?.total_onboarding ?? 0),
+        open: acc.open + (f?.total_open ?? 0),
       };
     },
-    { requested: 0, filled: 0, onboarding: 0 },
+    { requested: 0, filled: 0, onboarding: 0, open: 0 },
   );
+
+  const visible = (candidates ?? []).filter((c) => liveIds.has(c.requisition_id));
+  const awaitingReview = visible.filter((c) => AWAITING_YOU.has(c.stage));
+  const onSite = visible.filter((c) => ON_SITE_STAGES.has(c.stage));
+  const inOnboarding = visible.filter((c) => ONBOARDING_STAGES.has(c.stage));
+
+  const startingSoon = live
+    .filter((r) => {
+      const d = relativeDays(r.start_date);
+      return d !== null && !d.includes("ago");
+    })
+    .slice(0, 5);
+
+  const needsAttention = live.filter((r) => {
+    const f = fillFor.get(r.id);
+    const days = relativeDays(r.start_date);
+    return (
+      f &&
+      f.total_open > 0 &&
+      days !== null &&
+      (days === "today" || days === "tomorrow" || /^in [0-9] days$/.test(days))
+    );
+  });
 
   return (
     <>
-      <div className="stat-row">
-        <div className="stat-card pipeline">
-          <div className="stat-num">
-            {rows.filter((r) => OPEN.has(r.status)).length}
+      <div className="panel-head" style={{ marginBottom: 18 }}>
+        <div>
+          <h2 style={{ fontSize: 24 }}>
+            {greeting()}
+            {profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
+          </h2>
+          <div className="sub">
+            Where your manpower stands today.
           </div>
-          <div className="stat-label">Open requests</div>
         </div>
-        <div className="stat-card progress">
-          <div className="stat-num">{totals.requested}</div>
-          <div className="stat-label">Quantity requested</div>
-        </div>
-        <div className="stat-card approved">
-          <div className="stat-num">{totals.filled}</div>
-          <div className="stat-label">Quantity filled</div>
-        </div>
-        <div className="stat-card working">
-          <div className="stat-num">
-            {rows.filter((r) => ON_SITE.has(r.status)).length}
-          </div>
-          <div className="stat-label">On site</div>
-        </div>
+        <Link href="/requisitions/new" className="btn-primary">
+          New request
+        </Link>
       </div>
+
+      <div className="stat-row">
+        <Stat tone="pipeline" value={live.filter((r) => OPEN.has(r.status)).length} label="Open requests" />
+        <Stat tone="progress" value={totals.open} label="Spots still open" />
+        <Stat tone="approved" value={totals.filled} label="Filled and cleared" />
+        <Stat tone="working" value={onSite.length} label="On site now" />
+      </div>
+
+      <div className="stat-row">
+        <Stat tone="progress" value={awaitingReview.length} label="Awaiting your review" />
+        <Stat tone="pipeline" value={inOnboarding.length} label="In onboarding" />
+        <Stat tone="pipeline" value={totals.requested} label="Total requested" />
+        <Stat tone="pipeline" value={siteCount ?? 0} label="Active sites" />
+      </div>
+
+      {awaitingReview.length > 0 && (
+        <div className="panel">
+          <div className="panel-head">
+            <div>
+              <h2>Awaiting your review</h2>
+              <div className="sub">
+                US Trades has put these people forward. Nothing moves until you
+                decide.
+              </div>
+            </div>
+          </div>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Candidate</th>
+                <th style={{ width: 220 }}>Craft &amp; level</th>
+                <th style={{ width: 140 }}>Proposed start</th>
+              </tr>
+            </thead>
+            <tbody>
+              {awaitingReview.map((c) => (
+                <tr key={c.placement_id}>
+                  <td style={{ fontWeight: 500 }}>
+                    {c.first_name} {c.last_initial}
+                  </td>
+                  <td style={{ color: "var(--steel)" }}>
+                    {c.craft_name} · {c.level_name}
+                  </td>
+                  <td className="mono" style={{ fontSize: 12.5 }}>
+                    {formatDate(c.scheduled_start_date)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {needsAttention.length > 0 && (
+        <div className="panel">
+          <div className="panel-head">
+            <div>
+              <h2>Starting soon with spots open</h2>
+              <div className="sub">
+                These start within the week and are not fully crewed.
+              </div>
+            </div>
+          </div>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th style={{ width: 175 }}>Request</th>
+                <th>Site</th>
+                <th style={{ width: 120 }}>Start</th>
+                <th style={{ width: 160 }}>Quantity filled</th>
+              </tr>
+            </thead>
+            <tbody>
+              {needsAttention.map((r) => {
+                const f = fillFor.get(r.id);
+                return (
+                  <tr key={r.id} style={{ background: "var(--pending-dim)" }}>
+                    <td>
+                      <ReqLink id={r.id} number={r.req_number} />
+                    </td>
+                    <td>{r.site?.name ?? "—"}</td>
+                    <td>
+                      <span className="mono" style={{ fontSize: 12.5 }}>
+                        {formatDate(r.start_date).replace(/,.*$/, "")}
+                      </span>
+                      <div style={{ fontSize: 11, color: "var(--steel)" }}>
+                        {relativeDays(r.start_date)}
+                      </div>
+                    </td>
+                    <td>
+                      {f && (
+                        <FillProgress
+                          requested={f.total_requested}
+                          filled={f.total_filled}
+                          onboarding={f.total_onboarding}
+                        />
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <div className="panel">
         <div className="panel-head">
           <div>
-            <h2>Manpower requests</h2>
-            <div className="sub">
-              Every request you have raised, and how far each one is filled.
-            </div>
+            <h2>Next to start</h2>
+            <div className="sub">Your upcoming work, soonest first.</div>
           </div>
-          <Link href="/requisitions/new" className="btn-primary">
-            New request
+          <Link href="/requests" className="action-btn">
+            All requests
           </Link>
         </div>
-
         <table className="data-table">
           <thead>
             <tr>
               <th style={{ width: 175 }}>Request</th>
-              <th style={{ width: 210 }}>Site</th>
-              <th style={{ width: 90 }}>Start</th>
-              <th style={{ width: 80 }}>Duration</th>
-              <th>Craft &amp; level</th>
-              <th style={{ width: 150 }}>Quantity filled</th>
+              <th>Site</th>
+              <th style={{ width: 120 }}>Start</th>
+              <th style={{ width: 160 }}>Quantity filled</th>
               <th style={{ width: 130 }}>Status</th>
             </tr>
           </thead>
           <tbody>
-            {rows.length === 0 ? (
+            {startingSoon.length === 0 ? (
               <tr className="empty-row">
-                <td colSpan={7}>
-                  No requests yet — raise one and it will appear here.
+                <td colSpan={5}>
+                  Nothing upcoming. Raise a request and it will show here.
                 </td>
               </tr>
             ) : (
-              rows.map((r) => {
-                const fill = fillFor.get(r.id);
-                const isDraft = r.status === "draft";
+              startingSoon.map((r) => {
+                const f = fillFor.get(r.id);
                 return (
                   <tr key={r.id}>
                     <td>
-                      {/* Identifier only. The craft, site and dates each have
-                          their own column — repeating them here just crowds
-                          the row. */}
-                      <Link
-                        href={`/requisitions/${r.id}`}
-                        className="mono"
-                        style={{
-                          color: isDraft ? "var(--steel-dim)" : "var(--ink)",
-                          fontSize: 12.5,
-                          fontWeight: 500,
-                          textDecoration: "none",
-                          borderBottom: "1px dotted var(--steel)",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {isDraft ? "Draft" : r.req_number}
-                      </Link>
+                      <ReqLink id={r.id} number={r.req_number} />
                     </td>
                     <td>{r.site?.name ?? "—"}</td>
-                    <td className="mono" style={{ fontSize: 12.5 }}>
-                      {formatDate(r.start_date).replace(/,.*$/, "")}
-                    </td>
-                    <td
-                      className="mono"
-                      style={{ fontSize: 12.5, color: "var(--steel)" }}
-                    >
-                      {r.is_ongoing
-                        ? "Ongoing"
-                        : r.duration_weeks
-                          ? `${Number(r.duration_weeks)} wks`
-                          : "—"}
+                    <td>
+                      <span className="mono" style={{ fontSize: 12.5 }}>
+                        {formatDate(r.start_date).replace(/,.*$/, "")}
+                      </span>
+                      <div style={{ fontSize: 11, color: "var(--steel)" }}>
+                        {relativeDays(r.start_date)}
+                      </div>
                     </td>
                     <td>
-                      {(linesFor.get(r.id) ?? []).length === 0 ? (
-                        <span style={{ color: "var(--steel-dim)" }}>—</span>
-                      ) : (
-                        (linesFor.get(r.id) ?? []).map((l, i) => (
-                          <div
-                            key={i}
-                            style={{
-                              // Fixed first column rather than a right-aligned
-                              // box: the digit then starts flush with the
-                              // column header, and craft names still line up
-                              // whether the quantity is 2 or 12.
-                              display: "grid",
-                              gridTemplateColumns: "1.5rem 1fr",
-                              color: "var(--steel)",
-                              lineHeight: 1.5,
-                            }}
-                          >
-                            <span className="mono">{l.quantity}</span>
-                            <span>
-                              {l.craft_name}{" "}
-                              <span style={{ color: "var(--steel-dim)" }}>
-                                {l.level_name}
-                              </span>
-                            </span>
-                          </div>
-                        ))
-                      )}
-                    </td>
-                    <td>
-                      {fill && fill.total_requested > 0 ? (
+                      {f && f.total_requested > 0 ? (
                         <FillProgress
-                          requested={fill.total_requested}
-                          filled={fill.total_filled}
-                          onboarding={fill.total_onboarding}
+                          requested={f.total_requested}
+                          filled={f.total_filled}
+                          onboarding={f.total_onboarding}
                         />
                       ) : (
                         <span style={{ color: "var(--steel-dim)" }}>—</span>
                       )}
                     </td>
                     <td>
-                      <div
-                        style={{ display: "flex", gap: 5, flexWrap: "wrap" }}
-                      >
-                        <StatusBadge status={r.status} />
-                        <UrgencyBadge urgency={r.urgency} />
-                      </div>
+                      <StatusBadge status={r.status} />
                     </td>
                   </tr>
                 );
@@ -247,5 +300,48 @@ export default async function RequisitionsPage() {
         </table>
       </div>
     </>
+  );
+}
+
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 12) return "Good morning";
+  if (h < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function Stat({
+  value,
+  label,
+  tone,
+}: {
+  value: number;
+  label: string;
+  tone: "pipeline" | "progress" | "approved" | "working";
+}) {
+  return (
+    <div className={`stat-card ${tone}`}>
+      <div className="stat-num">{value}</div>
+      <div className="stat-label">{label}</div>
+    </div>
+  );
+}
+
+function ReqLink({ id, number }: { id: string; number: string }) {
+  return (
+    <Link
+      href={`/requisitions/${id}`}
+      className="mono"
+      style={{
+        fontSize: 12.5,
+        fontWeight: 500,
+        color: "var(--ink)",
+        textDecoration: "none",
+        borderBottom: "1px dotted var(--steel)",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {number}
+    </Link>
   );
 }

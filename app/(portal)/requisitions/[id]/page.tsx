@@ -99,7 +99,7 @@ export default async function RequisitionDetail({
     <>
       <div style={{ marginBottom: 14 }}>
         <Link
-          href="/"
+          href="/requests"
           style={{
             fontSize: 12.5,
             color: "var(--steel)",

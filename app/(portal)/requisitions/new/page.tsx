@@ -130,7 +130,7 @@ export default async function NewRequisitionPage() {
     <div className="space-y-6">
       <div>
         <Link
-          href="/"
+          href="/requests"
           className="text-sm text-muted transition hover:text-brand"
         >
           ← All requisitions

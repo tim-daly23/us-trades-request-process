@@ -4,15 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 /**
- * Top-right navigation, styled as the dashboard's role switch: square buttons
- * with a heavy bottom rule that turns brand red on the active tab.
+ * Customer portal navigation, styled as the dashboard's role switch.
  *
  * Client-side because the active state needs the current path.
  */
 const TABS = [
-  { href: "/", label: "Requests" },
-  { href: "/requisitions/new", label: "New request" },
-  { href: "/diagnostics", label: "Session" },
+  { href: "/", label: "Dashboard", exact: true },
+  { href: "/requests", label: "Requests", also: ["/requisitions"] },
+  { href: "/workers", label: "Workers" },
+  { href: "/sites", label: "Sites" },
 ];
 
 export function NavTabs() {
@@ -21,12 +21,10 @@ export function NavTabs() {
   return (
     <div className="nav-row">
       {TABS.map((t) => {
-        const active =
-          t.href === "/"
-            ? pathname === "/" || pathname.startsWith("/requisitions/")
-              ? pathname !== "/requisitions/new"
-              : false
-            : pathname === t.href;
+        const active = t.exact
+          ? pathname === t.href
+          : pathname.startsWith(t.href) ||
+            (t.also ?? []).some((p) => pathname.startsWith(p));
         return (
           <Link
             key={t.href}
