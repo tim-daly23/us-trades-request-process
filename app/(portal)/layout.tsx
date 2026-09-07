@@ -50,16 +50,40 @@ export default async function PortalLayout({
 
       <header className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
+          {/* The US Trades crest is always first and always present: customers
+              should never be in doubt about who is staffing their site. The
+              tenant's own identity sits second, after the divider. */}
           <div className="flex items-center gap-3">
             <BrandMark
-              logoUrl={branding.logoUrl}
-              name={branding.displayName}
+              logoUrl={DEFAULT_BRANDING.logoUrl}
+              name={DEFAULT_BRANDING.displayName}
               variant="onSurface"
             />
             <span className="h-8 w-px bg-line" />
-            <span className="text-sm font-semibold">
-              {isAgency ? "Agency console" : branding.displayName}
-            </span>
+            {isAgency ? (
+              <span className="text-sm font-semibold">Agency console</span>
+            ) : (
+              <span className="flex items-center gap-2.5">
+                {branding.logoUrl && (
+                  /* Tenant logos are arbitrary external URLs not known at
+                     build time, so next/image cannot be configured for them. */
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={branding.logoUrl}
+                    alt={branding.displayName}
+                    className="h-7 w-auto object-contain"
+                  />
+                )}
+                <span className="leading-tight">
+                  <span className="block text-sm font-semibold">
+                    {branding.displayName}
+                  </span>
+                  <span className="block text-[11px] text-muted">
+                    Manpower portal
+                  </span>
+                </span>
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-5">
@@ -92,7 +116,9 @@ export default async function PortalLayout({
 
       <footer className="border-t border-line py-4">
         <p className="mx-auto max-w-6xl px-6 text-xs text-muted">
-          US Trades manpower portal
+          {isAgency
+            ? "US Trades agency console"
+            : `Staffed and operated by US Trades for ${branding.displayName}`}
         </p>
       </footer>
     </div>
