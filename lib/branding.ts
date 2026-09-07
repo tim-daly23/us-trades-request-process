@@ -15,7 +15,7 @@ export const DEFAULT_BRANDING: Branding = {
   displayName: "US Trades",
   primaryColor: "#013E5C",
   accentColor: "#8E1007",
-  logoUrl: "/us-trades-logo.jpg",
+  logoUrl: "/us-trades-logo.png",
 };
 
 /**

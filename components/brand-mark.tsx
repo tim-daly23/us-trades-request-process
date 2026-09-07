@@ -22,28 +22,23 @@ export function BrandMark({
   tagline?: string;
 }) {
   const onBrand = variant === "onBrand";
-  // The tile is deliberately larger than the artwork it holds. The logo is a
-  // crest on a white field, so without a clear white margin around it the
-  // white simply ends at the crop and reads as a pasted-in screenshot. The
-  // padding turns that edge into an intentional plate.
-  const tile = size === "lg" ? "h-[68px] w-[68px] p-2.5" : "h-10 w-10 p-1.5";
+  // No white plate: the shipped logo has a real alpha channel, so the crest
+  // sits directly on whatever is behind it. Clear space is kept as margin
+  // around the mark rather than as a visible box.
+  const mark = size === "lg" ? "h-20" : "h-10";
   const word = size === "lg" ? "text-[17px]" : "text-[13px]";
 
   return (
     <span className="flex items-center gap-3" aria-label={name}>
       {logoUrl ? (
-        <span
-          className={`flex ${tile} shrink-0 items-center justify-center bg-white`}
-        >
-          {/* Tenant and brand logos are plain files, not build-time known
-              assets, so next/image's optimizer cannot be configured. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={logoUrl}
-            alt={name}
-            className="h-full w-full object-contain"
-          />
-        </span>
+        /* Tenant and brand logos are plain files, not build-time known
+           assets, so next/image's optimizer cannot be configured. */
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={logoUrl}
+          alt={name}
+          className={`${mark} w-auto shrink-0 object-contain`}
+        />
       ) : (
         <svg width="24" height="24" viewBox="0 0 34 34" fill="none">
           <rect
