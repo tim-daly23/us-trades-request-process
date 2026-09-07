@@ -41,11 +41,16 @@ const STAGES = [
   { value: "removed", label: "Removed" },
 ];
 
+/**
+ * Only the transitions a person actually decides.
+ *
+ * Partially filled and Filled are derived from the placements rather than set
+ * by hand — see lib/request-status.ts — so there is nothing here to move a
+ * request through the middle of its life. Acknowledging is a commitment;
+ * closing and cancelling are endings. Everything between is just the counts.
+ */
 const STATUS_ACTIONS = [
   { value: "acknowledged", label: "Acknowledge" },
-  { value: "sourcing", label: "Start sourcing" },
-  { value: "active", label: "Mark on site" },
-  { value: "on_hold", label: "Put on hold" },
   { value: "completed", label: "Close as completed" },
 ];
 
@@ -184,7 +189,11 @@ export default async function ManageRequisition({
             </div>
           </div>
           <div style={{ display: "flex", gap: 6 }}>
-            <StatusBadge status={req.status} />
+            <StatusBadge
+              status={req.status}
+              requested={(lines ?? []).reduce((n, l) => n + l.quantity, 0)}
+              filled={(lines ?? []).reduce((n, l) => n + l.filled_count, 0)}
+            />
             <UrgencyBadge urgency={req.urgency} />
           </div>
         </div>

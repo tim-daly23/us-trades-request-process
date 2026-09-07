@@ -137,7 +137,11 @@ export default async function RequisitionDetail({
             )}
           </div>
           <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-            <StatusBadge status={req.status} />
+            <StatusBadge
+              status={req.status}
+              requested={totals.requested}
+              filled={totals.filled}
+            />
             <UrgencyBadge urgency={req.urgency} />
           </div>
         </div>

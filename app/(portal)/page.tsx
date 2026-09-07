@@ -305,7 +305,11 @@ export default async function CustomerDashboard() {
                       )}
                     </td>
                     <td>
-                      <StatusBadge status={r.status} />
+                      <StatusBadge
+                        status={r.status}
+                        requested={f?.total_requested}
+                        filled={f?.total_filled}
+                      />
                     </td>
                   </tr>
                 );

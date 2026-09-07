@@ -1,41 +1,27 @@
+import {
+  displayStatus,
+  STATUS_LABEL,
+  STATUS_TONE,
+} from "@/lib/request-status";
+
 /**
- * Status badge, using the dashboard's badge vocabulary so a status reads the
- * same in both products: tinted background, matching border, Barlow Condensed.
+ * Request status, derived rather than displayed raw.
+ *
+ * Pass the fill counts and the badge reflects reality — a fully crewed request
+ * reads "Filled" whether or not anyone remembered to move it off "sourcing".
  */
-const LABELS: Record<string, string> = {
-  draft: "Draft",
-  pending_approval: "Awaiting approval",
-  submitted: "Submitted",
-  acknowledged: "Acknowledged",
-  sourcing: "Sourcing",
-  partially_filled: "Partially filled",
-  filled: "Filled",
-  active: "On site",
-  on_hold: "On hold",
-  completed: "Completed",
-  cancelled: "Cancelled",
-};
-
-/** Maps a requisition status onto one of the shared badge tones. */
-const TONES: Record<string, string> = {
-  draft: "inactive",
-  pending_approval: "pending",
-  submitted: "submitted",
-  acknowledged: "submitted",
-  sourcing: "scheduled",
-  partially_filled: "scheduled",
-  filled: "approved",
-  active: "working",
-  on_hold: "pending",
-  completed: "inactive",
-  cancelled: "inactive",
-};
-
-export function StatusBadge({ status }: { status: string }) {
+export function StatusBadge({
+  status,
+  requested,
+  filled,
+}: {
+  status: string;
+  requested?: number | null;
+  filled?: number | null;
+}) {
+  const key = displayStatus({ status, requested, filled });
   return (
-    <span className={`badge ${TONES[status] ?? "inactive"}`}>
-      {LABELS[status] ?? status.replace(/_/g, " ")}
-    </span>
+    <span className={`badge ${STATUS_TONE[key]}`}>{STATUS_LABEL[key]}</span>
   );
 }
 

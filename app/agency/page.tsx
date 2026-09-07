@@ -226,7 +226,11 @@ export default async function AgencyRequests() {
                     </td>
                     <td>
                       <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-                        <StatusBadge status={r.status} />
+                        <StatusBadge
+                          status={r.status}
+                          requested={fill?.total_requested}
+                          filled={fill?.total_filled}
+                        />
                         <UrgencyBadge urgency={r.urgency} />
                       </div>
                     </td>

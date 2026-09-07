@@ -33,13 +33,6 @@ type LineRow = {
   level_name: string;
 };
 
-const OPEN = new Set([
-  "submitted",
-  "acknowledged",
-  "sourcing",
-  "partially_filled",
-]);
-const ON_SITE = new Set(["filled", "active"]);
 const CLOSED = new Set(["completed", "cancelled"]);
 
 export default async function RequisitionsPage() {
@@ -99,7 +92,7 @@ export default async function RequisitionsPage() {
     ]);
   }
 
-  const live = rows.filter((r) => !CLOSED.has(r.status));
+  const live = rows.filter((r) => !CLOSED.has(r.status) && r.status !== "draft");
   const totals = live.reduce(
     (acc, r) => {
       const f = fillFor.get(r.id);
@@ -116,9 +109,7 @@ export default async function RequisitionsPage() {
     <>
       <div className="stat-row">
         <div className="stat-card pipeline">
-          <div className="stat-num">
-            {rows.filter((r) => OPEN.has(r.status)).length}
-          </div>
+          <div className="stat-num">{live.length}</div>
           <div className="stat-label">Open requests</div>
         </div>
         <div className="stat-card progress">
@@ -131,9 +122,14 @@ export default async function RequisitionsPage() {
         </div>
         <div className="stat-card working">
           <div className="stat-num">
-            {rows.filter((r) => ON_SITE.has(r.status)).length}
+            {
+              live.filter((r) => {
+                const f = fillFor.get(r.id);
+                return f && f.total_requested > 0 && f.total_filled >= f.total_requested;
+              }).length
+            }
           </div>
-          <div className="stat-label">On site</div>
+          <div className="stat-label">Fully filled</div>
         </div>
       </div>
 
