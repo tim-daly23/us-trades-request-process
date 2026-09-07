@@ -9,10 +9,10 @@ with expected(sort_key, check_name, expected) as (
   values
     (1, 'tables',      '31'),
     (2, 'rls_enabled', '31'),
-    (3, 'policies',    '56'),
+    (3, 'policies',    '57'),
     (4, 'views',       '4'),
     (5, 'enum_types',  '19'),
-    (6, 'functions',   '16'),
+    (6, 'functions',   '17'),
     (7, 'triggers',    '15'),
     (8, 'rls_missing', '(none)')
 ),
