@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { BrandMark } from "@/components/brand-mark";
+import { DEFAULT_BRANDING } from "@/lib/branding";
 
 // useSearchParams opts the tree into client-side rendering, which Next
 // requires be wrapped in a Suspense boundary or the build fails.
@@ -52,7 +53,12 @@ function LoginForm() {
       >
         <div className="text-center">
           <div className="mb-6 flex justify-center">
-            <BrandMark logoUrl={null} name="US Trades" variant="onSurface" />
+            <BrandMark
+              logoUrl={DEFAULT_BRANDING.logoUrl}
+              name={DEFAULT_BRANDING.displayName}
+              variant="onSurface"
+              size="lg"
+            />
           </div>
           <h1 className="text-xl font-semibold tracking-tight">
             Manpower portal

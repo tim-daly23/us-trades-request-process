@@ -76,7 +76,7 @@ export default async function RequisitionsPage() {
         </div>
         <Link
           href="/requisitions/new"
-          className="rounded-md bg-accent px-4 py-2.5 text-sm font-semibold text-accent-fg shadow-sm transition hover:brightness-95"
+          className="rounded-md bg-brand px-4 py-2.5 text-sm font-semibold text-brand-fg shadow-sm transition hover:brightness-125"
         >
           New request
         </Link>

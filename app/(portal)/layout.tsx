@@ -44,53 +44,45 @@ export default async function PortalLayout({
       style={brandingStyle(branding)}
       className="flex min-h-screen flex-col bg-background"
     >
-      <header className="bg-brand text-brand-fg">
+      {/* The logo is a crest on a white field, so the header stays light and
+          the brand colour carries as a top stripe and the nav underline. */}
+      <div className="h-1 bg-brand" />
+
+      <header className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
           <div className="flex items-center gap-3">
-            <BrandMark logoUrl={branding.logoUrl} name={branding.displayName} />
-            {/* Customer tenants get their own name beside the US Trades mark,
-                so it is always clear whose portal this is and who runs it. */}
-            {!isAgency && (
-              <>
-                <span className="h-7 w-px bg-white/20" />
-                <span className="text-sm font-medium opacity-90">
-                  {branding.displayName}
-                </span>
-              </>
-            )}
-            {isAgency && (
-              <>
-                <span className="h-7 w-px bg-white/20" />
-                <span className="text-sm font-medium opacity-90">
-                  Agency console
-                </span>
-              </>
-            )}
+            <BrandMark
+              logoUrl={branding.logoUrl}
+              name={branding.displayName}
+              variant="onSurface"
+            />
+            <span className="h-8 w-px bg-line" />
+            <span className="text-sm font-semibold">
+              {isAgency ? "Agency console" : branding.displayName}
+            </span>
           </div>
 
           <div className="flex items-center gap-5">
-            <span className="hidden text-right text-xs leading-tight opacity-80 sm:block">
+            <span className="hidden text-right text-xs leading-tight text-muted sm:block">
               {profile?.full_name ?? user.email}
               {roleLabel && (
                 <>
                   <br />
-                  <span className="capitalize opacity-70">{roleLabel}</span>
+                  <span className="capitalize">{roleLabel}</span>
                 </>
               )}
             </span>
             <form action="/auth/signout" method="post">
-              <button className="rounded-md border border-white/25 px-3 py-1.5 text-xs font-medium transition hover:bg-white/10">
+              <button className="rounded-md border border-line px-3 py-1.5 text-xs font-medium text-muted transition hover:border-brand hover:text-brand">
                 Sign out
               </button>
             </form>
           </div>
         </div>
 
-        <nav className="border-t border-white/15">
-          <div className="mx-auto flex max-w-6xl gap-1 px-6">
-            <NavLink href="/">Requisitions</NavLink>
-            <NavLink href="/diagnostics">Diagnostics</NavLink>
-          </div>
+        <nav className="mx-auto flex max-w-6xl gap-1 px-6">
+          <NavLink href="/">Requisitions</NavLink>
+          <NavLink href="/diagnostics">Diagnostics</NavLink>
         </nav>
       </header>
 
@@ -111,7 +103,7 @@ function NavLink({ href, children }: { href: string; children: string }) {
   return (
     <Link
       href={href}
-      className="border-b-2 border-transparent px-3 py-2.5 text-sm font-medium opacity-80 transition hover:border-accent hover:opacity-100"
+      className="border-b-2 border-transparent px-3 py-2.5 text-sm font-medium text-muted transition hover:border-brand hover:text-foreground"
     >
       {children}
     </Link>

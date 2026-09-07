@@ -7,12 +7,15 @@ export type Branding = {
   logoUrl: string | null;
 };
 
-/** US Trades' own colours, used for agency staff and as the fallback. */
+/**
+ * US Trades' own brand, used for agency staff and as the fallback.
+ * Colours are taken from the logo crest: navy field, red banner.
+ */
 export const DEFAULT_BRANDING: Branding = {
   displayName: "US Trades",
-  primaryColor: "#1F4E79",
-  accentColor: "#E87722",
-  logoUrl: null,
+  primaryColor: "#013E5C",
+  accentColor: "#8E1007",
+  logoUrl: "/us-trades-logo.jpg",
 };
 
 /**
