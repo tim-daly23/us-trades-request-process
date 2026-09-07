@@ -1,7 +1,11 @@
 import { type NextRequest } from "next/server";
-import { updateSession } from "@/lib/supabase/middleware";
+import { updateSession } from "@/lib/supabase/proxy";
 
-export async function middleware(request: NextRequest) {
+// Next 16 renamed the middleware file convention to "proxy". Keeping the old
+// name still built locally but failed at runtime on Vercel with
+// MIDDLEWARE_INVOCATION_FAILED — the deprecated convention and the platform's
+// newer runtime disagree about what to invoke.
+export default async function proxy(request: NextRequest) {
   return await updateSession(request);
 }
 
