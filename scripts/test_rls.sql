@@ -1,81 +1,67 @@
 -- =====================================================================
 -- RLS BOUNDARY TEST
 -- =====================================================================
--- Proves the tenant isolation actually holds, by impersonating three callers
--- and counting what each can see.
+-- Proves tenant isolation actually holds, by impersonating three callers and
+-- counting what each can see.
 --
--- CRITICAL: `set local role authenticated` is not optional. The SQL Editor
--- connects as the table owner, and RLS does not apply to the owner unless
--- FORCE ROW LEVEL SECURITY is set. Without the role switch every query below
--- would return everything and the test would pass while proving nothing.
+-- CRITICAL: the probe switches to the `authenticated` role before counting.
+-- The SQL Editor connects as the table owner, and RLS does not apply to the
+-- owner unless FORCE ROW LEVEL SECURITY is set — without the role switch all
+-- three scenarios return identical counts and the test passes while proving
+-- nothing.
 --
--- Runs entirely inside a transaction and rolls back. Changes nothing.
+-- Structured as a function rather than a temp table because the Supabase SQL
+-- Editor does not guarantee a single session across statements.
+--
+-- !! rls_probe is a privilege-escalation primitive: it sets request.jwt.claims
+-- !! to anything the caller passes. Execute is revoked from every application
+-- !! role at creation, and STEP 3 drops it. Do not leave it in a database that
+-- !! serves real users, and never create it in production.
 -- =====================================================================
 
-begin;
 
-create temp table rls_results(scenario text, object text, visible int);
-grant all on rls_results to authenticated;
+-- --- STEP 1: create the probe -----------------------------------------
+create or replace function public.rls_probe(p_claims jsonb)
+returns table(object text, visible int)
+language plpgsql
+volatile
+as $fn$
+begin
+  perform set_config('request.jwt.claims', p_claims::text, true);
+  set local role authenticated;
 
--- --- 1. The Acme customer user ----------------------------------------
-select set_config('request.jwt.claims', json_build_object(
-  'sub', '5ec7b203-cf6f-4d32-95bd-3ce49b8ff9ce',
-  'app_metadata', json_build_object(
-    'user_type', 'customer',
-    'customer_id', 'a0000000-0000-4000-8000-000000000001',
-    'customer_role', 'customer_admin')
-)::text, true);
-set local role authenticated;
+  return query
+              select 'customers'::text,         count(*)::int from customers
+    union all select 'sites'::text,             count(*)::int from sites
+    union all select 'requisitions'::text,      count(*)::int from requisitions
+    union all select 'requisition_lines'::text, count(*)::int from requisition_lines
+    union all select 'crafts'::text,            count(*)::int from crafts
+    union all select 'workers'::text,           count(*)::int from workers;
 
-insert into rls_results
-            select '1. acme customer', 'customers',         count(*) from customers
-  union all select '1. acme customer', 'sites',             count(*) from sites
-  union all select '1. acme customer', 'requisitions',      count(*) from requisitions
-  union all select '1. acme customer', 'requisition_lines', count(*) from requisition_lines
-  union all select '1. acme customer', 'crafts',            count(*) from crafts
-  union all select '1. acme customer', 'workers',           count(*) from workers;
+  reset role;
+end $fn$;
 
-reset role;
+revoke execute on function public.rls_probe(jsonb) from public, anon, authenticated;
 
--- --- 2. A different tenant (must see nothing of Acme's) ----------------
-select set_config('request.jwt.claims', json_build_object(
-  'sub', '00000000-0000-4000-8000-0000000000ff',
-  'app_metadata', json_build_object(
-    'user_type', 'customer',
-    'customer_id', 'b0000000-0000-4000-8000-0000000000ff',
-    'customer_role', 'customer_admin')
-)::text, true);
-set local role authenticated;
 
-insert into rls_results
-            select '2. other tenant', 'customers',         count(*) from customers
-  union all select '2. other tenant', 'sites',             count(*) from sites
-  union all select '2. other tenant', 'requisitions',      count(*) from requisitions
-  union all select '2. other tenant', 'requisition_lines', count(*) from requisition_lines
-  union all select '2. other tenant', 'crafts',            count(*) from crafts
-  union all select '2. other tenant', 'workers',           count(*) from workers;
+-- --- STEP 2: run the three scenarios ----------------------------------
+select '1. acme customer' as scenario, * from public.rls_probe(
+  '{"sub":"5ec7b203-cf6f-4d32-95bd-3ce49b8ff9ce",
+    "app_metadata":{"user_type":"customer",
+                    "customer_id":"a0000000-0000-4000-8000-000000000001",
+                    "customer_role":"customer_admin"}}'::jsonb)
+union all
+select '2. other tenant', * from public.rls_probe(
+  '{"sub":"00000000-0000-4000-8000-0000000000ff",
+    "app_metadata":{"user_type":"customer",
+                    "customer_id":"b0000000-0000-4000-8000-0000000000ff",
+                    "customer_role":"customer_admin"}}'::jsonb)
+union all
+select '3. agency staff', * from public.rls_probe(
+  '{"sub":"72a4c929-1c15-40e7-b864-a92e7ed2d901",
+    "app_metadata":{"user_type":"agency","agency_role":"super_admin"}}'::jsonb)
+order by 1, 2;
 
-reset role;
 
--- --- 3. US Trades staff (sees across tenants) --------------------------
-select set_config('request.jwt.claims', json_build_object(
-  'sub', '72a4c929-1c15-40e7-b864-a92e7ed2d901',
-  'app_metadata', json_build_object(
-    'user_type', 'agency',
-    'agency_role', 'super_admin')
-)::text, true);
-set local role authenticated;
-
-insert into rls_results
-            select '3. agency staff', 'customers',         count(*) from customers
-  union all select '3. agency staff', 'sites',             count(*) from sites
-  union all select '3. agency staff', 'requisitions',      count(*) from requisitions
-  union all select '3. agency staff', 'requisition_lines', count(*) from requisition_lines
-  union all select '3. agency staff', 'crafts',            count(*) from crafts
-  union all select '3. agency staff', 'workers',           count(*) from workers;
-
-reset role;
-
-select * from rls_results order by scenario, object;
-
-rollback;
+-- --- STEP 3: remove the probe -----------------------------------------
+drop function if exists public.rls_probe(jsonb);
