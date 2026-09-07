@@ -192,18 +192,17 @@ export default async function AgencyQueue() {
                           <div
                             key={i}
                             style={{
-                              display: "flex",
-                              gap: 8,
+                              // Fixed first column rather than a right-aligned
+                              // box: the digit then starts flush with the
+                              // column header, and craft names still line up
+                              // whether the quantity is 2 or 12.
+                              display: "grid",
+                              gridTemplateColumns: "1.5rem 1fr",
                               color: "var(--steel)",
                               lineHeight: 1.5,
                             }}
                           >
-                            <span
-                              className="mono"
-                              style={{ minWidth: 22, textAlign: "right" }}
-                            >
-                              {l.quantity}
-                            </span>
+                            <span className="mono">{l.quantity}</span>
                             <span>
                               {l.craft_name}{" "}
                               <span style={{ color: "var(--steel-dim)" }}>
