@@ -134,16 +134,25 @@ export default async function RequisitionDetail({
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
           Craft requested
         </h2>
-        <div className="overflow-x-auto rounded-xl border border-line bg-surface px-5 shadow-sm">
-          <table className="w-full min-w-lg text-sm">
+        <div className="overflow-x-auto rounded-xl border border-line bg-surface shadow-sm">
+          {/* Explicit column widths: the progress cell is two stacked elements
+              and will otherwise starve the text columns of space. */}
+          <table className="w-full min-w-[42rem] table-fixed text-sm">
+            <colgroup>
+              <col className="w-[26%]" />
+              <col className="w-[20%]" />
+              <col className="w-[8%]" />
+              <col className="w-[30%]" />
+              {showRates && <col className="w-[16%]" />}
+            </colgroup>
             <thead>
               <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
-                <th className="py-2 font-medium">Craft</th>
-                <th className="py-2 font-medium">Level</th>
-                <th className="py-2 text-right font-medium">Qty</th>
-                <th className="py-2 font-medium">Progress</th>
+                <th className="px-5 py-3 font-medium">Craft</th>
+                <th className="px-3 py-3 font-medium">Level</th>
+                <th className="px-3 py-3 text-right font-medium">Qty</th>
+                <th className="px-3 py-3 font-medium">Progress</th>
                 {showRates && (
-                  <th className="py-2 text-right font-medium">Bill rate</th>
+                  <th className="px-5 py-3 text-right font-medium">Bill rate</th>
                 )}
               </tr>
             </thead>
@@ -151,14 +160,14 @@ export default async function RequisitionDetail({
               {(lines ?? []).map((l) => (
                 <tr
                   key={l.id}
-                  className="border-b border-line"
+                  className="border-b border-line align-middle last:border-0"
                 >
-                  <td className="py-3 font-medium">{l.craft_name}</td>
-                  <td className="py-3 text-muted">
-                    {l.level_name}
+                  <td className="px-5 py-4 font-medium">{l.craft_name}</td>
+                  <td className="px-3 py-4 text-muted">{l.level_name}</td>
+                  <td className="tnum px-3 py-4 text-right font-semibold">
+                    {l.quantity}
                   </td>
-                  <td className="py-3 tnum text-right">{l.quantity}</td>
-                  <td className="w-40 py-3">
+                  <td className="px-3 py-4">
                     <FillProgress
                       requested={l.quantity}
                       filled={l.filled_count}
@@ -166,7 +175,7 @@ export default async function RequisitionDetail({
                     />
                   </td>
                   {showRates && (
-                    <td className="py-3 tnum text-right">
+                    <td className="tnum px-5 py-4 text-right">
                       {formatMoney(l.bill_rate)}
                     </td>
                   )}
