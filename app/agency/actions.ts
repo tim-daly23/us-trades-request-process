@@ -117,27 +117,170 @@ export async function createSite(form: FormData): Promise<Result> {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.from("sites").insert({
+  const { data: site, error } = await supabase
+    .from("sites")
+    .insert({
+      customer_id: customerId,
+      name,
+      site_code: nz(form.get("site_code")),
+      address_line1: nz(form.get("address_line1")) ?? "—",
+      city: nz(form.get("city")) ?? "—",
+      state: nz(form.get("state")) ?? "—",
+      postal_code: nz(form.get("postal_code")) ?? "—",
+      default_shift: nz(form.get("default_shift")) ?? "day",
+      default_hours_per_day: num(form.get("default_hours_per_day")) ?? 10,
+      default_days_per_week: num(form.get("default_days_per_week")) ?? 6,
+      default_per_diem_rate: num(form.get("default_per_diem_rate")),
+      safety_council_required: bool(form.get("safety_council_required")),
+      safety_council_name: nz(form.get("safety_council_name")),
+      created_by: guard.profile.id,
+    })
+    .select("id")
+    .single();
+
+  if (error) return { ok: false, error: error.message };
+
+  const contactName = nz(form.get("contact_name"));
+  if (contactName) {
+    await supabase.from("site_contacts").insert({
+      site_id: site.id,
+      customer_id: customerId,
+      name: contactName,
+      phone: nz(form.get("contact_phone")),
+      email: nz(form.get("contact_email")),
+      role: nz(form.get("contact_role")),
+      is_primary: true,
+    });
+  }
+
+  revalidatePath(`/agency/customers/${customerId}`);
+  return { ok: true };
+}
+
+export async function updateSite(form: FormData): Promise<Result> {
+  const guard = await assertAgency();
+  if (!guard.ok) return guard;
+
+  const id = nz(form.get("id"));
+  const customerId = nz(form.get("customer_id"));
+  if (!id) return { ok: false, error: "Missing site." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("sites")
+    .update({
+      name: nz(form.get("name")),
+      site_code: nz(form.get("site_code")),
+      address_line1: nz(form.get("address_line1")) ?? "—",
+      address_line2: nz(form.get("address_line2")),
+      city: nz(form.get("city")) ?? "—",
+      state: nz(form.get("state")) ?? "—",
+      postal_code: nz(form.get("postal_code")) ?? "—",
+      default_shift: nz(form.get("default_shift")) ?? "day",
+      default_hours_per_day: num(form.get("default_hours_per_day")) ?? 10,
+      default_days_per_week: num(form.get("default_days_per_week")) ?? 6,
+      default_per_diem_rate: num(form.get("default_per_diem_rate")),
+      safety_council_required: bool(form.get("safety_council_required")),
+      safety_council_name: nz(form.get("safety_council_name")),
+      site_access_notes: nz(form.get("site_access_notes")),
+      status: nz(form.get("status")) ?? "active",
+    })
+    .eq("id", id);
+
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/agency/sites/${id}`);
+  if (customerId) revalidatePath(`/agency/customers/${customerId}`);
+  return { ok: true };
+}
+
+/**
+ * Site contacts live in their own table because a site normally has several —
+ * a superintendent, a safety lead, someone at the gate. is_primary marks the
+ * one shown alongside the site everywhere else.
+ */
+export async function addSiteContact(form: FormData): Promise<Result> {
+  const guard = await assertAgency();
+  if (!guard.ok) return guard;
+
+  const siteId = nz(form.get("site_id"));
+  const customerId = nz(form.get("customer_id"));
+  const name = nz(form.get("name"));
+  if (!siteId || !customerId || !name) {
+    return { ok: false, error: "A contact name is required." };
+  }
+
+  const supabase = await createClient();
+  const isPrimary = bool(form.get("is_primary"));
+
+  // Only one primary per site: demote the rest first.
+  if (isPrimary) {
+    await supabase
+      .from("site_contacts")
+      .update({ is_primary: false })
+      .eq("site_id", siteId);
+  }
+
+  const { error } = await supabase.from("site_contacts").insert({
+    site_id: siteId,
     customer_id: customerId,
     name,
-    site_code: nz(form.get("site_code")),
-    address_line1: nz(form.get("address_line1")) ?? "—",
-    city: nz(form.get("city")) ?? "—",
-    state: nz(form.get("state")) ?? "—",
-    postal_code: nz(form.get("postal_code")) ?? "—",
-    default_shift: nz(form.get("default_shift")) ?? "day",
-    default_hours_per_day: num(form.get("default_hours_per_day")) ?? 10,
-    default_days_per_week: num(form.get("default_days_per_week")) ?? 6,
-    default_per_diem_rate: num(form.get("default_per_diem_rate")),
-    reporting_location: nz(form.get("reporting_location")),
-    badging_lead_time_days: num(form.get("badging_lead_time_days")) ?? 3,
-    safety_council_required: bool(form.get("safety_council_required")),
-    safety_council_name: nz(form.get("safety_council_name")),
-    created_by: guard.profile.id,
+    role: nz(form.get("role")),
+    phone: nz(form.get("phone")),
+    email: nz(form.get("email")),
+    is_primary: isPrimary,
   });
 
   if (error) return { ok: false, error: error.message };
+  revalidatePath(`/agency/sites/${siteId}`);
   revalidatePath(`/agency/customers/${customerId}`);
+  return { ok: true };
+}
+
+export async function updateSiteContact(form: FormData): Promise<Result> {
+  const guard = await assertAgency();
+  if (!guard.ok) return guard;
+
+  const id = nz(form.get("id"));
+  const siteId = nz(form.get("site_id"));
+  if (!id || !siteId) return { ok: false, error: "Missing contact." };
+
+  const supabase = await createClient();
+  const isPrimary = bool(form.get("is_primary"));
+  if (isPrimary) {
+    await supabase
+      .from("site_contacts")
+      .update({ is_primary: false })
+      .eq("site_id", siteId);
+  }
+
+  const { error } = await supabase
+    .from("site_contacts")
+    .update({
+      name: nz(form.get("name")),
+      role: nz(form.get("role")),
+      phone: nz(form.get("phone")),
+      email: nz(form.get("email")),
+      is_primary: isPrimary,
+    })
+    .eq("id", id);
+
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/agency/sites/${siteId}`);
+  return { ok: true };
+}
+
+export async function deleteSiteContact(form: FormData): Promise<Result> {
+  const guard = await assertAgency();
+  if (!guard.ok) return guard;
+
+  const id = nz(form.get("id"));
+  const siteId = nz(form.get("site_id"));
+  if (!id) return { ok: false, error: "Missing contact." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("site_contacts").delete().eq("id", id);
+  if (error) return { ok: false, error: error.message };
+  if (siteId) revalidatePath(`/agency/sites/${siteId}`);
   return { ok: true };
 }
 

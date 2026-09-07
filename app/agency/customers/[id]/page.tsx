@@ -27,7 +27,7 @@ export default async function CustomerDetail({
   const [{ data: sites }, { data: users }] = await Promise.all([
     supabase
       .from("sites")
-      .select("*")
+      .select("*, contacts:site_contacts(name, phone, role, is_primary)")
       .eq("customer_id", id)
       .is("deleted_at", null)
       .order("name"),
@@ -243,13 +243,14 @@ export default async function CustomerDetail({
               <th style={{ width: 180 }}>Location</th>
               <th style={{ width: 140 }}>Default schedule</th>
               <th style={{ width: 100 }}>Per diem</th>
-              <th style={{ width: 90 }}>Badging</th>
+              <th style={{ width: 190 }}>Site contact</th>
+              <th style={{ width: 80 }} />
             </tr>
           </thead>
           <tbody>
             {!sites?.length ? (
               <tr className="empty-row">
-                <td colSpan={5}>
+                <td colSpan={6}>
                   No sites yet — they cannot raise a request until there is one.
                 </td>
               </tr>
@@ -273,8 +274,41 @@ export default async function CustomerDetail({
                   <td className="mono" style={{ fontSize: 12 }}>
                     {formatMoney(s.default_per_diem_rate)}
                   </td>
-                  <td className="mono" style={{ fontSize: 12 }}>
-                    {s.badging_lead_time_days ?? 0}d
+                  <td>
+                    {(() => {
+                      const list = (s.contacts ?? []) as {
+                        name: string;
+                        phone: string | null;
+                        role: string | null;
+                        is_primary: boolean;
+                      }[];
+                      const c = list.find((x) => x.is_primary) ?? list[0];
+                      if (!c)
+                        return (
+                          <span style={{ color: "var(--steel-dim)" }}>—</span>
+                        );
+                      return (
+                        <>
+                          <div style={{ fontSize: 12.5 }}>
+                            {c.name}
+                            {c.role ? (
+                              <span style={{ color: "var(--steel-dim)" }}>
+                                {" "}
+                                · {c.role}
+                              </span>
+                            ) : null}
+                          </div>
+                          <div className="mono" style={{ fontSize: 11.5, color: "var(--steel)" }}>
+                            {c.phone ?? "—"}
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </td>
+                  <td>
+                    <Link href={`/agency/sites/${s.id}`} className="action-btn">
+                      Edit
+                    </Link>
                   </td>
                 </tr>
               ))
@@ -341,16 +375,20 @@ export default async function CustomerDetail({
                 <input name="default_per_diem_rate" type="number" min="0" step="0.01" />
               </label>
               <label className="field">
-                <span>Reporting location</span>
-                <input name="reporting_location" placeholder="Gate 4, North Lot" />
-              </label>
-              <label className="field">
-                <span>Badging lead days</span>
-                <input name="badging_lead_time_days" type="number" min="0" defaultValue={3} />
-              </label>
-              <label className="field">
                 <span>Safety council</span>
                 <input name="safety_council_name" placeholder="Houston Area Safety Council" />
+              </label>
+              <label className="field">
+                <span>Site contact</span>
+                <input name="contact_name" placeholder="Dale Fuentes" />
+              </label>
+              <label className="field">
+                <span>Contact phone</span>
+                <input name="contact_phone" type="tel" placeholder="(409) 555-0142" />
+              </label>
+              <label className="field">
+                <span>Contact role</span>
+                <input name="contact_role" placeholder="Superintendent" />
               </label>
             </div>
             <Check

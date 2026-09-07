@@ -272,7 +272,6 @@ export function RequestForm({
           <span className="font-medium text-foreground">
             {formatSchedule(daysPerWeek, hoursPerDay)}
           </span>
-          {site?.reporting_location && <> · reporting to {site.reporting_location}</>}
         </p>
 
         {badgingWarning && (

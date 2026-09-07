@@ -38,8 +38,9 @@ export default async function RequisitionDetail({
        start_date, end_date, duration_weeks, shift, hours_per_day, days_per_week,
        per_diem_rate, scope_of_work, special_instructions, submitted_at,
        site:sites(name, address_line1, city, state, postal_code,
-                  reporting_location, badging_lead_time_days,
-                  safety_council_required, safety_council_name)`,
+                  badging_lead_time_days, safety_council_required,
+                  safety_council_name,
+                  contacts:site_contacts(name, phone, role, is_primary))`,
     )
     .eq("id", id)
     .maybeSingle();
@@ -50,6 +51,20 @@ export default async function RequisitionDetail({
   if (!req) notFound();
 
   const site = Array.isArray(req.site) ? req.site[0] : req.site;
+
+  // The primary site contact, shown so a customer can see who US Trades will
+  // be dealing with at the gate.
+  const siteContacts = (site?.contacts ?? []) as {
+    name: string;
+    phone: string | null;
+    role: string | null;
+    is_primary: boolean;
+  }[];
+  const primaryContact =
+    siteContacts.find((c) => c.is_primary) ?? siteContacts[0];
+  const contactLine = primaryContact
+    ? `${primaryContact.name}${primaryContact.phone ? ` · ${primaryContact.phone}` : ""}`
+    : "—";
 
   const [{ data: lines }, { data: reqs }] = await Promise.all([
     supabase
@@ -153,7 +168,7 @@ export default async function RequisitionDetail({
           <Field label="Per diem" value={formatMoney(req.per_diem_rate)} />
           <Field label="Project" value={req.project_name ?? "—"} />
           <Field label="PO" value={req.po_number ?? "—"} />
-          <Field label="Reporting" value={site?.reporting_location ?? "—"} />
+          <Field label="Site contact" value={contactLine} />
         </dl>
       </div>
 
