@@ -3,7 +3,12 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { StatusBadge, UrgencyBadge } from "@/components/status-badge";
 import { FillProgress } from "@/components/fill-progress";
-import { formatDate, formatMoney, titleCase } from "@/lib/format";
+import {
+  formatDate,
+  formatMoney,
+  formatSchedule,
+  titleCase,
+} from "@/lib/format";
 
 type Line = {
   id: string;
@@ -119,7 +124,7 @@ export default async function RequisitionDetail({
         <Field label="Shift" value={titleCase(req.shift)} />
         <Field
           label="Schedule"
-          value={`${req.days_per_week} days × ${req.hours_per_day} hrs`}
+          value={formatSchedule(req.days_per_week, req.hours_per_day)}
         />
         <Field label="Per diem" value={formatMoney(req.per_diem_rate)} />
         <Field label="Project" value={req.project_name ?? "—"} />

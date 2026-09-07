@@ -55,6 +55,43 @@ export function relativeDays(value: string | null | undefined): string | null {
   return days > 0 ? `in ${days} days` : `${Math.abs(days)} days ago`;
 }
 
+/**
+ * Work schedule, days first: "6 days × 10 hrs".
+ *
+ * Days lead because that is how a turnaround schedule is spoken on site.
+ * Used by the requisition detail, the request form, the agency console and the
+ * confirmation email — keep it here so all four stay identical.
+ *
+ * Postgres numeric columns can arrive as "10.00", so both values are
+ * normalized before display.
+ */
+export function formatSchedule(
+  daysPerWeek: number | string | null | undefined,
+  hoursPerDay: number | string | null | undefined,
+): string {
+  const days = toNumber(daysPerWeek);
+  const hours = toNumber(hoursPerDay);
+  if (days === null && hours === null) return "—";
+
+  const dayPart =
+    days === null ? null : `${trim(days)} ${days === 1 ? "day" : "days"}`;
+  const hourPart =
+    hours === null ? null : `${trim(hours)} ${hours === 1 ? "hr" : "hrs"}`;
+
+  return [dayPart, hourPart].filter(Boolean).join(" × ");
+}
+
+function toNumber(value: number | string | null | undefined): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const n = typeof value === "string" ? Number(value) : value;
+  return Number.isFinite(n) ? n : null;
+}
+
+/** 10.00 -> "10", 9.50 -> "9.5" */
+function trim(n: number): string {
+  return String(Number(n.toFixed(2)));
+}
+
 export function titleCase(value: string | null | undefined): string {
   if (!value) return "—";
   return value.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
