@@ -66,7 +66,12 @@ begin
 end $fn$;
 
 -- Surface it on the dashboard rollup too.
-create or replace view requisition_fill_summary
+-- CREATE OR REPLACE VIEW can only append columns at the end — inserting
+-- total_onboarding mid-list fails with "cannot change name of view column".
+-- Nothing depends on this view, so drop and recreate to keep a sane order.
+drop view if exists requisition_fill_summary;
+
+create view requisition_fill_summary
 with (security_invoker = true) as
 select
   r.id as requisition_id,
