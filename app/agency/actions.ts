@@ -473,3 +473,81 @@ export async function deleteCustomer(form: FormData): Promise<Result> {
   revalidatePath("/agency/customers");
   return { ok: true };
 }
+
+/**
+ * Delete a portal login and its auth account.
+ *
+ * app_users is referenced by requisitions.created_by and friends with no ON
+ * DELETE clause, so a user who has raised anything cannot be removed — the
+ * foreign key refuses, and the message says to disable them instead. That is
+ * the correct outcome: deleting them would erase who asked for the work.
+ */
+export async function deletePortalUser(form: FormData): Promise<Result> {
+  const guard = await assertAgency();
+  if (!guard.ok) return guard;
+
+  const id = nz(form.get("id"));
+  if (!id) return { ok: false, error: "Missing user." };
+  if (id === guard.profile.id) {
+    return { ok: false, error: "You cannot delete your own account." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("app_users").delete().eq("id", id);
+
+  if (error) {
+    const isFk =
+      error.code === "23503" || error.message.toLowerCase().includes("foreign key");
+    return {
+      ok: false,
+      error: isFk
+        ? "This user has raised or approved requests, so their record cannot be deleted without erasing who did that. Disable them instead."
+        : error.message,
+    };
+  }
+
+  try {
+    const admin = createAdminClient();
+    await admin.auth.admin.deleteUser(id);
+  } catch {
+    // Profile is gone, so the hook strips this account's claims and it sees
+    // nothing even if it can still authenticate. Untidy, not unsafe.
+  }
+
+  revalidatePath("/agency/customers");
+  return { ok: true };
+}
+
+/** Issue a new password for an existing login and return it once. */
+export async function resetPortalUserPassword(
+  form: FormData,
+): Promise<Result<{ email: string; password: string }>> {
+  const guard = await assertAgency();
+  if (!guard.ok) return guard;
+
+  const id = nz(form.get("id"));
+  if (!id) return { ok: false, error: "Missing user." };
+
+  const supabase = await createClient();
+  const { data: target } = await supabase
+    .from("app_users")
+    .select("email")
+    .eq("id", id)
+    .maybeSingle();
+  if (!target) return { ok: false, error: "User not found." };
+
+  const password = randomBytes(18).toString("base64url");
+
+  let admin;
+  try {
+    admin = createAdminClient();
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+
+  const { error } = await admin.auth.admin.updateUserById(id, { password });
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/agency/customers");
+  return { ok: true, data: { email: target.email, password } };
+}

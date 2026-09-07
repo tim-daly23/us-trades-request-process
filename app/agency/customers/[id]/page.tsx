@@ -6,9 +6,9 @@ import { hasServiceRole } from "@/lib/supabase/admin";
 import {
   updateCustomer,
   createSite,
-  setUserActive,
   deleteCustomer,
 } from "@/app/agency/actions";
+import { UserRowActions } from "@/components/agency/user-row-actions";
 import { ActionForm } from "@/components/agency/action-form";
 import { NewPortalUserForm } from "@/components/agency/new-portal-user-form";
 import { formatMoney, formatSchedule } from "@/lib/format";
@@ -19,7 +19,7 @@ export default async function CustomerDetail({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  await requireAgency();
+  const me = await requireAgency();
   const supabase = await createClient();
 
   const { data: customer } = await supabase
@@ -171,8 +171,8 @@ export default async function CustomerDetail({
               <th>User</th>
               <th style={{ width: 190 }}>Role</th>
               <th style={{ width: 130 }}>Last sign-in</th>
-              <th style={{ width: 110 }}>Status</th>
-              <th style={{ width: 110 }} />
+              <th style={{ width: 100 }}>Status</th>
+              <th style={{ width: 230 }} />
             </tr>
           </thead>
           <tbody>
@@ -205,24 +205,12 @@ export default async function CustomerDetail({
                     </span>
                   </td>
                   <td>
-                    <ActionForm
-                      action={setUserActive}
-                      submitLabel={u.is_active ? "Disable" : "Enable"}
-                      submitClass="action-btn"
-                      inline
-                      confirm={
-                        u.is_active
-                          ? `Disable ${u.email}? They will keep their password but see no data.`
-                          : undefined
-                      }
-                    >
-                      <input type="hidden" name="id" value={u.id} />
-                      <input
-                        type="hidden"
-                        name="is_active"
-                        value={u.is_active ? "false" : "true"}
-                      />
-                    </ActionForm>
+                    <UserRowActions
+                      id={u.id}
+                      email={u.email}
+                      isActive={u.is_active}
+                      canDelete={u.id !== me.id}
+                    />
                   </td>
                 </tr>
               ))
@@ -236,8 +224,10 @@ export default async function CustomerDetail({
         </div>
 
         <div className="hint">
-          Disabling strips their claims at the next sign-in, so they can still
-          authenticate but see nothing. It does not delete their history.
+          Disabling strips their claims at the next sign-in — they can still
+          authenticate but see nothing, and their history is kept. Removing
+          deletes the sign-in account outright, and is refused for anyone who
+          has raised or approved a request.
         </div>
       </div>
 
