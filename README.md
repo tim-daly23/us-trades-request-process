@@ -4,7 +4,7 @@ Multi-tenant portal where industrial customers submit manpower requisitions to
 US Trades, and US Trades staff source, screen, and place craft workers against
 them. Syncs to TempWorks.
 
-**Status:** database schema only. No application code yet.
+**Status:** schema deployed and verified against live Postgres; tenant isolation proven by `scripts/test_rls.sql`. Next.js app scaffolded with Supabase auth — login works, feature screens not built yet.
 
 ---
 
