@@ -155,7 +155,7 @@ export default async function ManageRequisition({
             borderBottom: "1px dotted var(--steel)",
           }}
         >
-          ← Queue
+          ← All requests
         </Link>
       </div>
 

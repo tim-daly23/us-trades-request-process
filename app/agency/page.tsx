@@ -34,7 +34,7 @@ const NEEDS_ACTION = new Set(["submitted", "pending_approval"]);
 const WORKING = new Set(["acknowledged", "sourcing", "partially_filled"]);
 const CLOSED = new Set(["completed", "cancelled"]);
 
-export default async function AgencyQueue() {
+export default async function AgencyRequests() {
   await requireAgency();
   const supabase = await createClient();
 
@@ -62,7 +62,7 @@ export default async function AgencyQueue() {
   if (error) {
     return (
       <div className="gate">
-        <strong>Could not load the queue.</strong>
+        <strong>Could not load requests.</strong>
         <div style={{ marginTop: 4, fontSize: 12.5 }}>{error.message}</div>
       </div>
     );
@@ -118,7 +118,7 @@ export default async function AgencyQueue() {
       <div className="panel">
         <div className="panel-head">
           <div>
-            <h2>Requisition queue</h2>
+            <h2>All requests</h2>
             <div className="sub">
               Every customer&apos;s requests. Unacknowledged ones are flagged.
             </div>
@@ -140,7 +140,7 @@ export default async function AgencyQueue() {
           <tbody>
             {rows.length === 0 ? (
               <tr className="empty-row">
-                <td colSpan={7}>Nothing in the queue.</td>
+                <td colSpan={7}>No requests yet.</td>
               </tr>
             ) : (
               rows.map((r) => {
