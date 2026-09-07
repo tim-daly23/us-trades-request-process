@@ -1,12 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 
 /**
- * Diagnostic home page.
+ * Session diagnostics.
  *
- * Temporary, but it is the only honest test of the access token hook: it shows
- * the claims as they actually arrive in the JWT, and the row counts the
- * database returns for those claims. If the hook is not enabled, app_metadata
- * comes back without user_type and every count reads zero.
+ * Shows the claims as they actually arrive in the JWT alongside the row counts
+ * the database returns for them. Kept past its original purpose because it is
+ * the fastest way to confirm a role or tenant change took effect — claims are
+ * minted at sign-in, so a change made in SQL is invisible until the next token.
  */
 
 type Claims = {
@@ -34,7 +34,7 @@ function decodeClaims(token: string): Claims | null {
   }
 }
 
-export default async function Home() {
+export default async function DiagnosticsPage() {
   const supabase = await createClient();
 
   const {
@@ -71,83 +71,76 @@ export default async function Home() {
     ["workers", workers.count],
   ] as const;
 
+  const claimRows = [
+    ["user_type", meta.user_type],
+    ["customer_id", meta.customer_id],
+    ["customer_role", meta.customer_role],
+    ["agency_role", meta.agency_role],
+  ] as const;
+
   return (
-    <main className="mx-auto max-w-2xl space-y-8 p-8">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          US Trades Portal
+    <div className="flex flex-col">
+      <div className="border-b border-line bg-surface px-[26px] py-[18px]">
+        <h1 className="text-[22px] font-medium tracking-[-0.012em]">
+          Session diagnostics
         </h1>
-        <p className="mt-1 text-sm text-neutral-500">
+        <p className="mt-1 text-[12.5px] text-muted">
           Signed in as {user?.email}
         </p>
-      </header>
+      </div>
 
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
-          Token claims
-        </h2>
-        <div
-          className={`rounded-lg border p-4 text-sm ${
-            hookWorking
-              ? "border-green-300 bg-green-50 dark:border-green-900 dark:bg-green-950/30"
-              : "border-amber-300 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30"
-          }`}
-        >
-          {hookWorking ? (
-            <p className="font-medium">Access token hook is working.</p>
-          ) : (
-            <p className="font-medium">
-              No user_type in app_metadata — the access token hook is not
-              enabled, or this account has no app_users row. Every query below
-              will return zero.
-            </p>
-          )}
-          <dl className="mt-3 grid grid-cols-[10rem_1fr] gap-y-1 font-mono text-xs">
-            <dt className="text-neutral-500">user_type</dt>
-            <dd>{meta.user_type ?? "—"}</dd>
-            <dt className="text-neutral-500">customer_id</dt>
-            <dd>{meta.customer_id ?? "—"}</dd>
-            <dt className="text-neutral-500">customer_role</dt>
-            <dd>{meta.customer_role ?? "—"}</dd>
-            <dt className="text-neutral-500">agency_role</dt>
-            <dd>{meta.agency_role ?? "—"}</dd>
-          </dl>
-        </div>
-      </section>
+      <div className="grid gap-[18px] p-[18px_26px] lg:grid-cols-2">
+        <section className="border border-line bg-surface">
+          <h2 className="eyebrow border-b border-line px-4 py-2.5">
+            Token claims
+          </h2>
 
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
-          Rows visible to this session
-        </h2>
-        <table className="w-full text-sm">
-          <tbody>
-            {counts.map(([name, count]) => (
-              <tr
-                key={name}
-                className="border-b border-neutral-200 dark:border-neutral-800"
+          <p
+            className={`px-4 py-3 text-[12.5px] ${
+              hookWorking
+                ? "bg-ok-soft text-ok-soft-fg"
+                : "bg-warn-soft text-warn-soft-fg"
+            }`}
+          >
+            {hookWorking
+              ? "Access token hook is applying claims."
+              : "No user_type in app_metadata — the hook is not enabled, or this account has no app_users row. Every count below will read zero."}
+          </p>
+
+          <dl className="px-4 py-3">
+            {claimRows.map(([k, v]) => (
+              <div
+                key={k}
+                className="flex justify-between gap-4 border-b border-line-soft py-2 last:border-0"
               >
-                <td className="py-2 font-mono text-xs text-neutral-500">
-                  {name}
-                </td>
-                <td className="py-2 text-right font-medium tabular-nums">
-                  {count ?? 0}
-                </td>
-              </tr>
+                <dt className="num text-[12px] text-muted">{k}</dt>
+                <dd className="num truncate text-[12px]">{v ?? "—"}</dd>
+              </div>
             ))}
-          </tbody>
-        </table>
-        <p className="text-xs text-neutral-500">
-          A customer session should see 1 / 1 / 1 / 2 / 17 / 0. An agency
-          session sees the same here only because there is one tenant so far —
-          the difference shows once a second customer exists.
-        </p>
-      </section>
+          </dl>
+        </section>
 
-      <form action="/auth/signout" method="post">
-        <button className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium transition hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-900">
-          Sign out
-        </button>
-      </form>
-    </main>
+        <section className="border border-line bg-surface">
+          <h2 className="eyebrow border-b border-line px-4 py-2.5">
+            Rows visible to this session
+          </h2>
+          <dl className="px-4 py-3">
+            {counts.map(([name, count]) => (
+              <div
+                key={name}
+                className="flex justify-between gap-4 border-b border-line-soft py-2 last:border-0"
+              >
+                <dt className="num text-[12px] text-muted">{name}</dt>
+                <dd className="num text-[12px] font-medium">{count ?? 0}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="border-t border-line px-4 py-3 text-[11.5px] leading-relaxed text-muted-2">
+            Counts come back through RLS, so they are what this session can
+            genuinely reach — not a query filtered in the app.
+          </p>
+        </section>
+      </div>
+    </div>
   );
 }
