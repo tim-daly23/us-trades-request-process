@@ -119,7 +119,7 @@ export default async function RequisitionDetail({
         <Field label="Shift" value={titleCase(req.shift)} />
         <Field
           label="Schedule"
-          value={`${req.hours_per_day}h × ${req.days_per_week} days`}
+          value={`${req.days_per_week} days × ${req.hours_per_day} hrs`}
         />
         <Field label="Per diem" value={formatMoney(req.per_diem_rate)} />
         <Field label="Project" value={req.project_name ?? "—"} />
