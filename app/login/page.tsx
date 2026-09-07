@@ -44,17 +44,26 @@ function LoginForm() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-neutral-50 p-6 dark:bg-neutral-950">
+    <main className="flex min-h-screen items-center justify-center bg-background p-6">
       <form
         onSubmit={onSubmit}
-        className="w-full max-w-sm space-y-5 rounded-xl border border-neutral-200 bg-white p-8 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
+        className="w-full max-w-sm space-y-5 rounded-xl border border-line bg-surface p-8 shadow-lg"
       >
         <div>
+          <div className="mb-5 flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-md bg-brand text-xs font-bold tracking-tight text-brand-fg">
+              US
+            </span>
+            <span className="h-6 w-px bg-line" />
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent">
+              Trades
+            </span>
+          </div>
           <h1 className="text-xl font-semibold tracking-tight">
-            US Trades Portal
+            Manpower portal
           </h1>
-          <p className="mt-1 text-sm text-neutral-500">
-            Sign in to manage manpower requests.
+          <p className="mt-1 text-sm text-muted">
+            Sign in to submit and track craft requests.
           </p>
         </div>
 
@@ -66,7 +75,7 @@ function LoginForm() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:bg-neutral-950 dark:focus:border-neutral-400"
+            className="w-full rounded-md border border-line bg-background px-3 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
           />
         </label>
 
@@ -78,12 +87,12 @@ function LoginForm() {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:bg-neutral-950 dark:focus:border-neutral-400"
+            className="w-full rounded-md border border-line bg-background px-3 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
           />
         </label>
 
         {error && (
-          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">
+          <p className="rounded-md bg-danger/10 px-3 py-2 text-sm text-danger">
             {error}
           </p>
         )}
@@ -91,7 +100,7 @@ function LoginForm() {
         <button
           type="submit"
           disabled={busy}
-          className="w-full rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+          className="w-full rounded-md bg-brand px-4 py-2.5 text-sm font-semibold text-brand-fg transition hover:brightness-110 disabled:opacity-50"
         >
           {busy ? "Signing in…" : "Sign in"}
         </button>

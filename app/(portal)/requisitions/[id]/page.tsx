@@ -77,12 +77,12 @@ export default async function RequisitionDetail({
       <div>
         <Link
           href="/"
-          className="text-sm text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
+          className="text-sm text-muted transition hover:text-brand"
         >
           ← All requisitions
         </Link>
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="font-mono text-xs text-neutral-500">
+          <span className="font-mono text-xs text-muted">
             {req.req_number}
           </span>
           <StatusBadge status={req.status} />
@@ -92,7 +92,7 @@ export default async function RequisitionDetail({
           {req.title ?? "Untitled request"}
         </h1>
         {site && (
-          <p className="mt-0.5 text-sm text-neutral-500">
+          <p className="mt-0.5 text-sm text-muted">
             {site.name} · {site.address_line1}, {site.city}, {site.state}{" "}
             {site.postal_code}
           </p>
@@ -100,7 +100,7 @@ export default async function RequisitionDetail({
       </div>
 
       {totals.requested > 0 && (
-        <div className="max-w-sm">
+        <div className="max-w-sm rounded-xl border border-line bg-surface p-4 shadow-sm">
           <FillProgress
             requested={totals.requested}
             filled={totals.filled}
@@ -109,7 +109,7 @@ export default async function RequisitionDetail({
         </div>
       )}
 
-      <section className="grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="grid gap-x-8 gap-y-4 rounded-xl border border-line bg-surface p-5 shadow-sm sm:grid-cols-2 lg:grid-cols-3">
         <Field label="Start" value={formatDate(req.start_date)} />
         <Field label="End" value={formatDate(req.end_date)} />
         <Field
@@ -131,13 +131,13 @@ export default async function RequisitionDetail({
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
           Craft requested
         </h2>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl border border-line bg-surface px-5 shadow-sm">
           <table className="w-full min-w-lg text-sm">
             <thead>
-              <tr className="border-b border-neutral-200 text-left text-xs uppercase tracking-wide text-neutral-500 dark:border-neutral-800">
+              <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
                 <th className="py-2 font-medium">Craft</th>
                 <th className="py-2 font-medium">Level</th>
                 <th className="py-2 text-right font-medium">Qty</th>
@@ -151,13 +151,13 @@ export default async function RequisitionDetail({
               {(lines ?? []).map((l) => (
                 <tr
                   key={l.id}
-                  className="border-b border-neutral-100 dark:border-neutral-800/60"
+                  className="border-b border-line"
                 >
                   <td className="py-3 font-medium">{l.craft_name}</td>
-                  <td className="py-3 text-neutral-600 dark:text-neutral-400">
+                  <td className="py-3 text-muted">
                     {l.level_name}
                   </td>
-                  <td className="py-3 text-right tabular-nums">{l.quantity}</td>
+                  <td className="py-3 tnum text-right">{l.quantity}</td>
                   <td className="w-40 py-3">
                     <FillProgress
                       requested={l.quantity}
@@ -166,7 +166,7 @@ export default async function RequisitionDetail({
                     />
                   </td>
                   {showRates && (
-                    <td className="py-3 text-right tabular-nums">
+                    <td className="py-3 tnum text-right">
                       {formatMoney(l.bill_rate)}
                     </td>
                   )}
@@ -179,7 +179,7 @@ export default async function RequisitionDetail({
 
       {!!reqs?.length && (
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
             Credentials required
           </h2>
           <ul className="flex flex-wrap gap-2">
@@ -192,8 +192,8 @@ export default async function RequisitionDetail({
                   key={i}
                   className={`rounded-full px-3 py-1 text-xs font-medium ${
                     r.is_required
-                      ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
-                      : "border border-neutral-300 text-neutral-600 dark:border-neutral-700 dark:text-neutral-400"
+                      ? "bg-brand text-brand-fg"
+                      : "border border-line text-muted"
                   }`}
                 >
                   {cred?.short_label ?? cred?.name}
@@ -208,14 +208,14 @@ export default async function RequisitionDetail({
 
       {(req.scope_of_work || req.special_instructions) && (
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
             Scope
           </h2>
           {req.scope_of_work && (
             <p className="text-sm leading-relaxed">{req.scope_of_work}</p>
           )}
           {req.special_instructions && (
-            <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+            <p className="text-sm leading-relaxed text-muted">
               {req.special_instructions}
             </p>
           )}
@@ -223,7 +223,7 @@ export default async function RequisitionDetail({
       )}
 
       {site?.safety_council_required && (
-        <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
+        <p className="rounded-lg border border-warn/40 bg-warn/10 p-4 text-sm text-warn">
           Site requires {site.safety_council_name ?? "safety council"} training.
           Allow {site.badging_lead_time_days ?? 3} days for badging.
         </p>
@@ -235,7 +235,7 @@ export default async function RequisitionDetail({
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs uppercase tracking-wide text-neutral-500">
+      <dt className="text-xs uppercase tracking-wide text-muted">
         {label}
       </dt>
       <dd className="mt-0.5 text-sm font-medium">{value}</dd>
