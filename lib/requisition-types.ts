@@ -4,7 +4,6 @@ export type SiteOption = {
   id: string;
   customer_id: string;
   name: string;
-  site_code: string | null;
   city: string;
   state: string;
   default_shift: string | null;

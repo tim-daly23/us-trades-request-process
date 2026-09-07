@@ -269,11 +269,6 @@ export default async function CustomerDetail({
                 <tr key={s.id}>
                   <td>
                     <div style={{ fontWeight: 500 }}>{s.name}</div>
-                    {s.site_code && (
-                      <div className="mono" style={{ fontSize: 11.5, color: "var(--steel-dim)" }}>
-                        {s.site_code}
-                      </div>
-                    )}
                   </td>
                   <td style={{ color: "var(--steel)" }}>
                     {s.city}, {s.state}
@@ -342,10 +337,6 @@ export default async function CustomerDetail({
                   Site name <span className="req-star">*</span>
                 </span>
                 <input name="name" required placeholder="Baytown Olefins Plant" />
-              </label>
-              <label className="field">
-                <span>Site code</span>
-                <input name="site_code" placeholder="BAY-01" />
               </label>
               <label className="field">
                 <span>Address</span>

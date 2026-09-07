@@ -67,7 +67,6 @@ export default async function SiteDetail({
             <h2>{site.name}</h2>
             <div className="sub">
               {customer?.display_name}
-              {site.site_code ? ` · ${site.site_code}` : ""}
             </div>
           </div>
           <span className={`badge ${site.status === "active" ? "approved" : "inactive"}`}>
@@ -91,10 +90,6 @@ export default async function SiteDetail({
                 Site name <span className="req-star">*</span>
               </span>
               <input name="name" required defaultValue={site.name} />
-            </label>
-            <label className="field">
-              <span>Site code</span>
-              <input name="site_code" defaultValue={site.site_code ?? ""} />
             </label>
             <label className="field">
               <span>Status</span>

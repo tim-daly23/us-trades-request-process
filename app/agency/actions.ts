@@ -122,7 +122,6 @@ export async function createSite(form: FormData): Promise<Result> {
     .insert({
       customer_id: customerId,
       name,
-      site_code: nz(form.get("site_code")),
       address_line1: nz(form.get("address_line1")) ?? "—",
       city: nz(form.get("city")) ?? "—",
       state: nz(form.get("state")) ?? "—",
@@ -170,7 +169,6 @@ export async function updateSite(form: FormData): Promise<Result> {
     .from("sites")
     .update({
       name: nz(form.get("name")),
-      site_code: nz(form.get("site_code")),
       address_line1: nz(form.get("address_line1")) ?? "—",
       address_line2: nz(form.get("address_line2")),
       city: nz(form.get("city")) ?? "—",

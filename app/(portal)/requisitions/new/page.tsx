@@ -38,7 +38,7 @@ export default async function NewRequisitionPage() {
       supabase
         .from("sites")
         .select(
-          `id, customer_id, name, site_code, city, state, default_shift, default_hours_per_day,
+          `id, customer_id, name, city, state, default_shift, default_hours_per_day,
            default_days_per_week, default_per_diem_rate,
            badging_lead_time_days, safety_council_required, safety_council_name,
            default_credential_ids`,
