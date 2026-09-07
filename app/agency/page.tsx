@@ -14,7 +14,13 @@ type Row = {
   start_date: string;
   customer: { display_name: string; slug: string } | null;
   site: { name: string } | null;
-  owner: { full_name: string | null; email: string } | null;
+};
+
+type LineRow = {
+  requisition_id: string;
+  quantity: number;
+  craft_name: string;
+  level_name: string;
 };
 
 type Fill = {
@@ -33,19 +39,24 @@ export default async function AgencyQueue() {
   const supabase = await createClient();
 
   // No tenant filter: an agency JWT sees every customer's rows by policy.
-  const [{ data: reqs, error }, { data: fills }] = await Promise.all([
+  const [{ data: reqs, error }, { data: fills }, { data: lines }] =
+    await Promise.all([
     supabase
       .from("requisitions")
       .select(
         `id, req_number, title, status, urgency, start_date,
          customer:customers(display_name, slug),
-         site:sites(name),
-         owner:app_users!requisitions_owner_user_id_fkey(full_name, email)`,
+         site:sites(name)`,
       )
       .is("deleted_at", null)
       .order("start_date", { ascending: true })
       .returns<Row[]>(),
     supabase.from("requisition_fill_summary").select("*").returns<Fill[]>(),
+    supabase
+      .from("requisition_lines_visible")
+      .select("requisition_id, quantity, craft_name, level_name")
+      .order("line_number")
+      .returns<LineRow[]>(),
   ]);
 
   if (error) {
@@ -59,9 +70,16 @@ export default async function AgencyQueue() {
 
   const rows = reqs ?? [];
   const fillFor = new Map((fills ?? []).map((f) => [f.requisition_id, f]));
+  const linesFor = new Map<string, LineRow[]>();
+  for (const l of lines ?? []) {
+    linesFor.set(l.requisition_id, [
+      ...(linesFor.get(l.requisition_id) ?? []),
+      l,
+    ]);
+  }
   const live = rows.filter((r) => !CLOSED.has(r.status));
 
-  const seats = live.reduce(
+  const quantities = live.reduce(
     (acc, r) => {
       const f = fillFor.get(r.id);
       return {
@@ -88,12 +106,12 @@ export default async function AgencyQueue() {
           <div className="stat-label">Sourcing</div>
         </div>
         <div className="stat-card approved">
-          <div className="stat-num">{seats.filled}</div>
-          <div className="stat-label">Seats filled</div>
+          <div className="stat-num">{quantities.filled}</div>
+          <div className="stat-label">Quantity filled</div>
         </div>
         <div className="stat-card working">
-          <div className="stat-num">{seats.requested - seats.filled}</div>
-          <div className="stat-label">Seats still open</div>
+          <div className="stat-num">{quantities.requested - quantities.filled}</div>
+          <div className="stat-label">Still open</div>
         </div>
       </div>
 
@@ -102,8 +120,7 @@ export default async function AgencyQueue() {
           <div>
             <h2>Requisition queue</h2>
             <div className="sub">
-              Every customer&apos;s requests. Unassigned and unacknowledged ones
-              are flagged.
+              Every customer&apos;s requests. Unacknowledged ones are flagged.
             </div>
           </div>
         </div>
@@ -115,9 +132,9 @@ export default async function AgencyQueue() {
               <th style={{ width: 150 }}>Customer</th>
               <th style={{ width: 180 }}>Site</th>
               <th style={{ width: 110 }}>Start</th>
-              <th style={{ width: 150 }}>Seats filled</th>
+              <th>Craft &amp; level</th>
+              <th style={{ width: 150 }}>Quantity filled</th>
               <th style={{ width: 130 }}>Status</th>
-              <th style={{ width: 120 }}>Owner</th>
             </tr>
           </thead>
           <tbody>
@@ -168,6 +185,36 @@ export default async function AgencyQueue() {
                       )}
                     </td>
                     <td>
+                      {(linesFor.get(r.id) ?? []).length === 0 ? (
+                        <span style={{ color: "var(--steel-dim)" }}>—</span>
+                      ) : (
+                        (linesFor.get(r.id) ?? []).map((l, i) => (
+                          <div
+                            key={i}
+                            style={{
+                              display: "flex",
+                              gap: 8,
+                              color: "var(--steel)",
+                              lineHeight: 1.5,
+                            }}
+                          >
+                            <span
+                              className="mono"
+                              style={{ minWidth: 22, textAlign: "right" }}
+                            >
+                              {l.quantity}
+                            </span>
+                            <span>
+                              {l.craft_name}{" "}
+                              <span style={{ color: "var(--steel-dim)" }}>
+                                {l.level_name}
+                              </span>
+                            </span>
+                          </div>
+                        ))
+                      )}
+                    </td>
+                    <td>
                       {fill && fill.total_requested > 0 ? (
                         <FillProgress
                           requested={fill.total_requested}
@@ -183,14 +230,6 @@ export default async function AgencyQueue() {
                         <StatusBadge status={r.status} />
                         <UrgencyBadge urgency={r.urgency} />
                       </div>
-                    </td>
-                    <td
-                      style={{
-                        color: r.owner ? "var(--steel)" : "var(--red)",
-                        fontSize: 12.5,
-                      }}
-                    >
-                      {r.owner?.full_name ?? r.owner?.email ?? "Unassigned"}
                     </td>
                   </tr>
                 );

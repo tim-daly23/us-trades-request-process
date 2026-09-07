@@ -1,5 +1,5 @@
 /**
- * Seats filled: a flat bar and a monospace ratio, matching the dashboard's
+ * Quantity filled: a flat bar and a monospace ratio, matching the dashboard's
  * table density.
  *
  * "Filled" means cleared and scheduled — nothing looser. Workers accepted but
@@ -26,7 +26,7 @@ export function FillProgress({
       className="fill-track"
       style={layout === "stacked" ? { width: "100%" } : undefined}
       role="img"
-      aria-label={`${filled} of ${requested} seats filled${
+      aria-label={`${filled} of ${requested} filled${
         onboarding > 0 ? `, ${onboarding} in onboarding` : ""
       }`}
     >
@@ -53,7 +53,7 @@ export function FillProgress({
         <span style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
           {ratio}
           <span style={{ fontSize: 12, color: "var(--steel)" }}>
-            seats filled
+            filled
             {onboarding > 0 && ` · ${onboarding} in onboarding`}
           </span>
         </span>

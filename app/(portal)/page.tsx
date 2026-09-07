@@ -106,11 +106,11 @@ export default async function RequisitionsPage() {
         </div>
         <div className="stat-card progress">
           <div className="stat-num">{totals.requested}</div>
-          <div className="stat-label">Seats requested</div>
+          <div className="stat-label">Quantity requested</div>
         </div>
         <div className="stat-card approved">
           <div className="stat-num">{totals.filled}</div>
-          <div className="stat-label">Seats filled</div>
+          <div className="stat-label">Quantity filled</div>
         </div>
         <div className="stat-card working">
           <div className="stat-num">
@@ -141,7 +141,7 @@ export default async function RequisitionsPage() {
               <th style={{ width: 90 }}>Start</th>
               <th style={{ width: 80 }}>Duration</th>
               <th>Craft &amp; level</th>
-              <th style={{ width: 150 }}>Seats filled</th>
+              <th style={{ width: 150 }}>Quantity filled</th>
               <th style={{ width: 130 }}>Status</th>
             </tr>
           </thead>

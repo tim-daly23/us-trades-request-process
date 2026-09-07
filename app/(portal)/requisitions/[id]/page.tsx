@@ -199,7 +199,7 @@ export default async function RequisitionDetail({
               <th>Craft</th>
               <th style={{ width: 150 }}>Level</th>
               <th style={{ width: 60 }}>Qty</th>
-              <th style={{ width: 170 }}>Seats filled</th>
+              <th style={{ width: 170 }}>Quantity filled</th>
               {showRates && <th style={{ width: 110 }}>Bill rate</th>}
             </tr>
           </thead>
