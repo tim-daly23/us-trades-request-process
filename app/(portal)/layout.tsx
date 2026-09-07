@@ -58,9 +58,13 @@ export default async function PortalLayout({
         </div>
 
         <div className="flex items-center gap-4">
+          {/* White plate rather than red-on-navy: the brand red and the brand
+              navy are both dark, so a red button on the navy bar has almost no
+              luminance separation from it. Inverting keeps the action obvious
+              and still reads as brand. */}
           <Link
             href="/requisitions/new"
-            className="flex h-[33px] items-center gap-2 bg-accent px-3.5 text-[13px] font-medium text-accent-fg transition hover:brightness-95"
+            className="flex h-[33px] items-center gap-2 bg-white px-3.5 text-[13px] font-semibold text-accent transition hover:bg-white/90"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M7 2.5V11.5M2.5 7H11.5" />
@@ -74,13 +78,13 @@ export default async function PortalLayout({
             </span>
             <span className="hidden leading-tight sm:block">
               <span className="block text-[12.5px] text-white">{name}</span>
-              <span className="block text-[10.5px] text-on-brand-faint">
+              <span className="block text-[10.5px] text-white/55">
                 {isAgency ? "US Trades" : branding.displayName}
               </span>
             </span>
             <form action="/auth/signout" method="post">
               <button
-                className="ml-1 text-[11.5px] text-on-brand-muted transition hover:text-white"
+                className="ml-1 text-[11.5px] text-white/70 underline-offset-2 transition hover:text-white hover:underline"
                 title="Sign out"
               >
                 Sign out
@@ -108,7 +112,7 @@ function NavLink({ href, children }: { href: string; children: string }) {
   return (
     <Link
       href={href}
-      className="px-3 py-1.5 text-[13.5px] text-on-brand-muted transition hover:bg-white/10 hover:text-white"
+      className="px-3 py-1.5 text-[13.5px] text-white/75 transition hover:bg-white/12 hover:text-white"
     >
       {children}
     </Link>

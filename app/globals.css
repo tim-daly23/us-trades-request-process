@@ -120,10 +120,17 @@ body {
   color: var(--muted-3);
 }
 
-a {
+/*
+ * No bare `a { color }` rule here.
+ *
+ * Tailwind v4 emits its utilities inside @layer utilities, and unlayered CSS
+ * outranks any layered rule whatever the specificity — so a global anchor
+ * colour silently overrides text-* on every link, including buttons built as
+ * <Link>. Style links at the call site, or add a .link class, instead.
+ */
+.link {
   color: var(--accent);
-  text-decoration: none;
 }
-a:hover {
+.link:hover {
   color: var(--accent-hover);
 }
