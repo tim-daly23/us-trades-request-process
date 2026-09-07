@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { brandingFrom, brandingStyle, DEFAULT_BRANDING } from "@/lib/branding";
+import { BrandMark } from "@/components/brand-mark";
 
 export default async function PortalLayout({
   children,
@@ -46,26 +47,25 @@ export default async function PortalLayout({
       <header className="bg-brand text-brand-fg">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
           <div className="flex items-center gap-3">
-            {branding.logoUrl ? (
-              /* Tenant logos are arbitrary external URLs not known at build
-                 time, so next/image's optimizer cannot be configured for them. */
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={branding.logoUrl}
-                alt={branding.displayName}
-                className="h-7 w-auto"
-              />
-            ) : (
-              <div className="flex h-7 w-7 items-center justify-center rounded bg-accent text-[11px] font-bold text-accent-fg">
-                {branding.displayName.slice(0, 2).toUpperCase()}
-              </div>
+            <BrandMark logoUrl={branding.logoUrl} name={branding.displayName} />
+            {/* Customer tenants get their own name beside the US Trades mark,
+                so it is always clear whose portal this is and who runs it. */}
+            {!isAgency && (
+              <>
+                <span className="h-7 w-px bg-white/20" />
+                <span className="text-sm font-medium opacity-90">
+                  {branding.displayName}
+                </span>
+              </>
             )}
-            <div className="leading-tight">
-              <p className="text-sm font-semibold">{branding.displayName}</p>
-              <p className="text-[11px] opacity-70">
-                {isAgency ? "Agency console" : "Manpower portal"}
-              </p>
-            </div>
+            {isAgency && (
+              <>
+                <span className="h-7 w-px bg-white/20" />
+                <span className="text-sm font-medium opacity-90">
+                  Agency console
+                </span>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-5">

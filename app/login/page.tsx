@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { BrandMark } from "@/components/brand-mark";
 
 // useSearchParams opts the tree into client-side rendering, which Next
 // requires be wrapped in a Suspense boundary or the build fails.
@@ -49,15 +50,9 @@ function LoginForm() {
         onSubmit={onSubmit}
         className="w-full max-w-sm space-y-5 rounded-xl border border-line bg-surface p-8 shadow-lg"
       >
-        <div>
-          <div className="mb-5 flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-md bg-brand text-xs font-bold tracking-tight text-brand-fg">
-              US
-            </span>
-            <span className="h-6 w-px bg-line" />
-            <span className="text-xs font-semibold uppercase tracking-widest text-accent">
-              Trades
-            </span>
+        <div className="text-center">
+          <div className="mb-6 flex justify-center">
+            <BrandMark logoUrl={null} name="US Trades" variant="onSurface" />
           </div>
           <h1 className="text-xl font-semibold tracking-tight">
             Manpower portal
