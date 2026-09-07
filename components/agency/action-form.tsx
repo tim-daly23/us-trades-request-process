@@ -23,6 +23,7 @@ export function ActionForm({
   resetOnSuccess = false,
   confirm,
   onSuccess,
+  redirectTo,
   inline = false,
 }: {
   action: (formData: FormData) => Promise<ActionResult>;
@@ -33,6 +34,9 @@ export function ActionForm({
   /** Ask before running — for destructive or hard-to-undo actions. */
   confirm?: string;
   onSuccess?: (data: unknown) => void;
+  /** Where to go after success. Use this from Server Components — a callback
+   *  cannot cross the server/client boundary. */
+  redirectTo?: string;
   inline?: boolean;
 }) {
   const router = useRouter();
@@ -53,6 +57,10 @@ export function ActionForm({
       }
       if (resetOnSuccess) formRef.current?.reset();
       onSuccess?.("data" in result ? result.data : undefined);
+      if (redirectTo) {
+        router.push(redirectTo);
+        return;
+      }
       router.refresh();
     });
   }

@@ -339,3 +339,26 @@ export async function removePlacement(form: FormData): Promise<Result> {
   if (requisitionId) revalidatePath(`/agency/requisitions/${requisitionId}`);
   return { ok: true };
 }
+
+/**
+ * Delete a requisition outright.
+ *
+ * Cancelling is the normal path — it keeps the record and tells the customer
+ * why. Deletion is for mistakes and test data, and it takes the lines,
+ * placements, requirements and comments with it by cascade.
+ */
+export async function deleteRequisition(form: FormData): Promise<Result> {
+  const guard = await assertAgency();
+  if (!guard.ok) return guard;
+
+  const id = nz(form.get("id"));
+  if (!id) return { ok: false, error: "Missing requisition." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("requisitions").delete().eq("id", id);
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/agency");
+  revalidatePath("/");
+  return { ok: true };
+}

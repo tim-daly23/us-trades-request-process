@@ -10,6 +10,7 @@ import {
   addPlacement,
   setPlacementStage,
   removePlacement,
+  deleteRequisition,
 } from "@/app/agency/ops-actions";
 import { ActionForm } from "@/components/agency/action-form";
 import { StatusBadge, UrgencyBadge } from "@/components/status-badge";
@@ -189,6 +190,28 @@ export default async function ManageRequisition({
             </ActionForm>
           ))}
         </div>
+
+        <details style={{ marginTop: 14 }}>
+          <summary style={{ cursor: "pointer", fontSize: 12.5, color: "var(--red)" }}>
+            Delete this request permanently
+          </summary>
+          <div style={{ marginTop: 10 }}>
+            <div className="notice-warn" style={{ marginBottom: 10 }}>
+              Cancelling is usually the right move — it keeps the record and
+              tells the customer why. Deleting removes the request, its craft
+              lines and every placement on it. There is no undo.
+            </div>
+            <ActionForm
+              action={deleteRequisition}
+              submitLabel="Delete request"
+              submitClass="action-btn"
+              confirm={`Permanently delete ${req.req_number}? This cannot be undone.`}
+              redirectTo="/agency"
+            >
+              <input type="hidden" name="id" value={id} />
+            </ActionForm>
+          </div>
+        </details>
 
         {req.status !== "cancelled" && (
           <details style={{ marginTop: 14 }}>

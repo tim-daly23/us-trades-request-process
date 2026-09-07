@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { RequestForm } from "@/components/request-form";
+import { getProfile } from "@/lib/auth";
 import type {
   CraftOption,
+  CustomerOption,
   CredentialOption,
   LevelOption,
   SiteOption,
@@ -26,6 +28,8 @@ type CustomerCredentialRow = {
 
 export default async function NewRequisitionPage() {
   const supabase = await createClient();
+  const profile = await getProfile();
+  const isAgency = profile?.user_type === "agency";
 
   // RLS scopes sites to the caller's tenant, and crafts/levels are global
   // reference data every signed-in user can read.
@@ -34,7 +38,7 @@ export default async function NewRequisitionPage() {
       supabase
         .from("sites")
         .select(
-          `id, name, site_code, city, state, default_shift, default_hours_per_day,
+          `id, customer_id, name, site_code, city, state, default_shift, default_hours_per_day,
            default_days_per_week, default_per_diem_rate,
            badging_lead_time_days, safety_council_required, safety_council_name,
            default_credential_ids`,
@@ -65,6 +69,18 @@ export default async function NewRequisitionPage() {
         .order("sort_order")
         .returns<CustomerCredentialRow[]>(),
     ]);
+
+  // Agency staff can raise a request for any customer; RLS returns every
+  // tenant's sites to them, so the form filters by the chosen customer.
+  const { data: customers } = isAgency
+    ? await supabase
+        .from("customers")
+        .select("id, display_name")
+        .is("deleted_at", null)
+        .neq("status", "inactive")
+        .order("display_name")
+        .returns<CustomerOption[]>()
+    : { data: null };
 
   let credentials: CredentialOption[] = (configured ?? [])
     .filter((row) => row.credential?.is_active)
@@ -129,6 +145,7 @@ export default async function NewRequisitionPage() {
       </div>
 
       <RequestForm
+        customers={customers ?? []}
         sites={sites}
         crafts={crafts ?? []}
         levels={levels ?? []}

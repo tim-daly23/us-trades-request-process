@@ -3,7 +3,12 @@ import { notFound } from "next/navigation";
 import { requireAgency } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { hasServiceRole } from "@/lib/supabase/admin";
-import { updateCustomer, createSite, setUserActive } from "@/app/agency/actions";
+import {
+  updateCustomer,
+  createSite,
+  setUserActive,
+  deleteCustomer,
+} from "@/app/agency/actions";
 import { ActionForm } from "@/components/agency/action-form";
 import { NewPortalUserForm } from "@/components/agency/new-portal-user-form";
 import { formatMoney, formatSchedule } from "@/lib/format";
@@ -24,7 +29,8 @@ export default async function CustomerDetail({
     .maybeSingle();
   if (!customer) notFound();
 
-  const [{ data: sites }, { data: users }] = await Promise.all([
+  const [{ data: sites }, { data: users }, { count: reqCount }] =
+    await Promise.all([
     supabase
       .from("sites")
       .select("*, contacts:site_contacts(name, phone, role, is_primary)")
@@ -36,6 +42,10 @@ export default async function CustomerDetail({
       .select("id, email, full_name, customer_role, is_active, last_login_at")
       .eq("customer_id", id)
       .order("email"),
+    supabase
+      .from("requisitions")
+      .select("id", { count: "exact", head: true })
+      .eq("customer_id", id),
   ]);
 
   return (
@@ -397,6 +407,44 @@ export default async function CustomerDetail({
             />
           </ActionForm>
         </div>
+      </div>
+
+      {/* --------------------------------------------------- danger zone */}
+      <div className="panel">
+        <div className="panel-head">
+          <div>
+            <h2>Delete this customer</h2>
+            <div className="sub">
+              Removes {customer.display_name} and everything belonging to them.
+            </div>
+          </div>
+        </div>
+
+        <div className="notice-warn" style={{ marginBottom: 14 }}>
+          This deletes <strong>{sites?.length ?? 0}</strong> site
+          {sites?.length === 1 ? "" : "s"},{" "}
+          <strong>{reqCount ?? 0}</strong> requisition
+          {reqCount === 1 ? "" : "s"} with their craft lines and placements, and{" "}
+          <strong>{users?.length ?? 0}</strong> portal login
+          {users?.length === 1 ? "" : "s"} including their sign-in accounts.
+          Workers stay on file. There is no undo.
+        </div>
+
+        <ActionForm
+          action={deleteCustomer}
+          submitLabel="Delete customer"
+          submitClass="action-btn"
+          redirectTo="/agency/customers"
+          confirm={`Delete ${customer.display_name} and everything under it?`}
+        >
+          <input type="hidden" name="id" value={id} />
+          <label className="field" style={{ maxWidth: 320 }}>
+            <span>
+              Type <span className="mono">{customer.slug}</span> to confirm
+            </span>
+            <input name="confirm_slug" autoComplete="off" placeholder={customer.slug} />
+          </label>
+        </ActionForm>
       </div>
     </>
   );

@@ -2,6 +2,7 @@
 
 export type SiteOption = {
   id: string;
+  customer_id: string;
   name: string;
   site_code: string | null;
   city: string;
@@ -15,6 +16,8 @@ export type SiteOption = {
   safety_council_name: string | null;
   default_credential_ids: string[] | null;
 };
+
+export type CustomerOption = { id: string; display_name: string };
 
 export type CraftOption = { id: string; name: string; category: string | null };
 export type LevelOption = { id: string; name: string; rank: number };
@@ -37,6 +40,9 @@ export type DraftLine = {
 };
 
 export type RequisitionInput = {
+  /** Agency staff raise requests on a customer's behalf, so they name one.
+   *  Ignored for customer users, whose tenant comes from their profile. */
+  customerId?: string;
   siteId: string;
   title: string;
   projectName: string;

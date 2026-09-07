@@ -391,3 +391,63 @@ export async function setUserActive(form: FormData): Promise<Result> {
   revalidatePath("/agency/customers");
   return { ok: true };
 }
+
+/**
+ * Delete a customer and everything under it.
+ *
+ * Cascades take their sites, requisitions, lines, placements and app_users
+ * rows. Auth accounts are not covered by any foreign key, so they are removed
+ * afterwards — the tenant row goes first, because an orphaned auth account is
+ * harmless (it authenticates but receives no claims) whereas deleting logins
+ * for a customer whose data survived would not be.
+ *
+ * Requires the slug typed back, since there is no undo.
+ */
+export async function deleteCustomer(form: FormData): Promise<Result> {
+  const guard = await assertAgency();
+  if (!guard.ok) return guard;
+
+  const id = nz(form.get("id"));
+  const typed = nz(form.get("confirm_slug"));
+  if (!id) return { ok: false, error: "Missing customer." };
+
+  const supabase = await createClient();
+  const { data: customer } = await supabase
+    .from("customers")
+    .select("slug, display_name")
+    .eq("id", id)
+    .maybeSingle();
+  if (!customer) return { ok: false, error: "Customer not found." };
+
+  if (typed?.toLowerCase() !== customer.slug.toLowerCase()) {
+    return {
+      ok: false,
+      error: `Type the slug "${customer.slug}" exactly to confirm deletion.`,
+    };
+  }
+
+  // Collect the auth accounts before the cascade removes the rows naming them.
+  const { data: users } = await supabase
+    .from("app_users")
+    .select("id")
+    .eq("customer_id", id);
+
+  const { error } = await supabase.from("customers").delete().eq("id", id);
+  if (error) return { ok: false, error: error.message };
+
+  if (users?.length) {
+    try {
+      const admin = createAdminClient();
+      for (const u of users) {
+        await admin.auth.admin.deleteUser(u.id);
+      }
+    } catch {
+      // The tenant is gone either way. A leftover auth account can still sign
+      // in but has no app_users row, so the hook strips its claims and it sees
+      // nothing — safe, just untidy.
+    }
+  }
+
+  revalidatePath("/agency/customers");
+  return { ok: true };
+}

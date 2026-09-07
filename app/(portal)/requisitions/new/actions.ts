@@ -36,10 +36,21 @@ export async function createRequisition(
     .eq("id", user.id)
     .maybeSingle();
 
-  if (!profile?.customer_id) {
+  if (!profile) return { ok: false, error: "No profile for this account." };
+
+  // A customer user's tenant is their own and is never client-supplied.
+  // Agency staff raise requests on a customer's behalf, so they choose one —
+  // RLS still admits it, because an agency JWT may write any tenant.
+  const customerId =
+    profile.user_type === "agency" ? input.customerId : profile.customer_id;
+
+  if (!customerId) {
     return {
       ok: false,
-      error: "Only customer users can raise a request from this screen.",
+      error:
+        profile.user_type === "agency"
+          ? "Choose which customer this request is for."
+          : "This account is not attached to a customer.",
     };
   }
 
@@ -62,7 +73,7 @@ export async function createRequisition(
   const { data: customer } = await supabase
     .from("customers")
     .select("requires_internal_approval")
-    .eq("id", profile.customer_id)
+    .eq("id", customerId)
     .maybeSingle();
 
   const needsInternalApproval =
@@ -81,7 +92,7 @@ export async function createRequisition(
   const { data: req, error: reqError } = await supabase
     .from("requisitions")
     .insert({
-      customer_id: profile.customer_id,
+      customer_id: customerId,
       site_id: input.siteId,
       title: nullable(input.title),
       project_name: nullable(input.projectName),
@@ -114,7 +125,7 @@ export async function createRequisition(
   const { error: lineError } = await supabase.from("requisition_lines").insert(
     lines.map((l, i) => ({
       requisition_id: req.id,
-      customer_id: profile.customer_id,
+      customer_id: customerId,
       line_number: i + 1,
       craft_id: l.craftId,
       level_id: l.levelId,

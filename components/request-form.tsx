@@ -6,6 +6,7 @@ import { createRequisition } from "@/app/(portal)/requisitions/new/actions";
 import { formatSchedule } from "@/lib/format";
 import type {
   CraftOption,
+  CustomerOption,
   CredentialOption,
   DraftLine,
   LevelOption,
@@ -28,11 +29,14 @@ const newRow = (): DraftLine => ({
 });
 
 export function RequestForm({
+  customers,
   sites,
   crafts,
   levels,
   credentials,
 }: {
+  /** Empty for customer users — their tenant is fixed. */
+  customers: CustomerOption[];
   sites: SiteOption[];
   crafts: CraftOption[];
   levels: LevelOption[];
@@ -42,6 +46,8 @@ export function RequestForm({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
+  const isAgency = customers.length > 0;
+  const [customerId, setCustomerId] = useState("");
   const [siteId, setSiteId] = useState("");
   const [title, setTitle] = useState("");
   const [projectName, setProjectName] = useState("");
@@ -64,6 +70,9 @@ export function RequestForm({
   );
 
   const site = sites.find((s) => s.id === siteId) ?? null;
+  const visibleSites = isAgency
+    ? sites.filter((s) => s.customer_id === customerId)
+    : sites;
 
   /**
    * Choosing a site replaces the schedule defaults and adds that site's
@@ -125,6 +134,7 @@ export function RequestForm({
     setError(null);
     startTransition(async () => {
       const result = await createRequisition({
+        customerId,
         siteId,
         title,
         projectName,
@@ -163,14 +173,36 @@ export function RequestForm({
       {/* --- where and when ------------------------------------------- */}
       <Card title="Site and schedule">
         <Grid>
+          {isAgency && (
+            <Field label="Customer" required>
+              <select
+                value={customerId}
+                onChange={(e) => {
+                  setCustomerId(e.target.value);
+                  setSiteId("");
+                }}
+              >
+                <option value="">Choose a customer…</option>
+                {customers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.display_name}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
+
           <Field label="Site" required className="">
             <select
               value={siteId}
               onChange={(e) => onSiteChange(e.target.value)}
               className={inputClass}
+              disabled={isAgency && !customerId}
             >
-              <option value="">Choose a site…</option>
-              {sites.map((s) => (
+              <option value="">
+                {isAgency && !customerId ? "Choose a customer first" : "Choose a site…"}
+              </option>
+              {visibleSites.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name} — {s.city}, {s.state}
                 </option>
