@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createRequisition } from "@/app/(portal)/requisitions/new/actions";
 import { formatSchedule } from "@/lib/format";
@@ -69,7 +69,6 @@ export function RequestForm({
     credentials.filter((c) => c.mandatory || c.defaultChecked).map((c) => c.id),
   );
 
-  const site = sites.find((s) => s.id === siteId) ?? null;
   const visibleSites = isAgency
     ? sites.filter((s) => s.customer_id === customerId)
     : sites;
@@ -99,25 +98,6 @@ export function RequestForm({
     }
   }
 
-  /**
-   * Badging, DISA and safety council take real days. Warn when the start date
-   * does not leave enough runway — advisory only, since sometimes the work
-   * genuinely is that urgent.
-   */
-  const badgingWarning = useMemo(() => {
-    if (!site?.badging_lead_time_days || !startDate) return null;
-    const [y, m, d] = startDate.split("-").map(Number);
-    const start = new Date(y, m - 1, d);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const days = Math.round((start.getTime() - today.getTime()) / 86_400_000);
-    if (days >= site.badging_lead_time_days) return null;
-    return `${site.name} needs about ${site.badging_lead_time_days} days for badging${
-      site.safety_council_required
-        ? ` and ${site.safety_council_name ?? "safety council"} training`
-        : ""
-    }. This start date is ${days} day${days === 1 ? "" : "s"} out.`;
-  }, [site, startDate]);
 
   const totalWorkers = lines.reduce(
     (n, l) => n + (l.craftId && l.levelId ? Number(l.quantity) || 0 : 0),
@@ -306,11 +286,6 @@ export function RequestForm({
           </span>
         </p>
 
-        {badgingWarning && (
-          <p className="mt-3 rounded-lg border border-warn/30 bg-warn-soft p-3 text-[13px] text-warn-soft-fg">
-            {badgingWarning}
-          </p>
-        )}
       </Card>
 
       {/* --- who ------------------------------------------------------- */}

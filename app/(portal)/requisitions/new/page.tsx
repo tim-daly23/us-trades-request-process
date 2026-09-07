@@ -40,7 +40,7 @@ export default async function NewRequisitionPage() {
         .select(
           `id, customer_id, name, city, state, default_shift, default_hours_per_day,
            default_days_per_week, default_per_diem_rate,
-           badging_lead_time_days, safety_council_required, safety_council_name,
+           safety_council_required, safety_council_name,
            default_credential_ids`,
         )
         .eq("status", "active")

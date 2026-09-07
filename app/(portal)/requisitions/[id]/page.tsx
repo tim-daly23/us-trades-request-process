@@ -39,8 +39,6 @@ export default async function RequisitionDetail({
        start_date, end_date, duration_weeks, shift, hours_per_day, days_per_week,
        per_diem_rate, scope_of_work, special_instructions, submitted_at,
        site:sites(name, address_line1, city, state, postal_code,
-                  badging_lead_time_days, safety_council_required,
-                  safety_council_name,
                   contacts:site_contacts(name, phone, role, is_primary))`,
     )
     .eq("id", id)
@@ -279,15 +277,6 @@ export default async function RequisitionDetail({
         </div>
       )}
 
-      {site?.safety_council_required && (
-        <div className="panel">
-          <div className="notice-warn">
-            {site.name} requires {site.safety_council_name ?? "safety council"}{" "}
-            training. Allow {site.badging_lead_time_days ?? 3} days for badging
-            before the start date.
-          </div>
-        </div>
-      )}
     </>
   );
 }

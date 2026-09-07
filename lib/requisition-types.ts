@@ -10,7 +10,6 @@ export type SiteOption = {
   default_hours_per_day: number | string | null;
   default_days_per_week: number | null;
   default_per_diem_rate: number | string | null;
-  badging_lead_time_days: number | null;
   safety_council_required: boolean | null;
   safety_council_name: string | null;
   default_credential_ids: string[] | null;
