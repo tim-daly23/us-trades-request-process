@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #D96A0B; text-decoration: none; }
+    a:hover { color: #A85008; }
+    input { font-family: inherit; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; height: 900px; display: flex; flex-direction: column; background: #FFFFFF; color: #15181D;">
+
+  <div style="height: 4px; background: #D96A0B; flex-shrink: 0;"></div>
+
+  <div style="flex-grow: 1; display: flex;">
+
+    <!-- Brand panel -->
+    <div style="width: 596px; background: #26374C; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 56px 56px 48px 56px; box-sizing: border-box;">
+
+      <div style="position: absolute; inset: 0; opacity: 0.055; background-image: repeating-linear-gradient(135deg, #FFFFFF 0px, #FFFFFF 14px, transparent 14px, transparent 34px);"></div>
+
+      <div style="position: relative; display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: flex; align-items: center; gap: 13px;">
+          <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+            <rect x="0.75" y="0.75" width="32.5" height="32.5" stroke="#D96A0B" stroke-width="1.5"/>
+            <path d="M9 24V10.5M9 10.5H17.5C19.5 10.5 21 12 21 14C21 16 19.5 17.5 17.5 17.5H9" stroke="#FFFFFF" stroke-width="2"/>
+            <path d="M17 17.5L25 24" stroke="#FFFFFF" stroke-width="2"/>
+          </svg>
+          <div style="display: flex; flex-direction: column; gap: 1px;">
+            <div style="font-size: 17px; font-weight: 600; letter-spacing: 0.13em; color: #FFFFFF;">US TRADES</div>
+            <div style="font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: #93A3B6;">Industrial Craft Labor</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="position: relative; display: flex; flex-direction: column; gap: 22px;">
+        <div style="font-size: 40px; line-height: 1.14; font-weight: 500; color: #FFFFFF; letter-spacing: -0.018em; text-wrap: pretty;">Request crews.<br>Track every seat.</div>
+        <div style="font-size: 15px; line-height: 1.6; color: #AEBCCC; max-width: 400px;">Submit manpower requests against your saved sites and follow each candidate from submittal to badged and on site.</div>
+      </div>
+
+      <div style="position: relative; display: flex; gap: 40px; border-top: 1px solid rgba(255,255,255,0.13); padding-top: 22px;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 21px; color: #FFFFFF;">7</div>
+          <div style="font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #8496AA;">Open requests</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 21px; color: #FFFFFF;">186</div>
+          <div style="font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #8496AA;">Seats filled YTD</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 21px; color: #FFFFFF;">4</div>
+          <div style="font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #8496AA;">Active sites</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form panel -->
+    <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; background: #F6F6F3;">
+      <div style="width: 396px; display: flex; flex-direction: column; gap: 28px;">
+
+        <div style="display: flex; flex-direction: column; gap: 7px;">
+          <div style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #D96A0B; font-weight: 500;">Meridian Refining</div>
+          <div style="font-size: 26px; font-weight: 500; letter-spacing: -0.015em;">Sign in to your portal</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; flex-direction: column; gap: 7px;">
+            <div style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #6C7480; font-weight: 500;">Work email</div>
+            <div style="height: 44px; background: #FFFFFF; border: 1px solid #D6D8D3; display: flex; align-items: center; padding: 0 13px; font-size: 14.5px; color: #15181D;">j.holloway@meridianrefining.com</div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 7px;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <div style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #6C7480; font-weight: 500;">Password</div>
+              <a href="#" style="font-size: 12.5px;">Forgot?</a>
+            </div>
+            <div style="height: 44px; background: #FFFFFF; border: 1px solid #26374C; box-shadow: 0 0 0 3px rgba(38,55,76,0.09); display: flex; align-items: center; justify-content: space-between; padding: 0 13px;">
+              <div style="font-size: 15px; letter-spacing: 0.22em; color: #15181D;">••••••••••</div>
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#8A919C" stroke-width="1.4">
+                <path d="M1.5 9S4.5 3.75 9 3.75 16.5 9 16.5 9 13.5 14.25 9 14.25 1.5 9 1.5 9Z"/>
+                <circle cx="9" cy="9" r="2.25"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 13px;">
+          <div style="height: 46px; background: #D96A0B; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 14.5px; font-weight: 500; letter-spacing: 0.01em;">Sign in</div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="flex-grow: 1; height: 1px; background: #DEDFDB;"></div>
+            <div style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #9AA1AC;">or</div>
+            <div style="flex-grow: 1; height: 1px; background: #DEDFDB;"></div>
+          </div>
+          <div style="height: 46px; background: #FFFFFF; border: 1px solid #D6D8D3; color: #26374C; display: flex; align-items: center; justify-content: center; gap: 9px; font-size: 14.5px; font-weight: 500;">
+            <svg width="17" height="17" viewBox="0 0 18 18" fill="none" stroke="#26374C" stroke-width="1.4">
+              <rect x="1.5" y="3.75" width="15" height="10.5"/>
+              <path d="M1.5 4.5L9 9.75L16.5 4.5"/>
+            </svg>
+            Email me a sign-in link
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid #DEDFDB; padding-top: 18px; display: flex; flex-direction: column; gap: 6px;">
+          <div style="font-size: 12.5px; color: #6C7480; line-height: 1.55;">Need access for someone on your team? Your account admin can invite them under <span style="color: #15181D;">Team</span>.</div>
+          <div style="font-size: 12.5px; color: #6C7480;">Trouble signing in? <a href="#">Contact your US Trades rep</a></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div style="height: 46px; border-top: 1px solid #DEDFDB; background: #FFFFFF; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; flex-shrink: 0;">
+    <div style="font-size: 11.5px; color: #9AA1AC; font-family: 'IBM Plex Mono', monospace;">meridian.portal.ustrades.com</div>
+    <div style="display: flex; gap: 22px; font-size: 11.5px; color: #9AA1AC;">
+      <div>Privacy</div>
+      <div>Terms</div>
+      <div>© 2026 US Trades</div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>

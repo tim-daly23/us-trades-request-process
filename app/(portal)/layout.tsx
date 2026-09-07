@@ -35,91 +35,70 @@ export default async function PortalLayout({
         .maybeSingle();
 
   const branding = isAgency ? DEFAULT_BRANDING : brandingFrom(customer);
-  const roleLabel = isAgency
-    ? (profile?.agency_role ?? "").replace(/_/g, " ")
-    : (profile?.customer_role ?? "").replace(/_/g, " ");
+  const name = profile?.full_name ?? user.email ?? "";
+  const initials = name
+    .split(/[\s@.]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p: string) => p[0]?.toUpperCase())
+    .join("");
 
   return (
     <div
       style={brandingStyle(branding)}
       className="flex min-h-screen flex-col bg-background"
     >
-      {/* The logo is a crest on a white field, so the header stays light and
-          the brand colour carries as a top stripe and the nav underline. */}
-      <div className="h-1 bg-brand" />
+      <header className="flex h-[54px] shrink-0 items-center justify-between gap-6 bg-brand px-[22px]">
+        <div className="flex items-center gap-7">
+          <BrandMark logoUrl={DEFAULT_BRANDING.logoUrl} name="US Trades" />
+          <nav className="flex items-center gap-1">
+            <NavLink href="/">Requests</NavLink>
+            <NavLink href="/diagnostics">Diagnostics</NavLink>
+          </nav>
+        </div>
 
-      <header className="border-b border-line bg-surface">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
-          {/* The US Trades crest is always first and always present: customers
-              should never be in doubt about who is staffing their site. The
-              tenant's own identity sits second, after the divider. */}
-          <div className="flex items-center gap-3">
-            <BrandMark
-              logoUrl={DEFAULT_BRANDING.logoUrl}
-              name={DEFAULT_BRANDING.displayName}
-              variant="onSurface"
-            />
-            <span className="h-8 w-px bg-line" />
-            {isAgency ? (
-              <span className="text-sm font-semibold">Agency console</span>
-            ) : (
-              <span className="flex items-center gap-2.5">
-                {branding.logoUrl && (
-                  /* Tenant logos are arbitrary external URLs not known at
-                     build time, so next/image cannot be configured for them. */
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={branding.logoUrl}
-                    alt={branding.displayName}
-                    className="h-7 w-auto object-contain"
-                  />
-                )}
-                <span className="leading-tight">
-                  <span className="block text-sm font-semibold">
-                    {branding.displayName}
-                  </span>
-                  <span className="block text-[11px] text-muted">
-                    Manpower portal
-                  </span>
-                </span>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/requisitions/new"
+            className="flex h-[33px] items-center gap-2 bg-accent px-3.5 text-[13px] font-medium text-accent-fg transition hover:brightness-95"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M7 2.5V11.5M2.5 7H11.5" />
+            </svg>
+            New request
+          </Link>
+
+          <div className="flex items-center gap-2.5 border-l border-white/15 pl-4">
+            <span className="flex h-7 w-7 items-center justify-center bg-[#47596F] text-[11.5px] font-medium text-white">
+              {initials || "US"}
+            </span>
+            <span className="hidden leading-tight sm:block">
+              <span className="block text-[12.5px] text-white">{name}</span>
+              <span className="block text-[10.5px] text-on-brand-faint">
+                {isAgency ? "US Trades" : branding.displayName}
               </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-5">
-            <span className="hidden text-right text-xs leading-tight text-muted sm:block">
-              {profile?.full_name ?? user.email}
-              {roleLabel && (
-                <>
-                  <br />
-                  <span className="capitalize">{roleLabel}</span>
-                </>
-              )}
             </span>
             <form action="/auth/signout" method="post">
-              <button className="rounded-md border border-line px-3 py-1.5 text-xs font-medium text-muted transition hover:border-brand hover:text-brand">
+              <button
+                className="ml-1 text-[11.5px] text-on-brand-muted transition hover:text-white"
+                title="Sign out"
+              >
                 Sign out
               </button>
             </form>
           </div>
         </div>
-
-        <nav className="mx-auto flex max-w-6xl gap-1 px-6">
-          <NavLink href="/">Requisitions</NavLink>
-          <NavLink href="/diagnostics">Diagnostics</NavLink>
-        </nav>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
-        {children}
-      </main>
+      <div className="flex-1">{children}</div>
 
-      <footer className="border-t border-line py-4">
-        <p className="mx-auto max-w-6xl px-6 text-xs text-muted">
-          {isAgency
-            ? "US Trades agency console"
-            : `Staffed and operated by US Trades for ${branding.displayName}`}
-        </p>
+      <footer className="flex h-[46px] shrink-0 items-center justify-between border-t border-line bg-surface px-7">
+        <span className="num text-[11.5px] text-muted-3">
+          {isAgency ? "console.ustrades.com" : "portal.ustrades.com"}
+        </span>
+        <span className="text-[11.5px] text-muted-3">
+          © {new Date().getFullYear()} US Trades
+        </span>
       </footer>
     </div>
   );
@@ -129,7 +108,7 @@ function NavLink({ href, children }: { href: string; children: string }) {
   return (
     <Link
       href={href}
-      className="border-b-2 border-transparent px-3 py-2.5 text-sm font-medium text-muted transition hover:border-brand hover:text-foreground"
+      className="px-3 py-1.5 text-[13.5px] text-on-brand-muted transition hover:bg-white/10 hover:text-white"
     >
       {children}
     </Link>

@@ -1,0 +1,142 @@
+{
+  "artboards": [
+    {
+      "file": "Login.dc.html",
+      "page": "page-1",
+      "title": "1 · Branded login",
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 900
+    },
+    {
+      "file": "Main.dc.html",
+      "page": "page-1",
+      "title": "2 · Customer dashboard",
+      "x": 1560,
+      "y": 0,
+      "w": 1440,
+      "h": 900
+    },
+    {
+      "file": "MyRequests.dc.html",
+      "page": "page-1",
+      "title": "3 · My requests",
+      "x": 3120,
+      "y": 0,
+      "w": 1440,
+      "h": 900
+    },
+    {
+      "file": "NewRequest.dc.html",
+      "page": "page-1",
+      "title": "4 · New manpower request",
+      "x": 0,
+      "y": 1120,
+      "w": 1440,
+      "h": 1900
+    },
+    {
+      "file": "RequestDetail.dc.html",
+      "page": "page-1",
+      "title": "5 · Request detail",
+      "x": 1560,
+      "y": 1120,
+      "w": 1440,
+      "h": 1200
+    },
+    {
+      "file": "CandidateReview.dc.html",
+      "page": "page-1",
+      "title": "6 · Candidate review",
+      "x": 3120,
+      "y": 1120,
+      "w": 1440,
+      "h": 900
+    },
+    {
+      "file": "OpsDashboard.dc.html",
+      "page": "page-2",
+      "title": "7 · Ops dashboard",
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 900
+    },
+    {
+      "file": "RequisitionQueue.dc.html",
+      "page": "page-2",
+      "title": "8 · Requisition queue",
+      "x": 1560,
+      "y": 0,
+      "w": 1440,
+      "h": 900
+    },
+    {
+      "file": "FillBoard.dc.html",
+      "page": "page-2",
+      "title": "9 · Fill board",
+      "x": 0,
+      "y": 1120,
+      "w": 1440,
+      "h": 900
+    },
+    {
+      "file": "WorkerSearch.dc.html",
+      "page": "page-2",
+      "title": "10 · Worker search",
+      "x": 1560,
+      "y": 1120,
+      "w": 1440,
+      "h": 1000
+    }
+  ],
+  "annotations": [
+    {
+      "id": "note-form",
+      "page": "page-1",
+      "x": -430,
+      "y": 1120,
+      "w": 380,
+      "text": "THE REQUEST FORM\n\nCraft is a separate field from Level on every line — a \"Journeyman\" alone doesn't tell a recruiter what to source.\n\nPicking a site auto-fills shift, hours, per diem and reporting location, and pre-checks the certifications that site always requires. That's what makes repeat turnaround work fast to order.\n\nWorth deciding: should customers see bill rates here at all?"
+    },
+    {
+      "id": "note-redaction",
+      "page": "page-1",
+      "x": 4690,
+      "y": 1120,
+      "w": 380,
+      "text": "CANDIDATE REVIEW\n\nShown as \"Dwayne E.\" with contact details withheld until approval — an account-level setting, currently off.\n\nTurn it on per customer if you'd rather share full names up front. Off by default protects against direct hires."
+    },
+    {
+      "id": "note-visibility",
+      "page": "page-2",
+      "x": -430,
+      "y": 1120,
+      "w": 380,
+      "text": "FILL BOARD\n\nThe orange column is the line customers cross. Everything left of it is yours alone — the customer never sees who you screened or passed on.\n\nDragging a card into Submitted is what exposes that worker to them, so the board makes that boundary literal."
+    },
+    {
+      "id": "note-density",
+      "page": "page-2",
+      "x": 3120,
+      "y": 0,
+      "w": 360,
+      "text": "TWO DIFFERENT CHROMES\n\nCustomer portal: light, top nav, roomier.\n\nOps console: dark left rail, denser rows, more per screen — your team lives here all day and wants volume over whitespace.\n\nSay the word if you'd rather they match."
+    }
+  ],
+  "launch": {
+    "view": "canvas",
+    "page": "page-1"
+  },
+  "pages": [
+    {
+      "id": "page-1",
+      "name": "Customer portal"
+    },
+    {
+      "id": "page-2",
+      "name": "Internal console"
+    }
+  ]
+}

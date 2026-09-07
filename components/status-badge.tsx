@@ -1,47 +1,60 @@
-import { titleCase } from "@/lib/format";
-
 /**
- * Requisition status pill.
+ * Status pill.
  *
- * Colour carries meaning, so it must not be the only carrier — the label is
- * always spelled out for anyone who cannot distinguish the hues.
+ * Square, flat, small — matching the design canvas. Colour is never the only
+ * carrier: the label is always spelled out.
  */
-const STYLES: Record<string, string> = {
-  draft: "bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300",
-  pending_approval: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
-  submitted: "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300",
-  acknowledged: "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300",
-  sourcing: "bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300",
-  partially_filled: "bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300",
-  filled: "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300",
-  active: "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300",
-  on_hold: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
-  completed: "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400",
-  cancelled: "bg-neutral-100 text-neutral-500 line-through dark:bg-neutral-800 dark:text-neutral-500",
+const LABELS: Record<string, string> = {
+  pending_approval: "Awaiting approval",
+  partially_filled: "Partially filled",
+  active: "On site",
+  on_hold: "On hold",
 };
 
+const STYLES: Record<string, string> = {
+  draft: "border border-dashed border-faint text-muted-2",
+  pending_approval: "bg-accent-soft text-accent-soft-fg",
+  submitted: "bg-neutral-soft text-neutral-soft-fg",
+  acknowledged: "bg-brand-soft text-brand-soft-fg",
+  sourcing: "bg-brand-soft text-brand-soft-fg",
+  partially_filled: "bg-brand-soft text-brand-soft-fg",
+  filled: "bg-ok-soft text-ok-soft-fg",
+  active: "bg-ok-soft text-ok-soft-fg",
+  on_hold: "bg-accent-soft text-accent-soft-fg",
+  completed: "bg-neutral-soft text-neutral-soft-fg",
+  cancelled: "bg-neutral-soft text-neutral-soft-fg",
+};
+
+function label(status: string) {
+  return (
+    LABELS[status] ??
+    status.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())
+  );
+}
+
 export function StatusBadge({ status }: { status: string }) {
-  const style = STYLES[status] ?? STYLES.draft;
   return (
     <span
-      className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-medium ${style}`}
+      className={`inline-flex shrink-0 items-center px-2 py-[3px] text-[11px] font-medium ${
+        STYLES[status] ?? STYLES.draft
+      }`}
     >
-      {titleCase(status)}
+      {label(status)}
     </span>
   );
 }
 
 export function UrgencyBadge({ urgency }: { urgency: string }) {
   if (urgency === "standard") return null;
-  const style =
-    urgency === "emergency"
-      ? "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300"
-      : "bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300";
   return (
     <span
-      className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-medium ${style}`}
+      className={`inline-flex shrink-0 items-center px-2 py-[3px] text-[11px] font-medium ${
+        urgency === "emergency"
+          ? "bg-danger-soft text-danger-soft-fg"
+          : "bg-accent-soft text-accent-soft-fg"
+      }`}
     >
-      {titleCase(urgency)}
+      {urgency === "emergency" ? "Emergency" : "Urgent"}
     </span>
   );
 }

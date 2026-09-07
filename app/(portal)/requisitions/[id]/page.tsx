@@ -82,7 +82,7 @@ export default async function RequisitionDetail({
       <div>
         <Link
           href="/"
-          className="text-sm text-muted transition hover:text-brand"
+          className="text-sm text-muted transition hover:text-accent"
         >
           ← All requisitions
         </Link>
@@ -105,7 +105,7 @@ export default async function RequisitionDetail({
       </div>
 
       {totals.requested > 0 && (
-        <div className="max-w-sm rounded-xl border border-line bg-surface p-4 shadow-sm">
+        <div className="max-w-sm border border-line bg-surface p-4 ">
           <FillProgress
             requested={totals.requested}
             filled={totals.filled}
@@ -114,7 +114,7 @@ export default async function RequisitionDetail({
         </div>
       )}
 
-      <section className="grid gap-x-8 gap-y-4 rounded-xl border border-line bg-surface p-5 shadow-sm sm:grid-cols-2 lg:grid-cols-3">
+      <section className="grid gap-x-8 gap-y-4 border border-line bg-surface p-5  sm:grid-cols-2 lg:grid-cols-3">
         <Field label="Start" value={formatDate(req.start_date)} />
         <Field label="End" value={formatDate(req.end_date)} />
         <Field
@@ -139,7 +139,7 @@ export default async function RequisitionDetail({
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
           Craft requested
         </h2>
-        <div className="overflow-x-auto rounded-xl border border-line bg-surface shadow-sm">
+        <div className="overflow-x-auto border border-line bg-surface ">
           {/* Explicit column widths: the progress cell is two stacked elements
               and will otherwise starve the text columns of space. */}
           <table className="w-full min-w-[42rem] table-fixed text-sm">
@@ -169,7 +169,7 @@ export default async function RequisitionDetail({
                 >
                   <td className="px-5 py-4 font-medium">{l.craft_name}</td>
                   <td className="px-3 py-4 text-muted">{l.level_name}</td>
-                  <td className="tnum px-3 py-4 text-right font-semibold">
+                  <td className="num px-3 py-4 text-right font-semibold">
                     {l.quantity}
                   </td>
                   <td className="px-3 py-4">
@@ -180,7 +180,7 @@ export default async function RequisitionDetail({
                     />
                   </td>
                   {showRates && (
-                    <td className="tnum px-5 py-4 text-right">
+                    <td className="num px-5 py-4 text-right">
                       {formatMoney(l.bill_rate)}
                     </td>
                   )}
@@ -204,7 +204,7 @@ export default async function RequisitionDetail({
               return (
                 <li
                   key={i}
-                  className={`rounded-full px-3 py-1 text-xs font-medium ${
+                  className={`px-3 py-1 text-xs font-medium ${
                     r.is_required
                       ? "bg-brand text-brand-fg"
                       : "border border-line text-muted"
@@ -237,7 +237,7 @@ export default async function RequisitionDetail({
       )}
 
       {site?.safety_council_required && (
-        <p className="rounded-lg border border-warn/40 bg-warn/10 p-4 text-sm text-warn">
+        <p className="border border-accent/30 bg-accent-soft p-4 text-[13px] text-accent-soft-fg">
           Site requires {site.safety_council_name ?? "safety council"} training.
           Allow {site.badging_lead_time_days ?? 3} days for badging.
         </p>

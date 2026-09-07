@@ -46,66 +46,128 @@ function LoginForm() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background p-6">
-      <form
-        onSubmit={onSubmit}
-        className="w-full max-w-sm space-y-5 rounded-xl border border-line bg-surface p-8 shadow-lg"
-      >
-        <div className="text-center">
-          <div className="mb-6 flex justify-center">
+    <div className="flex min-h-screen flex-col bg-white">
+      <div className="h-1 shrink-0 bg-accent" />
+
+      <div className="flex flex-1 flex-col lg:flex-row">
+        {/* Brand panel */}
+        <div className="relative flex flex-col justify-between overflow-hidden bg-brand p-10 lg:w-[46%] lg:p-14">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.055]"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(135deg, #FFFFFF 0px, #FFFFFF 14px, transparent 14px, transparent 34px)",
+            }}
+          />
+
+          <div className="relative">
             <BrandMark
               logoUrl={DEFAULT_BRANDING.logoUrl}
-              name={DEFAULT_BRANDING.displayName}
-              variant="onSurface"
+              name="US Trades"
               size="lg"
+              tagline="Industrial Craft Labor"
             />
           </div>
-          <h1 className="text-xl font-semibold tracking-tight">
-            Manpower portal
-          </h1>
-          <p className="mt-1 text-sm text-muted">
-            Sign in to submit and track craft requests.
-          </p>
+
+          <div className="relative mt-14 flex flex-col gap-5 lg:mt-0">
+            <h2 className="text-[32px] font-medium leading-[1.14] tracking-[-0.018em] text-white lg:text-[40px]">
+              Request crews.
+              <br />
+              Track every seat.
+            </h2>
+            <p className="max-w-[400px] text-[15px] leading-[1.6] text-[#AEBCCC]">
+              Submit manpower requests against your saved sites and follow each
+              candidate from submittal to badged and on site.
+            </p>
+          </div>
+
+          <div className="relative mt-14 border-t border-white/[0.13] pt-5 lg:mt-0">
+            <p className="text-[11px] uppercase tracking-[0.1em] text-[#8496AA]">
+              Pipefitters · Welders · Boilermakers · Millwrights · Electricians
+            </p>
+          </div>
         </div>
 
-        <label className="block space-y-1.5">
-          <span className="text-sm font-medium">Email</span>
-          <input
-            type="email"
-            required
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-md border border-line bg-background px-3 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-          />
-        </label>
+        {/* Form panel */}
+        <div className="flex flex-1 items-center justify-center bg-background p-8">
+          <form
+            onSubmit={onSubmit}
+            className="flex w-[396px] max-w-full flex-col gap-7"
+          >
+            <div className="flex flex-col gap-2">
+              <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-accent">
+                Customer portal
+              </span>
+              <h1 className="text-[26px] font-medium tracking-[-0.015em]">
+                Sign in to your portal
+              </h1>
+            </div>
 
-        <label className="block space-y-1.5">
-          <span className="text-sm font-medium">Password</span>
-          <input
-            type="password"
-            required
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-md border border-line bg-background px-3 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-          />
-        </label>
+            <div className="flex flex-col gap-4">
+              <label className="flex flex-col gap-[7px]">
+                <span className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted">
+                  Work email
+                </span>
+                <input
+                  type="email"
+                  required
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={inputClass}
+                />
+              </label>
 
-        {error && (
-          <p className="rounded-md bg-danger/10 px-3 py-2 text-sm text-danger">
-            {error}
-          </p>
-        )}
+              <label className="flex flex-col gap-[7px]">
+                <span className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted">
+                  Password
+                </span>
+                <input
+                  type="password"
+                  required
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={inputClass}
+                />
+              </label>
+            </div>
 
-        <button
-          type="submit"
-          disabled={busy}
-          className="w-full rounded-md bg-brand px-4 py-2.5 text-sm font-semibold text-brand-fg transition hover:brightness-110 disabled:opacity-50"
-        >
-          {busy ? "Signing in…" : "Sign in"}
-        </button>
-      </form>
-    </main>
+            {error && (
+              <p className="bg-danger-soft px-3 py-2.5 text-[13px] text-danger-soft-fg">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={busy}
+              className="h-[46px] bg-accent text-[14.5px] font-medium text-accent-fg transition hover:brightness-95 disabled:opacity-50"
+            >
+              {busy ? "Signing in…" : "Sign in"}
+            </button>
+
+            <div className="border-t border-line-strong pt-4">
+              <p className="text-[12.5px] leading-[1.55] text-muted">
+                Need access for someone on your team? Your account admin can
+                invite them under Team.
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div className="flex h-[46px] shrink-0 items-center justify-between border-t border-line-strong bg-white px-7">
+        <span className="num text-[11.5px] text-muted-3">
+          portal.ustrades.com
+        </span>
+        <span className="text-[11.5px] text-muted-3">
+          © {new Date().getFullYear()} US Trades
+        </span>
+      </div>
+    </div>
   );
 }
+
+const inputClass =
+  "h-11 border border-line-strong bg-white px-[13px] text-[14.5px] outline-none transition focus:border-brand focus:shadow-[0_0_0_3px_rgba(38,55,76,0.09)]";

@@ -1,69 +1,85 @@
 /**
- * Brand lockup for the header and the login card.
+ * US Trades lockup.
  *
- * Renders the tenant's uploaded logo when there is one. Otherwise it draws a
- * typographic wordmark, so the corner never looks unfinished and never depends
- * on an asset that may not have loaded.
- *
- * To use the real US Trades artwork, drop the file at public/us-trades-logo.svg
- * and set DEFAULT_BRANDING.logoUrl in lib/branding.ts to "/us-trades-logo.svg".
+ * The supplied logo is a crest on a solid white field, so on the navy chrome it
+ * sits inside a white tile rather than being knocked out — a white-background
+ * JPG placed directly on navy reads as a stray rectangle. Replace
+ * DEFAULT_BRANDING.logoUrl with a transparent SVG and the tile can go.
  */
 export function BrandMark({
   logoUrl,
   name,
   variant = "onBrand",
   size = "sm",
+  tagline,
 }: {
   logoUrl: string | null;
   name: string;
-  /** onBrand sits on a coloured header; onSurface sits on a white card. */
+  /** onBrand sits on the navy chrome; onSurface sits on a light panel. */
   variant?: "onBrand" | "onSurface";
-  /** sm for the header strip, lg for the login card. */
   size?: "sm" | "lg";
+  /** Small caps line under the wordmark, as on the login brand panel. */
+  tagline?: string;
 }) {
-  if (logoUrl) {
-    // The US Trades logo is a square crest rather than a horizontal wordmark,
-    // so it needs real height to stay legible — a wordmark's 32px would render
-    // the lettering inside the badge unreadable.
-    const height = size === "lg" ? "h-20" : "h-11";
-    return (
-      /* Tenant logos are arbitrary external URLs not known at build time, so
-         next/image's optimizer cannot be configured for them. */
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={logoUrl}
-        alt={name}
-        className={`${height} w-auto object-contain`}
-      />
-    );
-  }
-
   const onBrand = variant === "onBrand";
+  const tile = size === "lg" ? "h-14 w-14" : "h-9 w-9";
+  const word = size === "lg" ? "text-[17px]" : "text-[13px]";
 
   return (
-    <span className="flex items-center gap-2" aria-label={name}>
-      <span
-        className={`flex h-8 w-8 items-center justify-center rounded-[5px] text-[13px] font-black leading-none tracking-tight ${
-          onBrand ? "bg-accent text-accent-fg" : "bg-brand text-brand-fg"
-        }`}
-      >
-        US
-      </span>
-      <span className="leading-none">
+    <span className="flex items-center gap-2.5" aria-label={name}>
+      {logoUrl ? (
         <span
-          className={`block text-[15px] font-bold tracking-tight ${
-            onBrand ? "text-brand-fg" : "text-foreground"
+          className={`flex ${tile} shrink-0 items-center justify-center bg-white p-0.5`}
+        >
+          {/* Tenant and brand logos are plain files, not build-time known
+              assets, so next/image's optimizer cannot be configured. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={logoUrl}
+            alt={name}
+            className="h-full w-full object-contain"
+          />
+        </span>
+      ) : (
+        <svg width="24" height="24" viewBox="0 0 34 34" fill="none">
+          <rect
+            x="0.75"
+            y="0.75"
+            width="32.5"
+            height="32.5"
+            stroke="var(--accent)"
+            strokeWidth="2"
+          />
+          <path
+            d="M9 24V10.5M9 10.5H17.5C19.5 10.5 21 12 21 14C21 16 19.5 17.5 17.5 17.5H9"
+            stroke={onBrand ? "#FFFFFF" : "var(--brand)"}
+            strokeWidth="2.6"
+          />
+          <path
+            d="M17 17.5L25 24"
+            stroke={onBrand ? "#FFFFFF" : "var(--brand)"}
+            strokeWidth="2.6"
+          />
+        </svg>
+      )}
+
+      <span className="leading-tight">
+        <span
+          className={`block ${word} font-semibold tracking-[0.12em] ${
+            onBrand ? "text-white" : "text-foreground"
           }`}
         >
-          TRADES
+          US TRADES
         </span>
-        <span
-          className={`block text-[9px] font-medium uppercase tracking-[0.18em] ${
-            onBrand ? "text-brand-fg/60" : "text-muted"
-          }`}
-        >
-          Manpower
-        </span>
+        {tagline && (
+          <span
+            className={`block text-[10.5px] uppercase tracking-[0.16em] ${
+              onBrand ? "text-on-brand-faint" : "text-muted-3"
+            }`}
+          >
+            {tagline}
+          </span>
+        )}
       </span>
     </span>
   );

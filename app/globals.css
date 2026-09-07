@@ -1,44 +1,55 @@
 @import "tailwindcss";
 
 /*
- * Two colour layers:
+ * Tokens taken from the design canvas ("US Trades Portal Mockups").
  *
- *  1. Neutrals and semantics — fixed, defined here, light and dark.
- *  2. Brand — --brand and --accent, injected per request from the customer's
- *     row so a tenant's portal carries their colours. Defaults below are US
- *     Trades'. Never hardcode a brand hex in a component.
+ * Two rules carry most of the character and should not be softened:
+ *   1. Nothing is rounded. Every panel, pill, input and bar is square.
+ *      It reads as industrial tooling rather than consumer SaaS.
+ *   2. Numbers are monospace. Request numbers, counts, dates and rates all
+ *      set in Plex Mono so columns align and figures scan.
+ *
+ * --brand and --accent are overridden per request from the customer's row
+ * (see lib/branding.ts); everything else is fixed.
  */
 :root {
-  --background: #f6f7f9;
+  --background: #f6f6f3;
   --surface: #ffffff;
-  --surface-muted: #f1f3f6;
-  --foreground: #14181f;
-  --muted: #667085;
-  --line: #e3e7ed;
+  --surface-muted: #fafaf8;
+  --foreground: #15181d;
 
-  --brand: #1f4e79;
+  --muted: #6c7480;
+  --muted-2: #7c838e;
+  --muted-3: #9aa1ac;
+  --faint: #c4c7c1;
+
+  --line: #e2e3df;
+  --line-strong: #d6d8d3;
+  --line-soft: #efefec;
+
+  --brand: #26374c;
   --brand-fg: #ffffff;
-  --accent: #e87722;
+  --brand-soft: #eef2f6;
+  --brand-soft-fg: #2e4763;
+  --on-brand-muted: #b4c1d0;
+  --on-brand-faint: #93a3b6;
+
+  --accent: #d96a0b;
   --accent-fg: #ffffff;
+  --accent-hover: #a85008;
+  --accent-soft: #fdf1e4;
+  --accent-soft-fg: #8a4708;
 
-  --ok: #15803d;
-  --warn: #b45309;
-  --danger: #b42318;
-}
+  --ok: #2f7d4f;
+  --ok-soft: #e8f3ec;
+  --ok-soft-fg: #24663f;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0b0d11;
-    --surface: #14181f;
-    --surface-muted: #191e26;
-    --foreground: #e8ebf0;
-    --muted: #93a0b4;
-    --line: #262d38;
+  --danger: #b3402f;
+  --danger-soft: #fbebe8;
+  --danger-soft-fg: #933425;
 
-    --ok: #4ade80;
-    --warn: #fbbf24;
-    --danger: #f87171;
-  }
+  --neutral-soft: #f1f1ee;
+  --neutral-soft-fg: #5b626c;
 }
 
 @theme inline {
@@ -47,26 +58,60 @@
   --color-surface-muted: var(--surface-muted);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-muted-3: var(--muted-3);
+  --color-faint: var(--faint);
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-line-soft: var(--line-soft);
   --color-brand: var(--brand);
   --color-brand-fg: var(--brand-fg);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-soft-fg: var(--brand-soft-fg);
+  --color-on-brand-muted: var(--on-brand-muted);
+  --color-on-brand-faint: var(--on-brand-faint);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-fg: var(--accent-soft-fg);
   --color-ok: var(--ok);
-  --color-warn: var(--warn);
+  --color-ok-soft: var(--ok-soft);
+  --color-ok-soft-fg: var(--ok-soft-fg);
   --color-danger: var(--danger);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-soft-fg: var(--danger-soft-fg);
+  --color-neutral-soft: var(--neutral-soft);
+  --color-neutral-soft-fg: var(--neutral-soft-fg);
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-plex-sans), "Segoe UI", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Numbers in tables must line up; proportional digits make columns wobble. */
-.tnum {
+/* Every figure that sits in a column: request numbers, counts, dates, money. */
+.num {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
+}
+
+/* The small uppercase labels above fields and above table columns. */
+.eyebrow {
+  font-size: 10.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted-3);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--accent-hover);
 }

@@ -1,0 +1,456 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #D96A0B; text-decoration: none; }
+    a:hover { color: #A85008; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; min-height: 1200px; display: flex; flex-direction: column; background: #F6F6F3; color: #15181D;">
+
+  <div style="height: 54px; background: #26374C; display: flex; align-items: center; justify-content: space-between; padding: 0 22px; flex-shrink: 0;">
+    <div style="display: flex; align-items: center; gap: 30px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <svg width="24" height="24" viewBox="0 0 34 34" fill="none">
+          <rect x="0.75" y="0.75" width="32.5" height="32.5" stroke="#D96A0B" stroke-width="2"/>
+          <path d="M9 24V10.5M9 10.5H17.5C19.5 10.5 21 12 21 14C21 16 19.5 17.5 17.5 17.5H9" stroke="#FFFFFF" stroke-width="2.6"/>
+          <path d="M17 17.5L25 24" stroke="#FFFFFF" stroke-width="2.6"/>
+        </svg>
+        <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.12em; color: #FFFFFF;">US TRADES</div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 4px;">
+        <div style="padding: 6px 12px; font-size: 13.5px; color: #B4C1D0;">Dashboard</div>
+        <div style="padding: 6px 12px; font-size: 13.5px; color: #FFFFFF; background: rgba(255,255,255,0.12); font-weight: 500;">Requests</div>
+        <div style="padding: 6px 12px; font-size: 13.5px; color: #B4C1D0;">Sites</div>
+        <div style="padding: 6px 12px; font-size: 13.5px; color: #B4C1D0;">Team</div>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 9px;">
+      <div style="width: 28px; height: 28px; background: #47596F; color: #FFFFFF; font-size: 11.5px; font-weight: 500; display: flex; align-items: center; justify-content: center;">JH</div>
+      <div style="display: flex; flex-direction: column;">
+        <div style="font-size: 12.5px; color: #FFFFFF;">Jim Holloway</div>
+        <div style="font-size: 10.5px; color: #93A3B6;">Meridian Refining</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Request header -->
+  <div style="background: #FFFFFF; border-bottom: 1px solid #E2E3DF; padding: 16px 26px 0 26px;">
+    <div style="display: flex; align-items: center; gap: 7px; font-size: 12px; color: #7C838E; margin-bottom: 10px;">
+      <span>Requests</span>
+      <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#B7BCC4" stroke-width="1.5"><path d="M4.5 2.5L8 6L4.5 9.5"/></svg>
+      <span style="color: #15181D; font-family: 'IBM Plex Mono', monospace;">MER-2026-0142</span>
+    </div>
+
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 30px;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 13px;">
+          <div style="font-size: 24px; font-weight: 500; letter-spacing: -0.014em;">Fall Turnaround — Unit 7</div>
+          <span style="background: #EEF2F6; color: #2E4763; font-size: 11.5px; padding: 4px 10px; font-weight: 500;">Sourcing</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 16px; font-size: 13px; color: #4A515C;">
+          <div style="display: flex; align-items: center; gap: 7px;">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#7C838E" stroke-width="1.4"><path d="M8 14.5s5-4.2 5-8a5 5 0 0 0-10 0c0 3.8 5 8 5 8Z"/><circle cx="8" cy="6.4" r="1.8"/></svg>
+            Baytown Olefins — Unit 7
+          </div>
+          <div style="width: 1px; height: 13px; background: #DEDFDB;"></div>
+          <div>1 Plant Road, Baytown, TX 77520</div>
+          <div style="width: 1px; height: 13px; background: #DEDFDB;"></div>
+          <div>Submitted Sep 1 by <span style="color: #15181D;">Jim Holloway</span></div>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 22px;">
+        <div style="display: flex; flex-direction: column; gap: 7px; align-items: flex-end;">
+          <div style="display: flex; align-items: baseline; gap: 7px;">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 24px;">8<span style="color: #B7BCC4;">/14</span></div>
+            <div style="font-size: 12px; color: #6C7480;">seats filled</div>
+          </div>
+          <div style="width: 190px; height: 7px; background: #EDEEEA; display: flex;">
+            <div style="width: 109px; height: 7px; background: #2F7D4F;"></div>
+            <div style="width: 27px; height: 7px; background: #D96A0B;"></div>
+            <div style="width: 13px; height: 7px; background: #26374C;"></div>
+          </div>
+          <div style="display: flex; gap: 11px; font-size: 11px; color: #7C838E;">
+            <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: #2F7D4F;"></div>8 confirmed</div>
+            <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: #D96A0B;"></div>2 awaiting you</div>
+            <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: #26374C;"></div>1 onboarding</div>
+            <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 8px; height: 8px; background: #EDEEEA;"></div>3 to source</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <div style="height: 34px; border: 1px solid #D6D8D3; background: #FFFFFF; padding: 0 14px; display: flex; align-items: center; font-size: 13px; color: #3F4650;">Message rep</div>
+          <div style="height: 34px; background: #26374C; color: #FFFFFF; padding: 0 14px; display: flex; align-items: center; font-size: 13px; font-weight: 500;">Request change</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Facts strip -->
+    <div style="display: flex; gap: 0; margin-top: 18px; border-top: 1px solid #EFEFEC;">
+      <div style="padding: 12px 22px 12px 0; display: flex; flex-direction: column; gap: 3px;">
+        <div style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #8A919C;">Start</div>
+        <div style="font-size: 13px; font-family: 'IBM Plex Mono', monospace;">Oct 05, 2026</div>
+      </div>
+      <div style="padding: 12px 22px; border-left: 1px solid #EFEFEC; display: flex; flex-direction: column; gap: 3px;">
+        <div style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #8A919C;">Duration</div>
+        <div style="font-size: 13px;">8 weeks</div>
+      </div>
+      <div style="padding: 12px 22px; border-left: 1px solid #EFEFEC; display: flex; flex-direction: column; gap: 3px;">
+        <div style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #8A919C;">Shift</div>
+        <div style="font-size: 13px;">Day · 6:00 AM</div>
+      </div>
+      <div style="padding: 12px 22px; border-left: 1px solid #EFEFEC; display: flex; flex-direction: column; gap: 3px;">
+        <div style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #8A919C;">Schedule</div>
+        <div style="font-size: 13px;">10 hrs × 6 days</div>
+      </div>
+      <div style="padding: 12px 22px; border-left: 1px solid #EFEFEC; display: flex; flex-direction: column; gap: 3px;">
+        <div style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #8A919C;">Per diem</div>
+        <div style="font-size: 13px; font-family: 'IBM Plex Mono', monospace;">$135.00 / day worked</div>
+      </div>
+      <div style="padding: 12px 22px; border-left: 1px solid #EFEFEC; display: flex; flex-direction: column; gap: 3px;">
+        <div style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #8A919C;">PO</div>
+        <div style="font-size: 13px; font-family: 'IBM Plex Mono', monospace;">4500918823</div>
+      </div>
+      <div style="padding: 12px 22px; border-left: 1px solid #EFEFEC; display: flex; flex-direction: column; gap: 3px;">
+        <div style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #8A919C;">US Trades rep</div>
+        <div style="font-size: 13px;">Diego Fuentes</div>
+      </div>
+      <div style="flex-grow: 1;"></div>
+      <div style="padding: 12px 0 12px 22px; border-left: 1px solid #EFEFEC; display: flex; flex-direction: column; gap: 5px;">
+        <div style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #8A919C;">Required certifications</div>
+        <div style="display: flex; gap: 5px;">
+          <span style="background: #F2F5F8; border: 1px solid #D9E1E9; color: #2E4763; font-size: 10.5px; padding: 2px 7px; font-weight: 500;">TWIC</span>
+          <span style="background: #F2F5F8; border: 1px solid #D9E1E9; color: #2E4763; font-size: 10.5px; padding: 2px 7px; font-weight: 500;">DISA</span>
+          <span style="background: #F2F5F8; border: 1px solid #D9E1E9; color: #2E4763; font-size: 10.5px; padding: 2px 7px; font-weight: 500;">Basic Plus</span>
+          <span style="background: #F2F5F8; border: 1px solid #D9E1E9; color: #2E4763; font-size: 10.5px; padding: 2px 7px; font-weight: 500;">TX License</span>
+          <span style="background: #FFFFFF; border: 1px dashed #C4C7C1; color: #7C838E; font-size: 10.5px; padding: 2px 7px;">NCCER pref.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div style="flex-grow: 1; padding: 20px 26px 34px 26px; display: grid; grid-template-columns: minmax(0, 1fr) 348px; gap: 20px; align-items: start;">
+
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+
+      <!-- Line 1 -->
+      <div style="background: #FFFFFF; border: 1px solid #E2E3DF;">
+        <div style="height: 52px; border-bottom: 1px solid #E2E3DF; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; background: #FAFAF8;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8A919C;">LINE 1</div>
+            <div style="font-size: 15px; font-weight: 500;">Pipefitter · Journeyman</div>
+            <span style="background: #EEF2F6; color: #2E4763; font-size: 11px; padding: 3px 8px; font-weight: 500;">7 of 12 filled</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 20px;">
+            <div style="display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: #6C7480;">
+              Bill rate <span style="font-family: 'IBM Plex Mono', monospace; color: #15181D;">$68.50/hr</span>
+            </div>
+            <div style="width: 108px; height: 6px; background: #EDEEEA;"><div style="width: 63px; height: 6px; background: #2F7D4F;"></div></div>
+          </div>
+        </div>
+
+        <div style="height: 30px; background: #FFFFFF; border-bottom: 1px solid #EFEFEC; display: flex; align-items: center; padding: 0 18px; font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase; color: #8A919C;">
+          <div style="width: 226px;">Candidate</div>
+          <div style="width: 160px;">Stage</div>
+          <div style="width: 118px;">Start</div>
+          <div style="flex-grow: 1;">Credentials</div>
+          <div style="width: 130px;"></div>
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+
+          <div style="height: 50px; border-bottom: 1px solid #EFEFEC; display: flex; align-items: center; padding: 0 18px;">
+            <div style="width: 226px; display: flex; align-items: center; gap: 11px;">
+              <div style="width: 28px; height: 28px; background: #EEF0F3; color: #47596F; font-size: 10.5px; font-weight: 500; display: flex; align-items: center; justify-content: center;">JR</div>
+              <div style="display: flex; flex-direction: column; gap: 1px;">
+                <div style="font-size: 13.5px; font-weight: 500;">John R.</div>
+                <div style="font-size: 11px; color: #7C838E;">14 yrs · Beaumont, TX</div>
+              </div>
+            </div>
+            <div style="width: 160px;"><span style="background: #E8F3EC; color: #24663F; font-size: 11px; padding: 3px 8px; font-weight: 500;">Confirmed</span></div>
+            <div style="width: 118px; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">Oct 05</div>
+            <div style="flex-grow: 1; display: flex; gap: 5px;">
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">TWIC</span>
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">DISA</span>
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">Basic Plus</span>
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">TX Lic</span>
+            </div>
+            <div style="width: 130px; text-align: right; font-size: 12.5px; color: #7C838E;">Badge active</div>
+          </div>
+
+          <div style="height: 50px; border-bottom: 1px solid #EFEFEC; display: flex; align-items: center; padding: 0 18px;">
+            <div style="width: 226px; display: flex; align-items: center; gap: 11px;">
+              <div style="width: 28px; height: 28px; background: #EEF0F3; color: #47596F; font-size: 10.5px; font-weight: 500; display: flex; align-items: center; justify-content: center;">HS</div>
+              <div style="display: flex; flex-direction: column; gap: 1px;">
+                <div style="font-size: 13.5px; font-weight: 500;">Hector S.</div>
+                <div style="font-size: 11px; color: #7C838E;">9 yrs · Baytown, TX</div>
+              </div>
+            </div>
+            <div style="width: 160px;"><span style="background: #E8F3EC; color: #24663F; font-size: 11px; padding: 3px 8px; font-weight: 500;">Confirmed</span></div>
+            <div style="width: 118px; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">Oct 05</div>
+            <div style="flex-grow: 1; display: flex; gap: 5px;">
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">TWIC</span>
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">DISA</span>
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">Basic Plus</span>
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">TX Lic</span>
+            </div>
+            <div style="width: 130px; text-align: right; font-size: 12.5px; color: #7C838E;">Badging Oct 02</div>
+          </div>
+
+          <div style="height: 50px; border-bottom: 1px solid #EFEFEC; display: flex; align-items: center; padding: 0 18px; background: #FEFAF5;">
+            <div style="width: 226px; display: flex; align-items: center; gap: 11px;">
+              <div style="width: 28px; height: 28px; background: #EEF0F3; color: #47596F; font-size: 10.5px; font-weight: 500; display: flex; align-items: center; justify-content: center;">DE</div>
+              <div style="display: flex; flex-direction: column; gap: 1px;">
+                <div style="font-size: 13.5px; font-weight: 500;">Dwayne E.</div>
+                <div style="font-size: 11px; color: #7C838E;">11 yrs · Orange, TX</div>
+              </div>
+            </div>
+            <div style="width: 160px;"><span style="background: #FDF1E4; color: #8A4708; font-size: 11px; padding: 3px 8px; font-weight: 600;">Awaiting your approval</span></div>
+            <div style="width: 118px; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">Oct 05</div>
+            <div style="flex-grow: 1; display: flex; gap: 5px;">
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">TWIC</span>
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">DISA</span>
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">Basic Plus</span>
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">TX Lic</span>
+            </div>
+            <div style="width: 130px; display: flex; justify-content: flex-end; gap: 6px;">
+              <div style="height: 27px; border: 1px solid #D6D8D3; padding: 0 10px; display: flex; align-items: center; font-size: 12px; color: #4A515C;">Decline</div>
+              <div style="height: 27px; background: #26374C; color: #FFFFFF; padding: 0 12px; display: flex; align-items: center; font-size: 12px; font-weight: 500;">Approve</div>
+            </div>
+          </div>
+
+          <div style="height: 50px; border-bottom: 1px solid #EFEFEC; display: flex; align-items: center; padding: 0 18px;">
+            <div style="width: 226px; display: flex; align-items: center; gap: 11px;">
+              <div style="width: 28px; height: 28px; background: #EEF0F3; color: #47596F; font-size: 10.5px; font-weight: 500; display: flex; align-items: center; justify-content: center;">VO</div>
+              <div style="display: flex; flex-direction: column; gap: 1px;">
+                <div style="font-size: 13.5px; font-weight: 500;">Vince O.</div>
+                <div style="font-size: 11px; color: #7C838E;">6 yrs · Houston, TX</div>
+              </div>
+            </div>
+            <div style="width: 160px;"><span style="background: #F1F1EE; color: #5B626C; font-size: 11px; padding: 3px 8px; font-weight: 500;">Onboarding</span></div>
+            <div style="width: 118px; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">Oct 12</div>
+            <div style="flex-grow: 1; display: flex; gap: 5px; align-items: center;">
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">TWIC</span>
+              <span style="background: #FBF1DE; color: #8A5A08; font-size: 10.5px; padding: 2px 6px;">DISA pending</span>
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">Basic Plus</span>
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">TX Lic</span>
+            </div>
+            <div style="width: 130px; text-align: right; font-size: 12.5px; color: #8A5A08;">Panel due Sep 26</div>
+          </div>
+
+          <div style="height: 44px; display: flex; align-items: center; padding: 0 18px; gap: 9px; color: #7C838E; font-size: 12.5px;">
+            <div style="width: 28px; height: 28px; border: 1px dashed #C4C7C1; display: flex; align-items: center; justify-content: center;">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="#B7BCC4" stroke-width="1.6"><path d="M7 2.5V11.5M2.5 7H11.5"/></svg>
+            </div>
+            5 more confirmed on this line · 3 seats still to source
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Line 2 -->
+      <div style="background: #FFFFFF; border: 1px solid #E2E3DF;">
+        <div style="height: 52px; border-bottom: 1px solid #E2E3DF; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; background: #FAFAF8;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8A919C;">LINE 2</div>
+            <div style="font-size: 15px; font-weight: 500;">Pipefitter · Foreman</div>
+            <span style="background: #EEF2F6; color: #2E4763; font-size: 11px; padding: 3px 8px; font-weight: 500;">1 of 2 filled</span>
+            <span style="background: #FFFFFF; border: 1px solid #D9E1E9; color: #2E4763; font-size: 10.5px; padding: 2px 7px;">+ NCCER Supervisor</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 20px;">
+            <div style="display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: #6C7480;">
+              Bill rate <span style="font-family: 'IBM Plex Mono', monospace; color: #15181D;">$79.00/hr</span>
+            </div>
+            <div style="width: 108px; height: 6px; background: #EDEEEA;"><div style="width: 54px; height: 6px; background: #2F7D4F;"></div></div>
+          </div>
+        </div>
+
+        <div style="height: 30px; background: #FFFFFF; border-bottom: 1px solid #EFEFEC; display: flex; align-items: center; padding: 0 18px; font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase; color: #8A919C;">
+          <div style="width: 226px;">Candidate</div>
+          <div style="width: 160px;">Stage</div>
+          <div style="width: 118px;">Start</div>
+          <div style="flex-grow: 1;">Credentials</div>
+          <div style="width: 130px;"></div>
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+          <div style="height: 50px; border-bottom: 1px solid #EFEFEC; display: flex; align-items: center; padding: 0 18px;">
+            <div style="width: 226px; display: flex; align-items: center; gap: 11px;">
+              <div style="width: 28px; height: 28px; background: #EEF0F3; color: #47596F; font-size: 10.5px; font-weight: 500; display: flex; align-items: center; justify-content: center;">TB</div>
+              <div style="display: flex; flex-direction: column; gap: 1px;">
+                <div style="font-size: 13.5px; font-weight: 500;">Terrell B.</div>
+                <div style="font-size: 11px; color: #7C838E;">19 yrs · Lake Charles, LA</div>
+              </div>
+            </div>
+            <div style="width: 160px;"><span style="background: #E8F3EC; color: #24663F; font-size: 11px; padding: 3px 8px; font-weight: 500;">Confirmed</span></div>
+            <div style="width: 118px; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">Oct 05</div>
+            <div style="flex-grow: 1; display: flex; gap: 5px;">
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">TWIC</span>
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">DISA</span>
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">Basic Plus</span>
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">NCCER Sup</span>
+            </div>
+            <div style="width: 130px; text-align: right; font-size: 12.5px; color: #7C838E;">Badging Oct 02</div>
+          </div>
+
+          <div style="height: 50px; display: flex; align-items: center; padding: 0 18px; background: #FEFAF5;">
+            <div style="width: 226px; display: flex; align-items: center; gap: 11px;">
+              <div style="width: 28px; height: 28px; background: #EEF0F3; color: #47596F; font-size: 10.5px; font-weight: 500; display: flex; align-items: center; justify-content: center;">AB</div>
+              <div style="display: flex; flex-direction: column; gap: 1px;">
+                <div style="font-size: 13.5px; font-weight: 500;">Alicia B.</div>
+                <div style="font-size: 11px; color: #7C838E;">16 yrs · Port Neches, TX</div>
+              </div>
+            </div>
+            <div style="width: 160px;"><span style="background: #FDF1E4; color: #8A4708; font-size: 11px; padding: 3px 8px; font-weight: 600;">Awaiting your approval</span></div>
+            <div style="width: 118px; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">Oct 05</div>
+            <div style="flex-grow: 1; display: flex; gap: 5px; align-items: center;">
+              <span style="background: #FBF1DE; color: #8A5A08; font-size: 10.5px; padding: 2px 6px; font-weight: 500;">TWIC exp. Nov 12</span>
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">DISA</span>
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">Basic Plus</span>
+              <span style="background: #E8F3EC; color: #24663F; font-size: 10.5px; padding: 2px 6px;">NCCER Sup</span>
+            </div>
+            <div style="width: 130px; display: flex; justify-content: flex-end; gap: 6px;">
+              <div style="height: 27px; border: 1px solid #D6D8D3; padding: 0 10px; display: flex; align-items: center; font-size: 12px; color: #4A515C;">Decline</div>
+              <div style="height: 27px; background: #26374C; color: #FFFFFF; padding: 0 12px; display: flex; align-items: center; font-size: 12px; font-weight: 500;">Approve</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Rail -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+
+      <div style="background: #FFFFFF; border: 1px solid #E2E3DF;">
+        <div style="height: 42px; border-bottom: 1px solid #E2E3DF; display: flex; align-items: center; justify-content: space-between; padding: 0 16px;">
+          <div style="font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase; font-weight: 600; color: #4A515C;">Messages</div>
+          <div style="font-size: 11px; color: #9AA1AC;">3</div>
+        </div>
+        <div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 15px;">
+
+          <div style="display: flex; gap: 10px;">
+            <div style="width: 26px; height: 26px; background: #26374C; color: #FFFFFF; font-size: 10px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">DF</div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="display: flex; align-items: baseline; gap: 8px;">
+                <div style="font-size: 12.5px; font-weight: 500;">Diego Fuentes</div>
+                <div style="font-size: 10.5px; color: #9AA1AC; font-family: 'IBM Plex Mono', monospace;">2 days ago</div>
+              </div>
+              <div style="font-size: 12.5px; line-height: 1.55; color: #3F4650;">Two more submitted for your review. Dwayne worked your Unit 3 job last spring — Kyle asked for him by name.</div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <div style="width: 26px; height: 26px; background: #EEF0F3; color: #47596F; font-size: 10px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">JH</div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="display: flex; align-items: baseline; gap: 8px;">
+                <div style="font-size: 12.5px; font-weight: 500;">Jim Holloway</div>
+                <div style="font-size: 10.5px; color: #9AA1AC; font-family: 'IBM Plex Mono', monospace;">Sep 2</div>
+              </div>
+              <div style="font-size: 12.5px; line-height: 1.55; color: #3F4650;">Gate 4 will be closed the first week — have everyone report to Gate 2 through Oct 12.</div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <div style="width: 26px; height: 26px; background: #26374C; color: #FFFFFF; font-size: 10px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">DF</div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="display: flex; align-items: baseline; gap: 8px;">
+                <div style="font-size: 12.5px; font-weight: 500;">Diego Fuentes</div>
+                <div style="font-size: 10.5px; color: #9AA1AC; font-family: 'IBM Plex Mono', monospace;">Sep 1</div>
+              </div>
+              <div style="font-size: 12.5px; line-height: 1.55; color: #3F4650;">Got it — acknowledged. Working the journeyman line first.</div>
+            </div>
+          </div>
+
+          <div style="border: 1px solid #D6D8D3; padding: 10px 12px; font-size: 12.5px; color: #9AA1AC;">Write a message…</div>
+        </div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1px solid #E2E3DF;">
+        <div style="height: 42px; border-bottom: 1px solid #E2E3DF; display: flex; align-items: center; padding: 0 16px;">
+          <div style="font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase; font-weight: 600; color: #4A515C;">Attachments</div>
+        </div>
+        <div style="padding: 12px 16px; display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#B3402F" stroke-width="1.4"><path d="M3 1.5h6.5L13 5v9.5H3V1.5Z"/><path d="M9.5 1.5V5H13"/></svg>
+            <div style="display: flex; flex-direction: column;">
+              <div style="font-size: 12.5px;">Unit7_TA_Scope_RevC.pdf</div>
+              <div style="font-size: 10.5px; color: #9AA1AC; font-family: 'IBM Plex Mono', monospace;">2.4 MB · Sep 1</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#2E4763" stroke-width="1.4"><path d="M3 1.5h6.5L13 5v9.5H3V1.5Z"/><path d="M9.5 1.5V5H13"/></svg>
+            <div style="display: flex; flex-direction: column;">
+              <div style="font-size: 12.5px;">Gate2_Access_Map.png</div>
+              <div style="font-size: 10.5px; color: #9AA1AC; font-family: 'IBM Plex Mono', monospace;">640 KB · Sep 2</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1px solid #E2E3DF;">
+        <div style="height: 42px; border-bottom: 1px solid #E2E3DF; display: flex; align-items: center; padding: 0 16px;">
+          <div style="font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase; font-weight: 600; color: #4A515C;">Timeline</div>
+        </div>
+        <div style="padding: 12px 16px 14px 16px; display: flex; flex-direction: column;">
+          <div style="display: flex; gap: 11px;">
+            <div style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0;">
+              <div style="width: 7px; height: 7px; background: #D96A0B; margin-top: 5px;"></div>
+              <div style="width: 1px; flex-grow: 1; background: #E2E3DF;"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px; padding-bottom: 14px;">
+              <div style="font-size: 12.5px;">2 candidates submitted for review</div>
+              <div style="font-size: 10.5px; color: #9AA1AC; font-family: 'IBM Plex Mono', monospace;">Sep 1, 4:15 PM</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 11px;">
+            <div style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0;">
+              <div style="width: 7px; height: 7px; background: #2F7D4F; margin-top: 5px;"></div>
+              <div style="width: 1px; flex-grow: 1; background: #E2E3DF;"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px; padding-bottom: 14px;">
+              <div style="font-size: 12.5px;">Terrell B. confirmed for Line 2</div>
+              <div style="font-size: 10.5px; color: #9AA1AC; font-family: 'IBM Plex Mono', monospace;">Sep 2, 3:40 PM</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 11px;">
+            <div style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0;">
+              <div style="width: 7px; height: 7px; background: #26374C; margin-top: 5px;"></div>
+              <div style="width: 1px; flex-grow: 1; background: #E2E3DF;"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px; padding-bottom: 14px;">
+              <div style="font-size: 12.5px;">Acknowledged by Diego Fuentes</div>
+              <div style="font-size: 10.5px; color: #9AA1AC; font-family: 'IBM Plex Mono', monospace;">Sep 1, 10:04 AM</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 11px;">
+            <div style="display: flex; flex-direction: column; align-items: center; flex-shrink: 0;">
+              <div style="width: 7px; height: 7px; background: #B7BCC4; margin-top: 5px;"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <div style="font-size: 12.5px;">Submitted by Jim Holloway</div>
+              <div style="font-size: 10.5px; color: #9AA1AC; font-family: 'IBM Plex Mono', monospace;">Sep 1, 9:38 AM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>

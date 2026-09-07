@@ -1,0 +1,326 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #D96A0B; text-decoration: none; }
+    a:hover { color: #A85008; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; height: 900px; display: flex; flex-direction: column; background: #F6F6F3; color: #15181D; overflow: hidden;">
+
+  <div style="height: 54px; background: #26374C; display: flex; align-items: center; justify-content: space-between; padding: 0 22px; flex-shrink: 0;">
+    <div style="display: flex; align-items: center; gap: 30px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <svg width="24" height="24" viewBox="0 0 34 34" fill="none">
+          <rect x="0.75" y="0.75" width="32.5" height="32.5" stroke="#D96A0B" stroke-width="2"/>
+          <path d="M9 24V10.5M9 10.5H17.5C19.5 10.5 21 12 21 14C21 16 19.5 17.5 17.5 17.5H9" stroke="#FFFFFF" stroke-width="2.6"/>
+          <path d="M17 17.5L25 24" stroke="#FFFFFF" stroke-width="2.6"/>
+        </svg>
+        <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.12em; color: #FFFFFF;">US TRADES</div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 4px;">
+        <div style="padding: 6px 12px; font-size: 13.5px; color: #B4C1D0;">Dashboard</div>
+        <div style="padding: 6px 12px; font-size: 13.5px; color: #FFFFFF; background: rgba(255,255,255,0.12); font-weight: 500;">Requests</div>
+        <div style="padding: 6px 12px; font-size: 13.5px; color: #B4C1D0;">Sites</div>
+        <div style="padding: 6px 12px; font-size: 13.5px; color: #B4C1D0;">Team</div>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 9px;">
+      <div style="width: 28px; height: 28px; background: #47596F; color: #FFFFFF; font-size: 11.5px; font-weight: 500; display: flex; align-items: center; justify-content: center;">JH</div>
+      <div style="display: flex; flex-direction: column;">
+        <div style="font-size: 12.5px; color: #FFFFFF;">Jim Holloway</div>
+        <div style="font-size: 10.5px; color: #93A3B6;">Meridian Refining</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: #FFFFFF; border-bottom: 1px solid #E2E3DF; padding: 14px 26px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <div style="display: flex; align-items: center; gap: 7px; font-size: 12px; color: #7C838E;">
+        <span>Requests</span>
+        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#B7BCC4" stroke-width="1.5"><path d="M4.5 2.5L8 6L4.5 9.5"/></svg>
+        <span style="color: #15181D;">Review candidates</span>
+      </div>
+      <div style="display: flex; align-items: baseline; gap: 12px;">
+        <div style="font-size: 20px; font-weight: 500; letter-spacing: -0.012em;">Review candidates</div>
+        <div style="font-size: 12.5px; color: #6C7480;">5 waiting across 3 requests</div>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="font-size: 12.5px; color: #6C7480;">Candidate <span style="font-family: 'IBM Plex Mono', monospace; color: #15181D;">1</span> of <span style="font-family: 'IBM Plex Mono', monospace;">5</span></div>
+      <div style="display: flex;">
+        <div style="width: 32px; height: 32px; border: 1px solid #D6D8D3; background: #FFFFFF; display: flex; align-items: center; justify-content: center;">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#B7BCC4" stroke-width="1.6"><path d="M7.5 2.5L4 6L7.5 9.5"/></svg>
+        </div>
+        <div style="width: 32px; height: 32px; border: 1px solid #D6D8D3; border-left: none; background: #FFFFFF; display: flex; align-items: center; justify-content: center;">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#4A515C" stroke-width="1.6"><path d="M4.5 2.5L8 6L4.5 9.5"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; padding: 18px 26px; display: grid; grid-template-columns: 268px minmax(0, 1fr) 300px; gap: 18px; overflow: hidden;">
+
+    <!-- Queue -->
+    <div style="background: #FFFFFF; border: 1px solid #E2E3DF; display: flex; flex-direction: column; overflow: hidden;">
+      <div style="height: 40px; border-bottom: 1px solid #E2E3DF; display: flex; align-items: center; padding: 0 14px;">
+        <div style="font-size: 11.5px; letter-spacing: 0.09em; text-transform: uppercase; font-weight: 600; color: #4A515C;">Awaiting review</div>
+      </div>
+      <div style="display: flex; flex-direction: column;">
+
+        <div style="padding: 12px 14px; border-bottom: 1px solid #EFEFEC; border-left: 3px solid #D96A0B; background: #FEFAF5; display: flex; gap: 10px;">
+          <div style="width: 30px; height: 30px; background: #EEF0F3; color: #47596F; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">DE</div>
+          <div style="display: flex; flex-direction: column; gap: 3px;">
+            <div style="font-size: 13px; font-weight: 500;">Dwayne E.</div>
+            <div style="font-size: 11.5px; color: #7C838E;">Journeyman Pipefitter</div>
+            <div style="display: flex; align-items: center; gap: 4px; font-size: 10.5px; color: #24663F;">
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#24663F" stroke-width="2"><path d="M2.5 6.2L5 8.7L9.5 3.6"/></svg>
+              All credentials current
+            </div>
+          </div>
+        </div>
+
+        <div style="padding: 12px 14px; border-bottom: 1px solid #EFEFEC; border-left: 3px solid transparent; display: flex; gap: 10px;">
+          <div style="width: 30px; height: 30px; background: #EEF0F3; color: #47596F; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">AB</div>
+          <div style="display: flex; flex-direction: column; gap: 3px;">
+            <div style="font-size: 13px; font-weight: 500;">Alicia B.</div>
+            <div style="font-size: 11.5px; color: #7C838E;">Foreman Pipefitter</div>
+            <div style="display: flex; align-items: center; gap: 4px; font-size: 10.5px; color: #8A5A08;">
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#8A5A08" stroke-width="1.6"><circle cx="6" cy="6" r="4.6"/><path d="M6 3.4V6.2L7.8 7.4"/></svg>
+              TWIC expires Nov 12
+            </div>
+          </div>
+        </div>
+
+        <div style="padding: 12px 14px; border-bottom: 1px solid #EFEFEC; border-left: 3px solid transparent; display: flex; gap: 10px;">
+          <div style="width: 30px; height: 30px; background: #EEF0F3; color: #47596F; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">RF</div>
+          <div style="display: flex; flex-direction: column; gap: 3px;">
+            <div style="font-size: 13px; font-weight: 500;">Ray F.</div>
+            <div style="font-size: 11.5px; color: #7C838E;">Journeyman Welder</div>
+            <div style="display: flex; align-items: center; gap: 4px; font-size: 10.5px; color: #24663F;">
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#24663F" stroke-width="2"><path d="M2.5 6.2L5 8.7L9.5 3.6"/></svg>
+              All credentials current
+            </div>
+          </div>
+        </div>
+
+        <div style="padding: 12px 14px; border-bottom: 1px solid #EFEFEC; border-left: 3px solid transparent; display: flex; gap: 10px;">
+          <div style="width: 30px; height: 30px; background: #EEF0F3; color: #47596F; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">OK</div>
+          <div style="display: flex; flex-direction: column; gap: 3px;">
+            <div style="font-size: 13px; font-weight: 500;">Owen K.</div>
+            <div style="font-size: 11.5px; color: #7C838E;">Helper — Scaffold</div>
+            <div style="display: flex; align-items: center; gap: 4px; font-size: 10.5px; color: #24663F;">
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#24663F" stroke-width="2"><path d="M2.5 6.2L5 8.7L9.5 3.6"/></svg>
+              All credentials current
+            </div>
+          </div>
+        </div>
+
+        <div style="padding: 12px 14px; border-left: 3px solid transparent; display: flex; gap: 10px;">
+          <div style="width: 30px; height: 30px; background: #EEF0F3; color: #47596F; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">DP</div>
+          <div style="display: flex; flex-direction: column; gap: 3px;">
+            <div style="font-size: 13px; font-weight: 500;">Danielle P.</div>
+            <div style="font-size: 11.5px; color: #7C838E;">Helper — Scaffold</div>
+            <div style="display: flex; align-items: center; gap: 4px; font-size: 10.5px; color: #24663F;">
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#24663F" stroke-width="2"><path d="M2.5 6.2L5 8.7L9.5 3.6"/></svg>
+              All credentials current
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Candidate detail -->
+    <div style="background: #FFFFFF; border: 1px solid #E2E3DF; display: flex; flex-direction: column; overflow: hidden;">
+
+      <div style="padding: 20px 22px; border-bottom: 1px solid #E2E3DF; display: flex; gap: 18px; align-items: flex-start;">
+        <div style="width: 58px; height: 58px; background: #26374C; color: #FFFFFF; font-size: 19px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">DE</div>
+        <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 22px; font-weight: 500; letter-spacing: -0.012em;">Dwayne E.</div>
+            <span style="background: #E8F3EC; color: #24663F; font-size: 11px; padding: 3px 9px; font-weight: 500;">Ready to badge</span>
+          </div>
+          <div style="display: flex; gap: 16px; font-size: 13px; color: #4A515C;">
+            <div>Journeyman Pipefitter</div>
+            <div style="width: 1px; height: 13px; background: #DEDFDB; align-self: center;"></div>
+            <div>11 years experience</div>
+            <div style="width: 1px; height: 13px; background: #DEDFDB; align-self: center;"></div>
+            <div>Orange, TX · 42 mi</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: #7C838E;">
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="#9AA1AC" stroke-width="1.4"><rect x="2.5" y="6" width="9" height="6.2"/><path d="M4.6 6V4.2a2.4 2.4 0 0 1 4.8 0V6"/></svg>
+            Full name and contact details are shared once you approve
+          </div>
+        </div>
+        <div style="text-align: right; display: flex; flex-direction: column; gap: 4px;">
+          <div style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #8A919C;">Assigned to</div>
+          <div style="font-size: 13px; font-weight: 500;">Line 1 — Pipefitter JM</div>
+          <div style="font-size: 12px; color: #7C838E; font-family: 'IBM Plex Mono', monospace;">Seat 8 of 12</div>
+        </div>
+      </div>
+
+      <!-- Credential checklist -->
+      <div style="padding: 18px 22px; display: flex; flex-direction: column; gap: 12px; flex-grow: 1;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase; font-weight: 600; color: #4A515C;">Credentials against this request</div>
+          <div style="font-size: 12px; color: #24663F; font-weight: 500;">4 of 4 required · verified through the assignment</div>
+        </div>
+
+        <div style="border: 1px solid #E2E3DF;">
+          <div style="height: 30px; background: #FAFAF8; border-bottom: 1px solid #E2E3DF; display: flex; align-items: center; padding: 0 14px; font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase; color: #8A919C;">
+            <div style="width: 190px;">Requirement</div>
+            <div style="width: 100px;">Status</div>
+            <div style="width: 152px;">Number</div>
+            <div style="width: 118px;">Expires</div>
+            <div style="flex-grow: 1;">Verified</div>
+          </div>
+
+          <div style="height: 42px; border-bottom: 1px solid #EFEFEC; display: flex; align-items: center; padding: 0 14px; font-size: 13px;">
+            <div style="width: 190px; display: flex; align-items: center; gap: 8px;">
+              <div style="width: 5px; height: 5px; background: #26374C;"></div>
+              TWIC Card
+            </div>
+            <div style="width: 100px;"><span style="background: #E8F3EC; color: #24663F; font-size: 11px; padding: 3px 8px; font-weight: 500;">Verified</span></div>
+            <div style="width: 152px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4A515C;">••••  4471</div>
+            <div style="width: 118px; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">2029-03-14</div>
+            <div style="flex-grow: 1; font-size: 12px; color: #7C838E;">Doc on file · Aug 12, 2026</div>
+          </div>
+
+          <div style="height: 42px; border-bottom: 1px solid #EFEFEC; display: flex; align-items: center; padding: 0 14px; font-size: 13px;">
+            <div style="width: 190px; display: flex; align-items: center; gap: 8px;">
+              <div style="width: 5px; height: 5px; background: #26374C;"></div>
+              DISA
+            </div>
+            <div style="width: 100px;"><span style="background: #E8F3EC; color: #24663F; font-size: 11px; padding: 3px 8px; font-weight: 500;">Verified</span></div>
+            <div style="width: 152px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4A515C;">Consortium active</div>
+            <div style="width: 118px; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">2027-01-31</div>
+            <div style="flex-grow: 1; font-size: 12px; color: #7C838E;">Third-party lookup · Sep 1, 2026</div>
+          </div>
+
+          <div style="height: 42px; border-bottom: 1px solid #EFEFEC; display: flex; align-items: center; padding: 0 14px; font-size: 13px;">
+            <div style="width: 190px; display: flex; align-items: center; gap: 8px;">
+              <div style="width: 5px; height: 5px; background: #26374C;"></div>
+              Basic Plus
+            </div>
+            <div style="width: 100px;"><span style="background: #E8F3EC; color: #24663F; font-size: 11px; padding: 3px 8px; font-weight: 500;">Verified</span></div>
+            <div style="width: 152px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4A515C;">SC-2261908</div>
+            <div style="width: 118px; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">2027-05-02</div>
+            <div style="flex-grow: 1; font-size: 12px; color: #7C838E;">Doc on file · Jun 3, 2026</div>
+          </div>
+
+          <div style="height: 42px; border-bottom: 1px solid #EFEFEC; display: flex; align-items: center; padding: 0 14px; font-size: 13px;">
+            <div style="width: 190px; display: flex; align-items: center; gap: 8px;">
+              <div style="width: 5px; height: 5px; background: #26374C;"></div>
+              State License — TX
+            </div>
+            <div style="width: 100px;"><span style="background: #E8F3EC; color: #24663F; font-size: 11px; padding: 3px 8px; font-weight: 500;">Verified</span></div>
+            <div style="width: 152px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4A515C;">TX-PF-118234</div>
+            <div style="width: 118px; font-family: 'IBM Plex Mono', monospace; font-size: 12px;">2028-08-31</div>
+            <div style="flex-grow: 1; font-size: 12px; color: #7C838E;">Doc on file · Aug 12, 2026</div>
+          </div>
+
+          <div style="height: 42px; display: flex; align-items: center; padding: 0 14px; font-size: 13px; background: #FCFCFB;">
+            <div style="width: 190px; display: flex; align-items: center; gap: 8px; color: #6C7480;">
+              <div style="width: 5px; height: 5px; border: 1px solid #B7BCC4;"></div>
+              NCCER <span style="font-size: 11px; color: #9AA1AC;">(preferred)</span>
+            </div>
+            <div style="width: 100px;"><span style="background: #E8F3EC; color: #24663F; font-size: 11px; padding: 3px 8px; font-weight: 500;">Verified</span></div>
+            <div style="width: 152px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4A515C;">NC-8840217</div>
+            <div style="width: 118px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #7C838E;">No expiration</div>
+            <div style="flex-grow: 1; font-size: 12px; color: #7C838E;">Registry lookup · Aug 12, 2026</div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 4px;">
+          <div style="border: 1px solid #E2E3DF; padding: 14px;">
+            <div style="font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase; color: #8A919C; margin-bottom: 10px;">Worked for you before</div>
+            <div style="display: flex; flex-direction: column; gap: 9px;">
+              <div style="display: flex; justify-content: space-between; font-size: 12.5px;">
+                <div>Baytown Olefins — Unit 3</div>
+                <div style="color: #7C838E; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px;">Apr–Jun 2026</div>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 12.5px;">
+                <div>Port Arthur Coker</div>
+                <div style="color: #7C838E; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px;">Oct–Nov 2025</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: #24663F; margin-top: 2px;">
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#24663F" stroke-width="2"><path d="M2.5 6.2L5 8.7L9.5 3.6"/></svg>
+                632 hours · no safety incidents
+              </div>
+            </div>
+          </div>
+
+          <div style="border: 1px solid #E2E3DF; padding: 14px;">
+            <div style="font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase; color: #8A919C; margin-bottom: 10px;">Note from US Trades</div>
+            <div style="display: flex; gap: 10px;">
+              <div style="width: 24px; height: 24px; background: #26374C; color: #FFFFFF; font-size: 9.5px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">DF</div>
+              <div style="font-size: 12.5px; line-height: 1.55; color: #3F4650;">Strong on large-bore stainless and knows your Baytown layout from the Unit 3 outage last spring. Kyle Reyes asked for him by name. Available the full 8 weeks.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Decision rail -->
+    <div style="display: flex; flex-direction: column; gap: 16px; overflow: hidden;">
+
+      <div style="background: #FFFFFF; border: 1px solid #E2E3DF; padding: 16px; display: flex; flex-direction: column; gap: 13px;">
+        <div style="font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase; font-weight: 600; color: #4A515C;">Your decision</div>
+        <div style="height: 44px; background: #26374C; color: #FFFFFF; display: flex; align-items: center; justify-content: center; gap: 9px; font-size: 14px; font-weight: 500;">
+          <svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="#FFFFFF" stroke-width="2"><path d="M3 7.2L5.8 10L11 4.4"/></svg>
+          Approve for Line 1
+        </div>
+        <div style="height: 40px; border: 1px solid #D6D8D3; background: #FFFFFF; color: #3F4650; display: flex; align-items: center; justify-content: center; font-size: 13.5px;">Decline with reason</div>
+        <div style="height: 36px; display: flex; align-items: center; justify-content: center; font-size: 12.5px; color: #7C838E;">Ask US Trades a question</div>
+        <div style="border-top: 1px solid #EFEFEC; padding-top: 12px; font-size: 11.5px; color: #9AA1AC; line-height: 1.55;">Approving starts badging and site orientation. Diego Fuentes is notified immediately.</div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1px solid #E2E3DF; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <div style="font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase; font-weight: 600; color: #4A515C;">This request</div>
+        <div style="display: flex; flex-direction: column; gap: 9px;">
+          <div style="display: flex; justify-content: space-between; font-size: 12.5px;">
+            <div style="color: #6C7480;">Request</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">MER-2026-0142</div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 12.5px;">
+            <div style="color: #6C7480;">Site</div>
+            <div>Baytown — Unit 7</div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 12.5px;">
+            <div style="color: #6C7480;">Start</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">Oct 05, 2026</div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 12.5px;">
+            <div style="color: #6C7480;">Seats filled</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">8 / 14</div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 12.5px;">
+            <div style="color: #6C7480;">Badging lead time</div>
+            <div>3 business days</div>
+          </div>
+        </div>
+        <div style="border-top: 1px solid #EFEFEC; padding-top: 12px; display: flex; align-items: flex-start; gap: 8px;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#B4740A" stroke-width="1.6" style="margin-top: 1px; flex-shrink: 0;"><path d="M8 2L14.5 13.5h-13L8 2Z"/><path d="M8 6.4v3M8 11.2v.3"/></svg>
+          <div style="font-size: 12px; color: #8A5A08; line-height: 1.5;">6 seats still open with 32 days to start.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>
