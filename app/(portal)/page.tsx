@@ -201,8 +201,35 @@ export default async function RequisitionsPage() {
                           ? `${Number(r.duration_weeks)} wks`
                           : "—"}
                     </td>
-                    <td style={{ color: "var(--steel)" }}>
-                      {summarizeLines(linesFor.get(r.id) ?? []) || "—"}
+                    <td>
+                      {(linesFor.get(r.id) ?? []).length === 0 ? (
+                        <span style={{ color: "var(--steel-dim)" }}>—</span>
+                      ) : (
+                        (linesFor.get(r.id) ?? []).map((l, i) => (
+                          <div
+                            key={i}
+                            style={{
+                              display: "flex",
+                              gap: 8,
+                              color: "var(--steel)",
+                              lineHeight: 1.5,
+                            }}
+                          >
+                            <span
+                              className="mono"
+                              style={{ minWidth: 22, textAlign: "right" }}
+                            >
+                              {l.quantity}
+                            </span>
+                            <span>
+                              {l.craft_name}{" "}
+                              <span style={{ color: "var(--steel-dim)" }}>
+                                {l.level_name}
+                              </span>
+                            </span>
+                          </div>
+                        ))
+                      )}
                     </td>
                     <td>
                       {fill && fill.total_requested > 0 ? (
