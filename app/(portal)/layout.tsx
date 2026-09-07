@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
 import { NavTabs } from "@/components/nav-tabs";
 
 export default async function PortalLayout({
@@ -62,7 +63,13 @@ export default async function PortalLayout({
 
           <div>
             <div className="nav-label">
-              {profile?.full_name ?? user.email}
+              {isAgency ? (
+                <Link href="/agency" style={{ color: "var(--brand-red)" }}>
+                  → Agency console
+                </Link>
+              ) : (
+                (profile?.full_name ?? user.email)
+              )}
             </div>
             <NavTabs />
           </div>
