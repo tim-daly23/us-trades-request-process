@@ -370,10 +370,6 @@ export default async function CustomerDetail({
                 <span>ZIP</span>
                 <input name="postal_code" placeholder="77520" />
               </label>
-              <label className="field">
-                <span>Safety council</span>
-                <input name="safety_council_name" placeholder="Houston Area Safety Council" />
-              </label>
             </div>
 
             <fieldset
