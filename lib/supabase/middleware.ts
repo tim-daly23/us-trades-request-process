@@ -15,9 +15,28 @@ const PUBLIC_PATHS = ["/login", "/auth"];
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  // NEXT_PUBLIC_* values are compiled in at build time, so a deployment built
+  // before they were configured has them undefined. Constructing the client
+  // would throw, and because middleware runs before every route that takes the
+  // entire site down with MIDDLEWARE_INVOCATION_FAILED — including the login
+  // page, which needs no session at all.
+  //
+  // Fail open to the public routes instead: the app is misconfigured either
+  // way, but the failure stays legible rather than a blanket 500.
+  if (!url || !anonKey) {
+    console.error(
+      "Supabase environment variables are missing in this build. " +
+        "Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, then redeploy.",
+    );
+    return response;
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url,
+    anonKey,
     {
       cookies: {
         getAll() {
