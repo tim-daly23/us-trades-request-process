@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getPortalScope } from "@/lib/preview";
 import { getProfile } from "@/lib/auth";
 import { StatusBadge } from "@/components/status-badge";
 import { FillProgress } from "@/components/fill-progress";
@@ -48,27 +49,41 @@ const ONBOARDING_STAGES = new Set(["customer_approved", "onboarding", "confirmed
 export default async function CustomerDashboard() {
   const supabase = await createClient();
   const profile = await getProfile();
+  const scope = await getPortalScope();
+
+  // Agency staff can read every tenant, so the portal screens filter to the
+  // previewed customer. For a customer user this is their own id and the
+  // filter is redundant with RLS — harmless, and keeps one code path.
+  const only = <T,>(q: T): T =>
+    scope.customerId
+      ? ((q as { eq: (c: string, v: string) => T }).eq(
+          "customer_id",
+          scope.customerId,
+        ) as T)
+      : q;
 
   const [{ data: reqs }, { data: fills }, { data: candidates }, { count: siteCount }] =
     await Promise.all([
-      supabase
-        .from("requisitions")
-        .select(
-          "id, req_number, title, status, urgency, start_date, site:sites(name)",
-        )
+      only(
+        supabase
+          .from("requisitions")
+          .select(
+            "id, req_number, title, status, urgency, start_date, site:sites(name)",
+          ),
+      )
         .order("start_date", { ascending: true })
         .returns<Req[]>(),
-      supabase.from("requisition_fill_summary").select("*").returns<Fill[]>(),
-      supabase
-        .from("customer_candidate_view")
-        .select(
-          "placement_id, requisition_id, stage, first_name, last_initial, craft_name, level_name, scheduled_start_date",
-        )
-        .returns<Candidate[]>(),
-      supabase
-        .from("sites")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "active"),
+      only(supabase.from("requisition_fill_summary").select("*")).returns<Fill[]>(),
+      only(
+        supabase
+          .from("customer_candidate_view")
+          .select(
+            "placement_id, requisition_id, stage, first_name, last_initial, craft_name, level_name, scheduled_start_date",
+          ),
+      ).returns<Candidate[]>(),
+      only(
+        supabase.from("sites").select("id", { count: "exact", head: true }),
+      ).eq("status", "active"),
     ]);
 
   const rows = reqs ?? [];

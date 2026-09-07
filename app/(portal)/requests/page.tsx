@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getPortalScope } from "@/lib/preview";
 import { StatusBadge, UrgencyBadge } from "@/components/status-badge";
 import { FillProgress } from "@/components/fill-progress";
 import { formatDate } from "@/lib/format";
@@ -43,22 +44,38 @@ const CLOSED = new Set(["completed", "cancelled"]);
 
 export default async function RequisitionsPage() {
   const supabase = await createClient();
+  const scope = await getPortalScope();
+
+  // Agency staff can read every tenant, so the portal screens filter to the
+  // previewed customer. For a customer user this is their own id and the
+  // filter is redundant with RLS — harmless, and keeps one code path.
+  const only = <T,>(q: T): T =>
+    scope.customerId
+      ? ((q as { eq: (c: string, v: string) => T }).eq(
+          "customer_id",
+          scope.customerId,
+        ) as T)
+      : q;
 
   // RLS scopes all three to the caller's tenant; no customer_id filter here.
   const [{ data: reqs, error }, { data: fills }, { data: lines }] =
     await Promise.all([
-      supabase
-        .from("requisitions")
-        .select(
-          `id, req_number, title, status, urgency, start_date, duration_weeks,
-           is_ongoing, site:sites(name, city, state)`,
-        )
+      only(
+        supabase
+          .from("requisitions")
+          .select(
+            `id, req_number, title, status, urgency, start_date, duration_weeks,
+             is_ongoing, site:sites(name, city, state)`,
+          ),
+      )
         .order("start_date", { ascending: true })
         .returns<Requisition[]>(),
-      supabase.from("requisition_fill_summary").select("*").returns<FillRow[]>(),
-      supabase
-        .from("requisition_lines_visible")
-        .select("requisition_id, quantity, craft_name, level_name")
+      only(supabase.from("requisition_fill_summary").select("*")).returns<FillRow[]>(),
+      only(
+        supabase
+          .from("requisition_lines_visible")
+          .select("requisition_id, quantity, craft_name, level_name"),
+      )
         .order("line_number")
         .returns<LineRow[]>(),
     ]);

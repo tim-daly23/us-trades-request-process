@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { NavTabs } from "@/components/nav-tabs";
+import { PreviewBar } from "@/components/preview-bar";
+import { getPortalScope, listCustomersForPreview } from "@/lib/preview";
 
 export default async function PortalLayout({
   children,
@@ -26,16 +28,18 @@ export default async function PortalLayout({
 
   const isAgency = profile?.user_type === "agency";
 
-  // RLS returns only the caller's own tenant, so no filter is needed here.
-  const { data: customer } = isAgency
-    ? { data: null }
-    : await supabase
-        .from("customers")
-        .select("display_name")
-        .maybeSingle();
+  const scope = await getPortalScope();
+  const customers = isAgency ? await listCustomersForPreview() : [];
 
   return (
     <>
+      {isAgency && (
+        <PreviewBar
+          customers={customers}
+          activeId={scope.customerId}
+          activeName={scope.displayName}
+        />
+      )}
       <div className="brand-stripe" />
       <div className="shell">
         <div className="masthead">
@@ -52,11 +56,7 @@ export default async function PortalLayout({
               <h1>US Trades</h1>
               <p>
                 Manpower Portal
-                {!isAgency && customer?.display_name
-                  ? ` · ${customer.display_name}`
-                  : isAgency
-                    ? " · Agency console"
-                    : ""}
+                {scope.displayName ? ` · ${scope.displayName}` : ""}
               </p>
             </div>
           </div>

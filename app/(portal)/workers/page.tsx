@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getPortalScope } from "@/lib/preview";
 import { formatDate } from "@/lib/format";
 
 /**
@@ -68,14 +69,24 @@ const GROUPS: {
 
 export default async function CustomerWorkersPage() {
   const supabase = await createClient();
+  const scope = await getPortalScope();
+
+  // Agency staff can read every tenant, so the portal screens filter to the
+  // previewed customer. For a customer user this is their own id and the
+  // filter is redundant with RLS — harmless, and keeps one code path.
+  const only = <T,>(q: T): T =>
+    scope.customerId
+      ? ((q as { eq: (c: string, v: string) => T }).eq(
+          "customer_id",
+          scope.customerId,
+        ) as T)
+      : q;
 
   const [{ data: rows }, { data: reqs }] = await Promise.all([
-    supabase
-      .from("customer_candidate_view")
-      .select("*")
+    only(supabase.from("customer_candidate_view").select("*"))
       .order("scheduled_start_date", { nullsFirst: false })
       .returns<Row[]>(),
-    supabase.from("requisitions").select("id, req_number"),
+    only(supabase.from("requisitions").select("id, req_number")),
   ]);
 
   const numberFor = new Map((reqs ?? []).map((r) => [r.id, r.req_number]));

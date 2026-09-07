@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getPortalScope } from "@/lib/preview";
 import { getProfile } from "@/lib/auth";
 import { ActionForm } from "@/components/agency/action-form";
 import {
@@ -32,17 +33,29 @@ type Site = {
 export default async function CustomerSitesPage() {
   const supabase = await createClient();
   const profile = await getProfile();
+  const scope = await getPortalScope();
+
+  // Agency staff can read every tenant, so the portal screens filter to the
+  // previewed customer. For a customer user this is their own id and the
+  // filter is redundant with RLS — harmless, and keeps one code path.
+  const only = <T,>(q: T): T =>
+    scope.customerId
+      ? ((q as { eq: (c: string, v: string) => T }).eq(
+          "customer_id",
+          scope.customerId,
+        ) as T)
+      : q;
 
   const [{ data: sites }, { data: customer }, { data: twic }] = await Promise.all([
-    supabase
-      .from("sites")
-      .select("*, contacts:site_contacts(id, name, role, phone, is_primary)")
+    only(
+      supabase
+        .from("sites")
+        .select("*, contacts:site_contacts(id, name, role, phone, is_primary)"),
+    )
       .is("deleted_at", null)
       .order("name")
       .returns<Site[]>(),
-    supabase
-      .from("customers")
-      .select("allow_requester_site_create")
+    only(supabase.from("customers").select("allow_requester_site_create, id"))
       .maybeSingle(),
     supabase
       .from("credentials")
@@ -54,9 +67,10 @@ export default async function CustomerSitesPage() {
 
   const role = profile?.customer_role;
   const canManage =
-    role === "customer_admin" ||
+    !scope.isPreview &&
+    (role === "customer_admin" ||
     role === "approver" ||
-    (role === "requester" && customer?.allow_requester_site_create === true);
+      (role === "requester" && customer?.allow_requester_site_create === true));
 
   const rows = sites ?? [];
 
@@ -355,8 +369,9 @@ export default async function CustomerSitesPage() {
       ) : (
         <div className="panel">
           <div className="notice-warn">
-            Your account keeps its site list centrally. Ask an admin at your
-            company, or your US Trades rep, to add or change a site.
+            {scope.isPreview
+              ? "Staff preview is read-only. Manage this customer's sites from the console."
+              : "Your account keeps its site list centrally. Ask an admin at your company, or your US Trades rep, to add or change a site."}
           </div>
         </div>
       )}
