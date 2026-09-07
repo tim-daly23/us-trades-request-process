@@ -1,45 +1,40 @@
 /**
- * Status pill.
- *
- * Square, flat, small — matching the design canvas. Colour is never the only
- * carrier: the label is always spelled out.
+ * Status badge, using the dashboard's badge vocabulary so a status reads the
+ * same in both products: tinted background, matching border, Barlow Condensed.
  */
 const LABELS: Record<string, string> = {
+  draft: "Draft",
   pending_approval: "Awaiting approval",
+  submitted: "Submitted",
+  acknowledged: "Acknowledged",
+  sourcing: "Sourcing",
   partially_filled: "Partially filled",
+  filled: "Filled",
   active: "On site",
   on_hold: "On hold",
+  completed: "Completed",
+  cancelled: "Cancelled",
 };
 
-const STYLES: Record<string, string> = {
-  draft: "border border-dashed border-faint text-muted-2",
-  pending_approval: "bg-warn-soft text-warn-soft-fg",
-  submitted: "bg-neutral-soft text-neutral-soft-fg",
-  acknowledged: "bg-brand-soft text-brand-soft-fg",
-  sourcing: "bg-brand-soft text-brand-soft-fg",
-  partially_filled: "bg-brand-soft text-brand-soft-fg",
-  filled: "bg-ok-soft text-ok-soft-fg",
-  active: "bg-ok-soft text-ok-soft-fg",
-  on_hold: "bg-warn-soft text-warn-soft-fg",
-  completed: "bg-neutral-soft text-neutral-soft-fg",
-  cancelled: "bg-neutral-soft text-neutral-soft-fg",
+/** Maps a requisition status onto one of the shared badge tones. */
+const TONES: Record<string, string> = {
+  draft: "inactive",
+  pending_approval: "pending",
+  submitted: "submitted",
+  acknowledged: "submitted",
+  sourcing: "scheduled",
+  partially_filled: "scheduled",
+  filled: "approved",
+  active: "working",
+  on_hold: "pending",
+  completed: "inactive",
+  cancelled: "inactive",
 };
-
-function label(status: string) {
-  return (
-    LABELS[status] ??
-    status.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())
-  );
-}
 
 export function StatusBadge({ status }: { status: string }) {
   return (
-    <span
-      className={`inline-flex shrink-0 items-center px-2 py-[3px] text-[11px] font-medium ${
-        STYLES[status] ?? STYLES.draft
-      }`}
-    >
-      {label(status)}
+    <span className={`badge ${TONES[status] ?? "inactive"}`}>
+      {LABELS[status] ?? status.replace(/_/g, " ")}
     </span>
   );
 }
@@ -47,13 +42,7 @@ export function StatusBadge({ status }: { status: string }) {
 export function UrgencyBadge({ urgency }: { urgency: string }) {
   if (urgency === "standard") return null;
   return (
-    <span
-      className={`inline-flex shrink-0 items-center px-2 py-[3px] text-[11px] font-medium ${
-        urgency === "emergency"
-          ? "bg-danger-soft text-danger-soft-fg"
-          : "bg-warn-soft text-warn-soft-fg"
-      }`}
-    >
+    <span className={`badge ${urgency === "emergency" ? "declined" : "pending"}`}>
       {urgency === "emergency" ? "Emergency" : "Urgent"}
     </span>
   );

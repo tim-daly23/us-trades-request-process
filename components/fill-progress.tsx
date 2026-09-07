@@ -1,16 +1,15 @@
 /**
- * Seats filled, as a flat bar plus a monospace ratio.
+ * Seats filled: a flat bar and a monospace ratio, matching the dashboard's
+ * table density.
  *
- * "Filled" means cleared and scheduled — nothing looser. Workers who are
- * accepted but still working through badging, DISA or safety council show as a
- * second, quieter segment so the bar never claims readiness the crew does not
- * yet have.
+ * "Filled" means cleared and scheduled — nothing looser. Workers accepted but
+ * still working through badging, DISA or safety council show as a separate
+ * amber segment, so the bar never claims readiness the crew does not yet have.
  */
 export function FillProgress({
   requested,
   filled,
   onboarding,
-  /** Wide places the ratio beneath; inline keeps it on one row, for tables. */
   layout = "inline",
 }: {
   requested: number;
@@ -21,46 +20,39 @@ export function FillProgress({
   const total = Math.max(requested, 1);
   const filledPct = Math.min(100, (filled / total) * 100);
   const onboardingPct = Math.min(100 - filledPct, (onboarding / total) * 100);
-  const complete = requested > 0 && filled >= requested;
 
   const bar = (
     <span
-      className={`flex h-1.5 ${layout === "inline" ? "w-[68px]" : "w-full"} shrink-0 bg-line-soft`}
+      className="fill-track"
+      style={layout === "stacked" ? { width: "100%" } : undefined}
       role="img"
-      aria-label={`${filled} of ${requested} filled${
+      aria-label={`${filled} of ${requested} seats filled${
         onboarding > 0 ? `, ${onboarding} in onboarding` : ""
       }`}
     >
-      <span
-        className={complete ? "bg-brand" : "bg-ok"}
-        style={{ width: `${filledPct}%` }}
-      />
-      {/* Muted blue rather than amber: onboarding is progress, not a warning. */}
-      <span
-        className="bg-[#9DAFC2]"
-        style={{ width: `${onboardingPct}%` }}
-      />
+      <span className="fill-done" style={{ width: `${filledPct}%` }} />
+      <span className="fill-onboarding" style={{ width: `${onboardingPct}%` }} />
     </span>
   );
 
   const ratio = (
-    <span
-      className={`num text-[12px] ${filled === 0 && onboarding === 0 ? "text-muted-3" : ""}`}
-    >
+    <span className="mono" style={{ fontSize: 12.5 }}>
       {filled}/{requested}
       {onboarding > 0 && (
-        <span className="ml-1.5 text-[11px] text-muted-2">+{onboarding}</span>
+        <span style={{ color: "var(--pending)", marginLeft: 6 }}>
+          +{onboarding}
+        </span>
       )}
     </span>
   );
 
   if (layout === "stacked") {
     return (
-      <span className="flex flex-col gap-1.5">
+      <span style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {bar}
-        <span className="flex items-baseline gap-2">
+        <span style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
           {ratio}
-          <span className="text-[11px] text-muted-2">
+          <span style={{ fontSize: 12, color: "var(--steel)" }}>
             seats filled
             {onboarding > 0 && ` · ${onboarding} in onboarding`}
           </span>
@@ -70,7 +62,7 @@ export function FillProgress({
   }
 
   return (
-    <span className="flex items-center gap-2.5">
+    <span style={{ display: "flex", alignItems: "center", gap: 9 }}>
       {bar}
       {ratio}
     </span>

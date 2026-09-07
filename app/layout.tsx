@@ -1,21 +1,33 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import {
+  Barlow_Condensed,
+  IBM_Plex_Sans,
+  IBM_Plex_Mono,
+} from "next/font/google";
 import "./globals.css";
+
+// Same three faces as the Candidate Pipeline Dashboard, so the two products
+// set type identically.
+const barlow = Barlow_Condensed({
+  variable: "--font-barlow",
+  weight: ["500", "600", "700"],
+  subsets: ["latin"],
+});
 
 const plexSans = IBM_Plex_Sans({
   variable: "--font-plex-sans",
-  subsets: ["latin"],
   weight: ["400", "500", "600"],
+  subsets: ["latin"],
 });
 
 const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
-  subsets: ["latin"],
   weight: ["400", "500"],
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "US Trades Portal",
+  title: "US Trades — Manpower Portal",
   description: "Manpower requisitions for US Trades customers.",
 };
 
@@ -29,9 +41,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plexSans.variable} ${plexMono.variable} h-full antialiased`}
+      className={`${barlow.variable} ${plexSans.variable} ${plexMono.variable}`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body>{children}</body>
     </html>
   );
 }

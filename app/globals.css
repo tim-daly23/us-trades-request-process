@@ -1,136 +1,437 @@
 @import "tailwindcss";
 
 /*
- * Tokens taken from the design canvas ("US Trades Portal Mockups").
+ * Design system ported from the Candidate Pipeline Dashboard
+ * (US Trades Dashboard/app/src/app/globals.css) so the two products read as
+ * one suite. Token names and values are deliberately identical — when that
+ * app changes a colour, this file should change with it.
  *
- * Two rules carry most of the character and should not be softened:
- *   1. Nothing is rounded. Every panel, pill, input and bar is square.
- *      It reads as industrial tooling rather than consumer SaaS.
- *   2. Numbers are monospace. Request numbers, counts, dates and rates all
- *      set in Plex Mono so columns align and figures scan.
+ * House rules:
+ *   - Barlow Condensed for headings, buttons and badges; Plex Sans for body;
+ *     Plex Mono for figures.
+ *   - Nothing is rounded.
+ *   - Panels are white on the blue-grey "paper" ground, 1px --line border.
+ *   - Badges carry a border in their own colour, not just a tint.
  *
- * --brand and --accent are overridden per request from the customer's row
- * (see lib/branding.ts); everything else is fixed.
+ * Component classes live in @layer components so Tailwind utilities can still
+ * override them. Do NOT write unlayered rules here: unlayered CSS outranks
+ * every Tailwind utility regardless of specificity.
  */
+
 :root {
-  --background: #f6f6f3;
-  --surface: #ffffff;
-  --surface-muted: #fafaf8;
-  --foreground: #15181d;
-
-  --muted: #6c7480;
-  --muted-2: #7c838e;
-  --muted-3: #9aa1ac;
-  --faint: #c4c7c1;
-
-  --line: #e2e3df;
-  --line-strong: #d6d8d3;
-  --line-soft: #efefec;
-
-  /* Sampled from the logo crest: navy field, red banner. */
-  --brand: #023e5c;
-  --brand-fg: #ffffff;
-  --brand-soft: #eaf0f4;
-  --brand-soft-fg: #06405e;
-  --on-brand-muted: #a9c0ce;
-  --on-brand-faint: #8aa5b6;
-
-  --accent: #8b0c03;
-  --accent-fg: #ffffff;
-  --accent-hover: #a31005;
-  --accent-soft: #f8eae8;
-  --accent-soft-fg: #7a0b03;
-
-  --ok: #2f7d4f;
-  --ok-soft: #e8f3ec;
-  --ok-soft-fg: #24663f;
-
-  /* Amber, not red: with a red brand colour an amber warning stays legible as
-     a warning instead of reading as a brand element. */
-  --warn: #b45309;
-  --warn-soft: #fdf1e4;
-  --warn-soft-fg: #8a4708;
-
-  /* Brighter than the brand red so a real error is distinguishable from a
-     primary action. */
-  --danger: #c0392b;
-  --danger-soft: #fbebe8;
-  --danger-soft-fg: #933425;
-
-  --neutral-soft: #f1f1ee;
-  --neutral-soft-fg: #5b626c;
+  --ink: #14294a;
+  --paper: #eef3f8;
+  --panel: #ffffff;
+  --steel: #3e5c74;
+  --steel-dim: #7c93a3;
+  --amber: #f2a31c;
+  --amber-dim: #fce3b2;
+  --green: #2e7d5b;
+  --green-dim: #dceee5;
+  --pending: #c97a0f;
+  --pending-dim: #f7e4c4;
+  --red: #b23b2e;
+  --red-dim: #f5dbd6;
+  --brand-red: #8b1a1f;
+  --brand-red-dim: #f5dedc;
+  --brand-navy-dim: #e2e9f1;
+  --violet: #6b4c9a;
+  --violet-dim: #eae2f3;
+  --line: #d7d9d4;
+  --line-strong: #b9bdb5;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-surface: var(--surface);
-  --color-surface-muted: var(--surface-muted);
-  --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
-  --color-muted-2: var(--muted-2);
-  --color-muted-3: var(--muted-3);
-  --color-faint: var(--faint);
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-panel: var(--panel);
+  --color-steel: var(--steel);
+  --color-steel-dim: var(--steel-dim);
+  --color-green: var(--green);
+  --color-pending: var(--pending);
+  --color-red: var(--red);
+  --color-brand-red: var(--brand-red);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
-  --color-line-soft: var(--line-soft);
-  --color-brand: var(--brand);
-  --color-brand-fg: var(--brand-fg);
-  --color-brand-soft: var(--brand-soft);
-  --color-brand-soft-fg: var(--brand-soft-fg);
-  --color-on-brand-muted: var(--on-brand-muted);
-  --color-on-brand-faint: var(--on-brand-faint);
-  --color-accent: var(--accent);
-  --color-accent-fg: var(--accent-fg);
-  --color-accent-hover: var(--accent-hover);
-  --color-accent-soft: var(--accent-soft);
-  --color-accent-soft-fg: var(--accent-soft-fg);
-  --color-ok: var(--ok);
-  --color-ok-soft: var(--ok-soft);
-  --color-ok-soft-fg: var(--ok-soft-fg);
-  --color-danger: var(--danger);
-  --color-danger-soft: var(--danger-soft);
-  --color-danger-soft-fg: var(--danger-soft-fg);
-  --color-warn: var(--warn);
-  --color-warn-soft: var(--warn-soft);
-  --color-warn-soft-fg: var(--warn-soft-fg);
-  --color-neutral-soft: var(--neutral-soft);
-  --color-neutral-soft-fg: var(--neutral-soft-fg);
   --font-sans: var(--font-plex-sans);
   --font-mono: var(--font-plex-mono);
+  --font-display: var(--font-barlow);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-plex-sans), "Segoe UI", system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  html,
+  body {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-plex-sans), sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-barlow), sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    margin: 0;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+  }
 }
 
-/* Every figure that sits in a column: request numbers, counts, dates, money. */
-.num {
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
-  font-variant-numeric: tabular-nums;
-}
+@layer components {
+  .headline {
+    font-family: var(--font-barlow), sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .mono {
+    font-family: var(--font-plex-mono), monospace;
+    font-variant-numeric: tabular-nums;
+  }
 
-/* The small uppercase labels above fields and above table columns. */
-.eyebrow {
-  font-size: 10.5px;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--muted-3);
-}
+  /* ---- Brand stripe ---- */
+  .brand-stripe {
+    height: 5px;
+    background: linear-gradient(
+      90deg,
+      var(--brand-red) 0%,
+      var(--brand-red) 42%,
+      var(--ink) 58%,
+      var(--ink) 100%
+    );
+  }
 
-/*
- * No bare `a { color }` rule here.
- *
- * Tailwind v4 emits its utilities inside @layer utilities, and unlayered CSS
- * outranks any layered rule whatever the specificity — so a global anchor
- * colour silently overrides text-* on every link, including buttons built as
- * <Link>. Style links at the call site, or add a .link class, instead.
- */
-.link {
-  color: var(--accent);
-}
-.link:hover {
-  color: var(--accent-hover);
+  /* ---- Shell ---- */
+  .shell {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 24px 80px;
+  }
+
+  .masthead {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--ink);
+    padding-bottom: 16px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .brand .logo-mark {
+    height: 52px;
+    width: auto;
+    flex: none;
+  }
+  .brand h1 {
+    font-size: 26px;
+    color: var(--ink);
+  }
+  .brand p {
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    color: var(--steel);
+  }
+
+  /* ---- Nav (mirrors the dashboard's role switch) ---- */
+  .nav-label {
+    font-family: var(--font-barlow), sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--steel);
+    text-align: right;
+    margin-bottom: 5px;
+    letter-spacing: 0.02em;
+  }
+  .nav-row {
+    display: flex;
+    gap: 6px;
+  }
+  .nav-btn {
+    font-family: var(--font-barlow), sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    background: var(--panel);
+    border: 1.5px solid var(--line-strong);
+    border-bottom: 3px solid var(--line-strong);
+    padding: 8px 16px 7px;
+    color: var(--steel);
+    cursor: pointer;
+  }
+  .nav-btn:hover {
+    border-bottom-color: var(--brand-red);
+    color: var(--ink);
+  }
+  .nav-btn.active {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+    border-bottom: 3px solid var(--brand-red);
+  }
+
+  /* ---- Panels ---- */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 22px;
+  }
+  .panel + .panel {
+    margin-top: 18px;
+  }
+  .panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .panel-head h2 {
+    font-size: 20px;
+  }
+  .panel-head .sub {
+    color: var(--steel);
+    font-size: 12.5px;
+    margin-top: 2px;
+  }
+
+  /* ---- Tables ---- */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .data-table thead th {
+    text-align: left;
+    font-family: var(--font-barlow), sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--steel);
+    border-bottom: 2px solid var(--ink);
+    padding: 7px 10px;
+    letter-spacing: 0.01em;
+    background: var(--brand-navy-dim);
+  }
+  .data-table tbody td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+  }
+  .data-table tbody tr:hover {
+    background: #f7f8f5;
+  }
+  .empty-row td {
+    color: var(--steel-dim);
+    font-style: italic;
+    text-align: center;
+    padding: 26px;
+  }
+
+  /* ---- Badges ---- */
+  .badge {
+    display: inline-block;
+    font-family: var(--font-barlow), sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 9px 2px;
+    border: 1px solid transparent;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .badge.pending {
+    background: var(--pending-dim);
+    color: var(--pending);
+    border-color: var(--pending);
+  }
+  .badge.submitted {
+    background: var(--brand-navy-dim);
+    color: var(--steel);
+    border-color: var(--steel);
+  }
+  .badge.approved {
+    background: var(--green-dim);
+    color: var(--green);
+    border-color: var(--green);
+  }
+  .badge.declined {
+    background: var(--red-dim);
+    color: var(--red);
+    border-color: var(--red);
+  }
+  .badge.scheduled {
+    background: var(--violet-dim);
+    color: var(--violet);
+    border-color: var(--violet);
+  }
+  .badge.working {
+    background: var(--ink);
+    color: #fff;
+  }
+  .badge.inactive {
+    background: #e4e4e1;
+    color: #6b6d66;
+    border-color: #b4b6af;
+  }
+
+  /* ---- Stat cards ---- */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  @media (max-width: 760px) {
+    .stat-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .stat-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--steel);
+    padding: 18px 20px;
+  }
+  .stat-card.approved {
+    border-top-color: var(--green);
+  }
+  .stat-card.working {
+    border-top-color: var(--ink);
+  }
+  .stat-card.progress {
+    border-top-color: var(--amber);
+  }
+  .stat-card.pipeline {
+    border-top-color: var(--steel);
+  }
+  .stat-num {
+    font-family: var(--font-barlow), sans-serif;
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 12.5px;
+    color: var(--steel);
+    margin-top: 6px;
+  }
+
+  /* ---- Forms ---- */
+  .field {
+    margin-bottom: 13px;
+  }
+  .field label,
+  .field > span {
+    display: block;
+    font-size: 12px;
+    color: var(--steel);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1.5px solid var(--line-strong);
+    background: var(--paper);
+    font-size: 13.5px;
+    color: var(--ink);
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: 2px solid var(--steel);
+    outline-offset: 1px;
+  }
+  .req-star {
+    color: var(--brand-red);
+  }
+  .hint {
+    font-size: 11.5px;
+    color: var(--steel-dim);
+    margin-top: 10px;
+  }
+
+  /* ---- Buttons ---- */
+  .btn-primary {
+    padding: 11px 20px;
+    background: var(--brand-red);
+    border: none;
+    font-family: var(--font-barlow), sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+  }
+  .btn-primary:hover {
+    background: #701216;
+  }
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .action-btn {
+    font-family: var(--font-barlow), sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border: 1.5px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .action-btn:hover {
+    background: var(--ink);
+    color: #fff;
+  }
+  .action-btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  /* ---- Notices ---- */
+  .gate {
+    background: var(--brand-red-dim);
+    border-left: 3px solid var(--brand-red);
+    padding: 18px 20px;
+  }
+  .notice-warn {
+    background: var(--pending-dim);
+    border-left: 3px solid var(--pending);
+    padding: 12px 16px;
+    font-size: 12.5px;
+    color: #7a4a09;
+  }
+
+  /* ---- Seat fill bar ---- */
+  .fill-track {
+    display: inline-flex;
+    width: 68px;
+    height: 6px;
+    background: #e4e6e2;
+    flex: none;
+  }
+  .fill-done {
+    background: var(--green);
+  }
+  .fill-onboarding {
+    background: var(--amber);
+  }
 }

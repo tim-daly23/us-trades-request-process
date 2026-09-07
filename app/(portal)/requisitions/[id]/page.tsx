@@ -60,7 +60,9 @@ export default async function RequisitionDetail({
       .returns<Line[]>(),
     supabase
       .from("requisition_requirements")
-      .select("is_required, state_code, credential:credentials(name, short_label)")
+      .select(
+        "is_required, state_code, credential:credentials(name, short_label)",
+      )
       .eq("requisition_id", id),
   ]);
 
@@ -78,181 +80,206 @@ export default async function RequisitionDetail({
   const showRates = (lines ?? []).some((l) => l.bill_rate !== null);
 
   return (
-    <div className="space-y-8">
-      <div>
+    <>
+      <div style={{ marginBottom: 14 }}>
         <Link
           href="/"
-          className="text-sm text-muted transition hover:text-accent"
+          style={{
+            fontSize: 12.5,
+            color: "var(--steel)",
+            textDecoration: "none",
+            borderBottom: "1px dotted var(--steel)",
+          }}
         >
-          ← All requisitions
+          ← All requests
         </Link>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="font-mono text-xs text-muted">
-            {req.req_number}
-          </span>
-          <StatusBadge status={req.status} />
-          <UrgencyBadge urgency={req.urgency} />
-        </div>
-        <h1 className="mt-1 text-xl font-semibold tracking-tight">
-          {req.title ?? "Untitled request"}
-        </h1>
-        {site && (
-          <p className="mt-0.5 text-sm text-muted">
-            {site.name} · {site.address_line1}, {site.city}, {site.state}{" "}
-            {site.postal_code}
-          </p>
-        )}
       </div>
 
-      {totals.requested > 0 && (
-        <div className="max-w-sm border border-line bg-surface p-4 ">
-          <FillProgress
-            requested={totals.requested}
-            filled={totals.filled}
-            onboarding={totals.onboarding}
-          />
+      <div className="panel">
+        <div className="panel-head">
+          <div>
+            <div
+              className="mono"
+              style={{ fontSize: 12.5, color: "var(--steel)" }}
+            >
+              {req.req_number}
+            </div>
+            <h2>{req.title ?? "Untitled request"}</h2>
+            {site && (
+              <div className="sub">
+                {site.name} · {site.address_line1}, {site.city}, {site.state}{" "}
+                {site.postal_code}
+              </div>
+            )}
+          </div>
+          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            <StatusBadge status={req.status} />
+            <UrgencyBadge urgency={req.urgency} />
+          </div>
         </div>
-      )}
 
-      <section className="grid gap-x-8 gap-y-4 border border-line bg-surface p-5  sm:grid-cols-2 lg:grid-cols-3">
-        <Field label="Start" value={formatDate(req.start_date)} />
-        <Field label="End" value={formatDate(req.end_date)} />
-        <Field
-          label="Duration"
-          value={req.duration_weeks ? `${req.duration_weeks} weeks` : "—"}
-        />
-        <Field label="Shift" value={titleCase(req.shift)} />
-        <Field
-          label="Schedule"
-          value={formatSchedule(req.days_per_week, req.hours_per_day)}
-        />
-        <Field label="Per diem" value={formatMoney(req.per_diem_rate)} />
-        <Field label="Project" value={req.project_name ?? "—"} />
-        <Field label="PO" value={req.po_number ?? "—"} />
-        <Field
-          label="Reporting"
-          value={site?.reporting_location ?? "—"}
-        />
-      </section>
+        {totals.requested > 0 && (
+          <div style={{ maxWidth: 320, marginBottom: 18 }}>
+            <FillProgress
+              requested={totals.requested}
+              filled={totals.filled}
+              onboarding={totals.onboarding}
+              layout="stacked"
+            />
+          </div>
+        )}
 
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
-          Craft requested
-        </h2>
-        <div className="overflow-x-auto border border-line bg-surface ">
-          {/* Explicit column widths: the progress cell is two stacked elements
-              and will otherwise starve the text columns of space. */}
-          <table className="w-full min-w-[42rem] table-fixed text-sm">
-            <colgroup>
-              <col className="w-[26%]" />
-              <col className="w-[20%]" />
-              <col className="w-[8%]" />
-              <col className="w-[30%]" />
-              {showRates && <col className="w-[16%]" />}
-            </colgroup>
-            <thead>
-              <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
-                <th className="px-5 py-3 font-medium">Craft</th>
-                <th className="px-3 py-3 font-medium">Level</th>
-                <th className="px-3 py-3 text-right font-medium">Qty</th>
-                <th className="px-3 py-3 font-medium">Progress</th>
+        <dl
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+            gap: "14px 24px",
+            margin: 0,
+          }}
+        >
+          <Field label="Start" value={formatDate(req.start_date)} />
+          <Field label="End" value={formatDate(req.end_date)} />
+          <Field
+            label="Duration"
+            value={
+              req.duration_weeks ? `${Number(req.duration_weeks)} weeks` : "—"
+            }
+          />
+          <Field label="Shift" value={titleCase(req.shift)} />
+          <Field
+            label="Schedule"
+            value={formatSchedule(req.days_per_week, req.hours_per_day)}
+          />
+          <Field label="Per diem" value={formatMoney(req.per_diem_rate)} />
+          <Field label="Project" value={req.project_name ?? "—"} />
+          <Field label="PO" value={req.po_number ?? "—"} />
+          <Field label="Reporting" value={site?.reporting_location ?? "—"} />
+        </dl>
+      </div>
+
+      <div className="panel">
+        <div className="panel-head">
+          <div>
+            <h2>Craft requested</h2>
+            <div className="sub">
+              Each line is sourced separately — craft and level together.
+            </div>
+          </div>
+        </div>
+
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Craft</th>
+              <th style={{ width: 150 }}>Level</th>
+              <th style={{ width: 60 }}>Qty</th>
+              <th style={{ width: 170 }}>Seats filled</th>
+              {showRates && <th style={{ width: 110 }}>Bill rate</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {(lines ?? []).map((l) => (
+              <tr key={l.id}>
+                <td style={{ fontWeight: 500 }}>{l.craft_name}</td>
+                <td style={{ color: "var(--steel)" }}>{l.level_name}</td>
+                <td className="mono">{l.quantity}</td>
+                <td>
+                  <FillProgress
+                    requested={l.quantity}
+                    filled={l.filled_count}
+                    onboarding={l.onboarding_count}
+                  />
+                </td>
                 {showRates && (
-                  <th className="px-5 py-3 text-right font-medium">Bill rate</th>
+                  <td className="mono">{formatMoney(l.bill_rate)}</td>
                 )}
               </tr>
-            </thead>
-            <tbody>
-              {(lines ?? []).map((l) => (
-                <tr
-                  key={l.id}
-                  className="border-b border-line align-middle last:border-0"
-                >
-                  <td className="px-5 py-4 font-medium">{l.craft_name}</td>
-                  <td className="px-3 py-4 text-muted">{l.level_name}</td>
-                  <td className="num px-3 py-4 text-right font-semibold">
-                    {l.quantity}
-                  </td>
-                  <td className="px-3 py-4">
-                    <FillProgress
-                      requested={l.quantity}
-                      filled={l.filled_count}
-                      onboarding={l.onboarding_count}
-                    />
-                  </td>
-                  {showRates && (
-                    <td className="num px-5 py-4 text-right">
-                      {formatMoney(l.bill_rate)}
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {!!reqs?.length && (
-        <section className="space-y-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
-            Credentials required
-          </h2>
-          <ul className="flex flex-wrap gap-2">
+        <div className="panel">
+          <div className="panel-head">
+            <div>
+              <h2>Credentials required</h2>
+              <div className="sub">
+                Every worker on this request must hold these before badging.
+              </div>
+            </div>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {reqs.map((r, i) => {
               const cred = Array.isArray(r.credential)
                 ? r.credential[0]
                 : r.credential;
               return (
-                <li
+                <span
                   key={i}
-                  className={`px-3 py-1 text-xs font-medium ${
-                    r.is_required
-                      ? "bg-brand text-brand-fg"
-                      : "border border-line text-muted"
-                  }`}
+                  className={`badge ${r.is_required ? "submitted" : "inactive"}`}
                 >
                   {cred?.short_label ?? cred?.name}
                   {r.state_code ? ` (${r.state_code})` : ""}
                   {!r.is_required && " · preferred"}
-                </li>
+                </span>
               );
             })}
-          </ul>
-        </section>
+          </div>
+        </div>
       )}
 
       {(req.scope_of_work || req.special_instructions) && (
-        <section className="space-y-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
-            Scope
-          </h2>
+        <div className="panel">
+          <div className="panel-head">
+            <div>
+              <h2>Scope</h2>
+            </div>
+          </div>
           {req.scope_of_work && (
-            <p className="text-sm leading-relaxed">{req.scope_of_work}</p>
+            <p style={{ margin: 0, lineHeight: 1.6 }}>{req.scope_of_work}</p>
           )}
           {req.special_instructions && (
-            <p className="text-sm leading-relaxed text-muted">
+            <p
+              style={{
+                margin: "10px 0 0",
+                lineHeight: 1.6,
+                color: "var(--steel)",
+              }}
+            >
               {req.special_instructions}
             </p>
           )}
-        </section>
+        </div>
       )}
 
       {site?.safety_council_required && (
-        <p className="border border border-warn/30 bg-warn-soft p-4 text-[13px] text-warn-soft-fg">
-          Site requires {site.safety_council_name ?? "safety council"} training.
-          Allow {site.badging_lead_time_days ?? 3} days for badging.
-        </p>
+        <div className="panel">
+          <div className="notice-warn">
+            {site.name} requires {site.safety_council_name ?? "safety council"}{" "}
+            training. Allow {site.badging_lead_time_days ?? 3} days for badging
+            before the start date.
+          </div>
+        </div>
       )}
-    </div>
+    </>
   );
 }
 
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs uppercase tracking-wide text-muted">
+      <dt
+        style={{
+          fontSize: 12,
+          color: "var(--steel)",
+          marginBottom: 3,
+          fontWeight: 500,
+        }}
+      >
         {label}
       </dt>
-      <dd className="mt-0.5 text-sm font-medium">{value}</dd>
+      <dd style={{ margin: 0, fontSize: 13.5 }}>{value}</dd>
     </div>
   );
 }

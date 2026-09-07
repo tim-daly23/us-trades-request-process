@@ -79,68 +79,75 @@ export default async function DiagnosticsPage() {
   ] as const;
 
   return (
-    <div className="flex flex-col">
-      <div className="border-b border-line bg-surface px-[26px] py-[18px]">
-        <h1 className="text-[22px] font-medium tracking-[-0.012em]">
-          Session diagnostics
-        </h1>
-        <p className="mt-1 text-[12.5px] text-muted">
-          Signed in as {user?.email}
-        </p>
-      </div>
+    <>
+      <div className="panel">
+        <div className="panel-head">
+          <div>
+            <h2>Token claims</h2>
+            <div className="sub">Signed in as {user?.email}</div>
+          </div>
+          <span className={`badge ${hookWorking ? "approved" : "pending"}`}>
+            {hookWorking ? "Hook active" : "No claims"}
+          </span>
+        </div>
 
-      <div className="grid gap-[18px] p-[18px_26px] lg:grid-cols-2">
-        <section className="border border-line bg-surface">
-          <h2 className="eyebrow border-b border-line px-4 py-2.5">
-            Token claims
-          </h2>
+        {!hookWorking && (
+          <div className="notice-warn" style={{ marginBottom: 14 }}>
+            No user_type in app_metadata — the access token hook is not enabled,
+            or this account has no app_users row. Every count below will read
+            zero.
+          </div>
+        )}
 
-          <p
-            className={`px-4 py-3 text-[12.5px] ${
-              hookWorking
-                ? "bg-ok-soft text-ok-soft-fg"
-                : "bg-warn-soft text-warn-soft-fg"
-            }`}
-          >
-            {hookWorking
-              ? "Access token hook is applying claims."
-              : "No user_type in app_metadata — the hook is not enabled, or this account has no app_users row. Every count below will read zero."}
-          </p>
-
-          <dl className="px-4 py-3">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Claim</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
             {claimRows.map(([k, v]) => (
-              <div
-                key={k}
-                className="flex justify-between gap-4 border-b border-line-soft py-2 last:border-0"
-              >
-                <dt className="num text-[12px] text-muted">{k}</dt>
-                <dd className="num truncate text-[12px]">{v ?? "—"}</dd>
-              </div>
+              <tr key={k}>
+                <td className="mono" style={{ color: "var(--steel)" }}>
+                  {k}
+                </td>
+                <td className="mono">{v ?? "—"}</td>
+              </tr>
             ))}
-          </dl>
-        </section>
-
-        <section className="border border-line bg-surface">
-          <h2 className="eyebrow border-b border-line px-4 py-2.5">
-            Rows visible to this session
-          </h2>
-          <dl className="px-4 py-3">
-            {counts.map(([name, count]) => (
-              <div
-                key={name}
-                className="flex justify-between gap-4 border-b border-line-soft py-2 last:border-0"
-              >
-                <dt className="num text-[12px] text-muted">{name}</dt>
-                <dd className="num text-[12px] font-medium">{count ?? 0}</dd>
-              </div>
-            ))}
-          </dl>
-          <p className="border-t border-line px-4 py-3 text-[11.5px] leading-relaxed text-muted-2">
-            Counts come back through RLS, so they are what this session can
-            genuinely reach — not a query filtered in the app.
-          </p>
-        </section>
+          </tbody>
+        </table>
       </div>
-    </div>
+
+      <div className="panel">
+        <div className="panel-head">
+          <div>
+            <h2>Rows visible to this session</h2>
+            <div className="sub">
+              Counts come back through row-level security, so they are what this
+              session can genuinely reach — not a query filtered in the app.
+            </div>
+          </div>
+        </div>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Table</th>
+              <th style={{ width: 100 }}>Rows</th>
+            </tr>
+          </thead>
+          <tbody>
+            {counts.map(([name, count]) => (
+              <tr key={name}>
+                <td className="mono" style={{ color: "var(--steel)" }}>
+                  {name}
+                </td>
+                <td className="mono">{count ?? 0}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }

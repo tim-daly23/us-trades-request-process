@@ -159,11 +159,11 @@ export function RequestForm({
   }
 
   return (
-    <div className="space-y-6 pb-28">
+    <div>
       {/* --- where and when ------------------------------------------- */}
       <Card title="Site and schedule">
         <Grid>
-          <Field label="Site" required className="sm:col-span-2">
+          <Field label="Site" required className="">
             <select
               value={siteId}
               onChange={(e) => onSiteChange(e.target.value)}
@@ -412,7 +412,7 @@ export function RequestForm({
       {/* --- context --------------------------------------------------- */}
       <Card title="Scope and notes">
         <Grid>
-          <Field label="Title" className="sm:col-span-2">
+          <Field label="Title" className="">
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -459,47 +459,64 @@ export function RequestForm({
       </Card>
 
       {/* --- actions --------------------------------------------------- */}
-      <div className="fixed inset-x-0 bottom-0 border-t border-line bg-surface/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-3">
-          <p className="text-sm text-muted">
-            {error ? (
-              <span className="font-medium text-danger">{error}</span>
-            ) : totalWorkers > 0 ? (
-              <>
-                {totalWorkers} worker{totalWorkers === 1 ? "" : "s"} ·{" "}
-                {formatSchedule(daysPerWeek, hoursPerDay)}
-              </>
-            ) : (
-              "Add at least one craft line."
-            )}
-          </p>
+      <div
+        style={{
+          position: "sticky",
+          bottom: 0,
+          background: "var(--panel)",
+          border: "1px solid var(--line)",
+          borderTop: "3px solid var(--ink)",
+          padding: "14px 18px",
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+          marginTop: 18,
+        }}
+      >
+        <div style={{ fontSize: 12.5, color: "var(--steel)" }}>
+          {error ? (
+            <span style={{ color: "var(--brand-red)", fontWeight: 500 }}>
+              {error}
+            </span>
+          ) : totalWorkers > 0 ? (
+            <>
+              <span className="mono">{totalWorkers}</span> worker
+              {totalWorkers === 1 ? "" : "s"} ·{" "}
+              {formatSchedule(daysPerWeek, hoursPerDay)}
+            </>
+          ) : (
+            "Add at least one craft line."
+          )}
+        </div>
 
-          <div className="flex gap-2">
-            <button
-              type="button"
-              disabled={pending}
-              onClick={() => submit(false)}
-              className="rounded-md border border-line px-4 py-2 text-sm font-medium transition hover:border-brand hover:text-brand disabled:opacity-50"
-            >
-              Save draft
-            </button>
-            <button
-              type="button"
-              disabled={pending}
-              onClick={() => submit(true)}
-              className="rounded-md bg-brand px-5 py-2 text-sm font-semibold text-brand-fg transition hover:brightness-125 disabled:opacity-50"
-            >
-              {pending ? "Saving…" : "Submit request"}
-            </button>
-          </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            type="button"
+            className="action-btn"
+            style={{ padding: "9px 16px", fontSize: 14 }}
+            disabled={pending}
+            onClick={() => submit(false)}
+          >
+            Save draft
+          </button>
+          <button
+            type="button"
+            className="btn-primary"
+            disabled={pending}
+            onClick={() => submit(true)}
+          >
+            {pending ? "Saving…" : "Submit request"}
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-const inputClass =
-  "w-full rounded-md border border-line bg-background px-3 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20";
+// Inputs inherit their look from the .field wrapper, matching the dashboard.
+const inputClass = "";
 
 function Card({
   title,
@@ -511,21 +528,33 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-xl border border-line bg-surface p-5 shadow-sm">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
-          {title}
-        </h2>
-        {aside && <span className="text-sm font-medium">{aside}</span>}
+    <div className="panel">
+      <div className="panel-head">
+        <div>
+          <h2>{title}</h2>
+        </div>
+        {aside && (
+          <span className="mono" style={{ fontSize: 13 }}>
+            {aside}
+          </span>
+        )}
       </div>
       {children}
-    </section>
+    </div>
   );
 }
 
 function Grid({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{children}</div>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+        gap: "0 14px",
+      }}
+    >
+      {children}
+    </div>
   );
 }
 
@@ -541,11 +570,11 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className={`block space-y-1.5 ${className}`}>
+    <label className={`field ${className}`}>
       {label && (
-        <span className="block text-xs font-medium uppercase tracking-wide text-muted">
+        <span>
           {label}
-          {required && <span className="ml-0.5 text-danger">*</span>}
+          {required && <span className="req-star"> *</span>}
         </span>
       )}
       {children}

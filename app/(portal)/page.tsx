@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { StatusBadge } from "@/components/status-badge";
+import { StatusBadge, UrgencyBadge } from "@/components/status-badge";
 import { FillProgress } from "@/components/fill-progress";
 import { formatDate } from "@/lib/format";
 
@@ -39,8 +39,8 @@ const OPEN = new Set([
   "partially_filled",
 ]);
 const ON_SITE = new Set(["filled", "active"]);
+const CLOSED = new Set(["completed", "cancelled"]);
 
-/** "Pipefitter Journeyman ×4 · Welder Foreman ×1" */
 function summarizeLines(lines: LineRow[]): string {
   return lines
     .map((l) => `${l.craft_name} ${l.level_name} ×${l.quantity}`)
@@ -71,10 +71,9 @@ export default async function RequisitionsPage() {
 
   if (error) {
     return (
-      <div className="p-6">
-        <p className="border border-danger/40 bg-danger-soft p-4 text-sm text-danger-soft-fg">
-          Could not load requisitions: {error.message}
-        </p>
+      <div className="gate">
+        <strong>Could not load requisitions.</strong>
+        <div style={{ marginTop: 4, fontSize: 12.5 }}>{error.message}</div>
       </div>
     );
   }
@@ -83,168 +82,149 @@ export default async function RequisitionsPage() {
   const fillFor = new Map((fills ?? []).map((f) => [f.requisition_id, f]));
   const linesFor = new Map<string, LineRow[]>();
   for (const l of lines ?? []) {
-    linesFor.set(l.requisition_id, [...(linesFor.get(l.requisition_id) ?? []), l]);
+    linesFor.set(l.requisition_id, [
+      ...(linesFor.get(l.requisition_id) ?? []),
+      l,
+    ]);
   }
 
-  const counts = {
-    all: rows.length,
-    open: rows.filter((r) => OPEN.has(r.status)).length,
-    onSite: rows.filter((r) => ON_SITE.has(r.status)).length,
-    drafts: rows.filter((r) => r.status === "draft").length,
-    completed: rows.filter((r) => r.status === "completed").length,
-  };
-  const seats = rows
-    .filter((r) => !["completed", "cancelled"].includes(r.status))
-    .reduce((n, r) => n + (fillFor.get(r.id)?.total_requested ?? 0), 0);
-
-  return (
-    <div className="flex flex-col">
-      {/* Page header + tabs */}
-      <div className="border-b border-line bg-surface">
-        <div className="flex items-start justify-between gap-4 px-[26px] pt-[18px]">
-          <div>
-            <h1 className="text-[22px] font-medium tracking-[-0.012em]">
-              Manpower requests
-            </h1>
-            <p className="mt-1 text-[12.5px] text-muted">
-              {counts.all} request{counts.all === 1 ? "" : "s"} · {counts.open}{" "}
-              open · {seats} seat{seats === 1 ? "" : "s"} requested
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-4 flex gap-0.5 px-[26px]">
-          <Tab active count={counts.all}>
-            All
-          </Tab>
-          <Tab count={counts.open}>Open</Tab>
-          <Tab count={counts.onSite}>On site</Tab>
-          <Tab count={counts.drafts}>Drafts</Tab>
-          <Tab count={counts.completed}>Completed</Tab>
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="p-[18px_26px]">
-        <div className="flex flex-col border border-line bg-surface">
-          <div className="flex h-[34px] shrink-0 items-center border-b border-line bg-surface-muted px-4 text-[10.5px] uppercase tracking-[0.09em] text-[#8A919C]">
-            <div className="w-[132px]">Request</div>
-            <div className="w-[218px]">Site</div>
-            <div className="w-[84px]">Start</div>
-            <div className="w-[72px]">Duration</div>
-            <div className="flex-1">Craft &amp; level</div>
-            <div className="w-[138px]">Seats filled</div>
-            <div className="w-[124px]">Status</div>
-          </div>
-
-          {rows.length === 0 ? (
-            <div className="px-4 py-16 text-center">
-              <p className="text-sm font-medium">No requests yet</p>
-              <p className="mt-1 text-[12.5px] text-muted">
-                Raise one and it will appear here.
-              </p>
-              <Link
-                href="/requisitions/new"
-                className="mt-4 inline-flex h-[33px] items-center bg-accent px-3.5 text-[13px] font-medium text-accent-fg"
-              >
-                New request
-              </Link>
-            </div>
-          ) : (
-            rows.map((r) => {
-              const fill = fillFor.get(r.id);
-              const isDraft = r.status === "draft";
-              const dim = ["completed", "cancelled"].includes(r.status);
-              return (
-                <Link
-                  key={r.id}
-                  href={`/requisitions/${r.id}`}
-                  className="flex h-[54px] items-center border-b border-line-soft px-4 text-[13px] transition last:border-0 hover:bg-surface-muted"
-                >
-                  <div className="flex w-[132px] flex-col gap-0.5">
-                    <span
-                      className={`num text-[12px] font-medium ${isDraft ? "text-muted-3" : "text-brand"}`}
-                    >
-                      {isDraft ? "Draft" : r.req_number}
-                    </span>
-                    <span className="truncate text-[11px] text-muted-3">
-                      {r.title ?? "Untitled"}
-                    </span>
-                  </div>
-
-                  <div
-                    className={`w-[218px] truncate pr-3 ${dim ? "text-muted" : ""}`}
-                  >
-                    {r.site ? r.site.name : "—"}
-                  </div>
-
-                  <div className="num w-[84px] text-[12px]">
-                    {formatDate(r.start_date).replace(/,.*$/, "")}
-                  </div>
-
-                  <div className="num w-[72px] text-[12px] text-muted">
-                    {r.is_ongoing
-                      ? "Ongoing"
-                      : r.duration_weeks
-                        ? `${Number(r.duration_weeks)} wks`
-                        : "—"}
-                  </div>
-
-                  <div className="flex-1 truncate pr-3 text-[12.5px] text-[#4A515C]">
-                    {summarizeLines(linesFor.get(r.id) ?? []) || "—"}
-                  </div>
-
-                  <div className="w-[138px]">
-                    {fill && fill.total_requested > 0 ? (
-                      <FillProgress
-                        requested={fill.total_requested}
-                        filled={fill.total_filled}
-                        onboarding={fill.total_onboarding}
-                      />
-                    ) : (
-                      <span className="num text-[12px] text-faint">—</span>
-                    )}
-                  </div>
-
-                  <div className="w-[124px]">
-                    <StatusBadge status={r.status} />
-                  </div>
-                </Link>
-              );
-            })
-          )}
-
-          <div className="flex h-11 shrink-0 items-center justify-between border-t border-line bg-surface-muted px-4">
-            <span className="text-[12.5px] text-muted-2">
-              {rows.length} of {rows.length} request
-              {rows.length === 1 ? "" : "s"}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
+  const live = rows.filter((r) => !CLOSED.has(r.status));
+  const totals = live.reduce(
+    (acc, r) => {
+      const f = fillFor.get(r.id);
+      return {
+        requested: acc.requested + (f?.total_requested ?? 0),
+        filled: acc.filled + (f?.total_filled ?? 0),
+        onboarding: acc.onboarding + (f?.total_onboarding ?? 0),
+      };
+    },
+    { requested: 0, filled: 0, onboarding: 0 },
   );
-}
 
-function Tab({
-  children,
-  count,
-  active,
-}: {
-  children: string;
-  count: number;
-  active?: boolean;
-}) {
   return (
-    <span
-      className={`border-b-2 px-3.5 py-2.5 text-[13px] ${
-        active
-          ? "border-accent font-medium text-foreground"
-          : "border-transparent text-muted"
-      }`}
-    >
-      {children}{" "}
-      <span className="num font-normal text-muted-2">{count}</span>
-    </span>
+    <>
+      <div className="stat-row">
+        <div className="stat-card pipeline">
+          <div className="stat-num">
+            {rows.filter((r) => OPEN.has(r.status)).length}
+          </div>
+          <div className="stat-label">Open requests</div>
+        </div>
+        <div className="stat-card progress">
+          <div className="stat-num">{totals.requested}</div>
+          <div className="stat-label">Seats requested</div>
+        </div>
+        <div className="stat-card approved">
+          <div className="stat-num">{totals.filled}</div>
+          <div className="stat-label">Seats filled</div>
+        </div>
+        <div className="stat-card working">
+          <div className="stat-num">
+            {rows.filter((r) => ON_SITE.has(r.status)).length}
+          </div>
+          <div className="stat-label">On site</div>
+        </div>
+      </div>
+
+      <div className="panel">
+        <div className="panel-head">
+          <div>
+            <h2>Manpower requests</h2>
+            <div className="sub">
+              Every request you have raised, and how far each one is filled.
+            </div>
+          </div>
+          <Link href="/requisitions/new" className="btn-primary">
+            New request
+          </Link>
+        </div>
+
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th style={{ width: 140 }}>Request</th>
+              <th style={{ width: 210 }}>Site</th>
+              <th style={{ width: 90 }}>Start</th>
+              <th style={{ width: 80 }}>Duration</th>
+              <th>Craft &amp; level</th>
+              <th style={{ width: 150 }}>Seats filled</th>
+              <th style={{ width: 130 }}>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.length === 0 ? (
+              <tr className="empty-row">
+                <td colSpan={7}>
+                  No requests yet — raise one and it will appear here.
+                </td>
+              </tr>
+            ) : (
+              rows.map((r) => {
+                const fill = fillFor.get(r.id);
+                const isDraft = r.status === "draft";
+                return (
+                  <tr key={r.id}>
+                    <td>
+                      <Link
+                        href={`/requisitions/${r.id}`}
+                        className="mono"
+                        style={{
+                          color: isDraft ? "var(--steel-dim)" : "var(--ink)",
+                          fontSize: 12.5,
+                          fontWeight: 500,
+                          textDecoration: "none",
+                          borderBottom: "1px dotted var(--steel)",
+                        }}
+                      >
+                        {isDraft ? "Draft" : r.req_number}
+                      </Link>
+                      <div style={{ fontSize: 11.5, color: "var(--steel-dim)" }}>
+                        {r.title ?? "Untitled"}
+                      </div>
+                    </td>
+                    <td>{r.site?.name ?? "—"}</td>
+                    <td className="mono" style={{ fontSize: 12.5 }}>
+                      {formatDate(r.start_date).replace(/,.*$/, "")}
+                    </td>
+                    <td
+                      className="mono"
+                      style={{ fontSize: 12.5, color: "var(--steel)" }}
+                    >
+                      {r.is_ongoing
+                        ? "Ongoing"
+                        : r.duration_weeks
+                          ? `${Number(r.duration_weeks)} wks`
+                          : "—"}
+                    </td>
+                    <td style={{ color: "var(--steel)" }}>
+                      {summarizeLines(linesFor.get(r.id) ?? []) || "—"}
+                    </td>
+                    <td>
+                      {fill && fill.total_requested > 0 ? (
+                        <FillProgress
+                          requested={fill.total_requested}
+                          filled={fill.total_filled}
+                          onboarding={fill.total_onboarding}
+                        />
+                      ) : (
+                        <span style={{ color: "var(--steel-dim)" }}>—</span>
+                      )}
+                    </td>
+                    <td>
+                      <div
+                        style={{ display: "flex", gap: 5, flexWrap: "wrap" }}
+                      >
+                        <StatusBadge status={r.status} />
+                        <UrgencyBadge urgency={r.urgency} />
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }
