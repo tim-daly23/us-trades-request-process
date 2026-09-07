@@ -310,6 +310,23 @@ export async function deleteSiteContact(form: FormData): Promise<Result> {
 // Portal logins
 // =====================================================================
 
+/** The Admin API has no lookup-by-email, so page through until it turns up. */
+async function findAuthUserByEmail(
+  admin: ReturnType<typeof createAdminClient>,
+  email: string,
+): Promise<{ id: string } | null> {
+  for (let page = 1; page <= 20; page++) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 200 });
+    if (error || !data.users.length) return null;
+    const hit = data.users.find(
+      (u) => u.email?.toLowerCase() === email.toLowerCase(),
+    );
+    if (hit) return { id: hit.id };
+    if (data.users.length < 200) return null;
+  }
+  return null;
+}
+
 /**
  * Creates the auth account and its app_users row.
  *
@@ -361,18 +378,53 @@ export async function createPortalUser(
     user_metadata: { full_name: fullName },
   });
 
-  if (authError || !created.user) {
-    return {
-      ok: false,
-      error: authError?.message.includes("already")
-        ? `${email} already has an account.`
-        : (authError?.message ?? "Could not create the account."),
-    };
-  }
-
   const supabase = await createClient();
+  let authUserId = created?.user?.id ?? null;
+
+  if (authError || !authUserId) {
+    const alreadyExists =
+      authError?.message.toLowerCase().includes("already") ||
+      authError?.status === 422;
+    if (!alreadyExists) {
+      return {
+        ok: false,
+        error: authError?.message ?? "Could not create the account.",
+      };
+    }
+
+    // An auth account can outlive its profile — deleting a customer cascades
+    // the app_users row away, and the auth record is not covered by any
+    // foreign key. That leaves an address that cannot be created and does not
+    // appear in any list. Adopt it: give it a fresh password and a new
+    // profile, rather than making someone clean it up in the dashboard.
+    const existing = await findAuthUserByEmail(admin, email);
+    if (!existing) {
+      return {
+        ok: false,
+        error: `${email} is already registered, but the account could not be found to reuse.`,
+      };
+    }
+
+    const { data: profile } = await supabase
+      .from("app_users")
+      .select("id")
+      .eq("id", existing.id)
+      .maybeSingle();
+
+    if (profile) {
+      return { ok: false, error: `${email} already has a login.` };
+    }
+
+    const { error: pwError } = await admin.auth.admin.updateUserById(existing.id, {
+      password,
+      email_confirm: true,
+    });
+    if (pwError) return { ok: false, error: pwError.message };
+
+    authUserId = existing.id;
+  }
   const { error: rowError } = await supabase.from("app_users").insert({
-    id: created.user.id,
+    id: authUserId,
     email,
     full_name: fullName,
     user_type: userType,
@@ -387,7 +439,7 @@ export async function createPortalUser(
     // Roll the auth account back: an auth user with no app_users row can sign
     // in but receives no claims, which looks like a broken login rather than a
     // failed invite.
-    await admin.auth.admin.deleteUser(created.user.id);
+    await admin.auth.admin.deleteUser(authUserId);
     return { ok: false, error: `Could not create the profile: ${rowError.message}` };
   }
 
@@ -466,7 +518,8 @@ export async function deleteCustomer(form: FormData): Promise<Result> {
     } catch {
       // The tenant is gone either way. A leftover auth account can still sign
       // in but has no app_users row, so the hook strips its claims and it sees
-      // nothing — safe, just untidy.
+      // nothing — safe, just untidy. Creating a login for that address later
+      // adopts the orphan rather than failing.
     }
   }
 
