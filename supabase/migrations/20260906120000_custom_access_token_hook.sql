@@ -22,6 +22,9 @@ create or replace function public.custom_access_token_hook(event jsonb)
 returns jsonb
 language plpgsql
 stable
+-- Pinned explicitly: this executes as supabase_auth_admin, whose search_path
+-- is not guaranteed to include public.
+set search_path = public
 as $fn$
 declare
   v_claims jsonb;
@@ -62,6 +65,8 @@ grant select on table public.app_users to supabase_auth_admin;
 
 -- app_users has RLS enabled, so the grant alone is not enough — the auth admin
 -- needs a policy of its own. Scoped to SELECT only.
+-- Postgres has no CREATE POLICY IF NOT EXISTS, so drop first to stay rerunnable.
+drop policy if exists app_users_auth_admin_read on public.app_users;
 create policy app_users_auth_admin_read on public.app_users
   as permissive for select
   to supabase_auth_admin
