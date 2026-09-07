@@ -27,24 +27,33 @@
   --line-strong: #d6d8d3;
   --line-soft: #efefec;
 
-  --brand: #26374c;
+  /* Sampled from the logo crest: navy field, red banner. */
+  --brand: #023e5c;
   --brand-fg: #ffffff;
-  --brand-soft: #eef2f6;
-  --brand-soft-fg: #2e4763;
-  --on-brand-muted: #b4c1d0;
-  --on-brand-faint: #93a3b6;
+  --brand-soft: #eaf0f4;
+  --brand-soft-fg: #06405e;
+  --on-brand-muted: #a9c0ce;
+  --on-brand-faint: #8aa5b6;
 
-  --accent: #d96a0b;
+  --accent: #8b0c03;
   --accent-fg: #ffffff;
-  --accent-hover: #a85008;
-  --accent-soft: #fdf1e4;
-  --accent-soft-fg: #8a4708;
+  --accent-hover: #a31005;
+  --accent-soft: #f8eae8;
+  --accent-soft-fg: #7a0b03;
 
   --ok: #2f7d4f;
   --ok-soft: #e8f3ec;
   --ok-soft-fg: #24663f;
 
-  --danger: #b3402f;
+  /* Amber, not red: with a red brand colour an amber warning stays legible as
+     a warning instead of reading as a brand element. */
+  --warn: #b45309;
+  --warn-soft: #fdf1e4;
+  --warn-soft-fg: #8a4708;
+
+  /* Brighter than the brand red so a real error is distinguishable from a
+     primary action. */
+  --danger: #c0392b;
   --danger-soft: #fbebe8;
   --danger-soft-fg: #933425;
 
@@ -81,6 +90,9 @@
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
   --color-danger-soft-fg: var(--danger-soft-fg);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-soft-fg: var(--warn-soft-fg);
   --color-neutral-soft: var(--neutral-soft);
   --color-neutral-soft-fg: var(--neutral-soft-fg);
   --font-sans: var(--font-plex-sans);

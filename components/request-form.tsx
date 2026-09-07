@@ -276,7 +276,7 @@ export function RequestForm({
         </p>
 
         {badgingWarning && (
-          <p className="mt-3 rounded-lg border border-warn/40 bg-warn/10 p-3 text-sm text-warn">
+          <p className="mt-3 rounded-lg border border-warn/30 bg-warn-soft p-3 text-[13px] text-warn-soft-fg">
             {badgingWarning}
           </p>
         )}

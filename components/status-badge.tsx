@@ -13,14 +13,14 @@ const LABELS: Record<string, string> = {
 
 const STYLES: Record<string, string> = {
   draft: "border border-dashed border-faint text-muted-2",
-  pending_approval: "bg-accent-soft text-accent-soft-fg",
+  pending_approval: "bg-warn-soft text-warn-soft-fg",
   submitted: "bg-neutral-soft text-neutral-soft-fg",
   acknowledged: "bg-brand-soft text-brand-soft-fg",
   sourcing: "bg-brand-soft text-brand-soft-fg",
   partially_filled: "bg-brand-soft text-brand-soft-fg",
   filled: "bg-ok-soft text-ok-soft-fg",
   active: "bg-ok-soft text-ok-soft-fg",
-  on_hold: "bg-accent-soft text-accent-soft-fg",
+  on_hold: "bg-warn-soft text-warn-soft-fg",
   completed: "bg-neutral-soft text-neutral-soft-fg",
   cancelled: "bg-neutral-soft text-neutral-soft-fg",
 };
@@ -51,7 +51,7 @@ export function UrgencyBadge({ urgency }: { urgency: string }) {
       className={`inline-flex shrink-0 items-center px-2 py-[3px] text-[11px] font-medium ${
         urgency === "emergency"
           ? "bg-danger-soft text-danger-soft-fg"
-          : "bg-accent-soft text-accent-soft-fg"
+          : "bg-warn-soft text-warn-soft-fg"
       }`}
     >
       {urgency === "emergency" ? "Emergency" : "Urgent"}

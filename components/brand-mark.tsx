@@ -22,14 +22,18 @@ export function BrandMark({
   tagline?: string;
 }) {
   const onBrand = variant === "onBrand";
-  const tile = size === "lg" ? "h-14 w-14" : "h-9 w-9";
+  // The tile is deliberately larger than the artwork it holds. The logo is a
+  // crest on a white field, so without a clear white margin around it the
+  // white simply ends at the crop and reads as a pasted-in screenshot. The
+  // padding turns that edge into an intentional plate.
+  const tile = size === "lg" ? "h-[68px] w-[68px] p-2.5" : "h-10 w-10 p-1.5";
   const word = size === "lg" ? "text-[17px]" : "text-[13px]";
 
   return (
-    <span className="flex items-center gap-2.5" aria-label={name}>
+    <span className="flex items-center gap-3" aria-label={name}>
       {logoUrl ? (
         <span
-          className={`flex ${tile} shrink-0 items-center justify-center bg-white p-0.5`}
+          className={`flex ${tile} shrink-0 items-center justify-center bg-white`}
         >
           {/* Tenant and brand logos are plain files, not build-time known
               assets, so next/image's optimizer cannot be configured. */}

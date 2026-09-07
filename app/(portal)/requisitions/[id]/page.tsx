@@ -237,7 +237,7 @@ export default async function RequisitionDetail({
       )}
 
       {site?.safety_council_required && (
-        <p className="border border-accent/30 bg-accent-soft p-4 text-[13px] text-accent-soft-fg">
+        <p className="border border border-warn/30 bg-warn-soft p-4 text-[13px] text-warn-soft-fg">
           Site requires {site.safety_council_name ?? "safety council"} training.
           Allow {site.badging_lead_time_days ?? 3} days for badging.
         </p>
