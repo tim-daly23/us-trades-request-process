@@ -96,3 +96,35 @@ export function titleCase(value: string | null | undefined): string {
   if (!value) return "—";
   return value.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
+
+/**
+ * What a request is called on screen.
+ *
+ * A title is optional — nobody should have to name a job twice — so this falls
+ * back through the things that already describe it: the project name, then what
+ * was actually asked for, then the site. Only a request with none of those
+ * shows its number, and every request has one of those.
+ */
+export function requisitionLabel(parts: {
+  title?: string | null;
+  projectName?: string | null;
+  craftSummary?: string | null;
+  siteName?: string | null;
+  reqNumber?: string | null;
+}): string {
+  const title = parts.title?.trim();
+  if (title) return title;
+
+  const project = parts.projectName?.trim();
+  if (project) return project;
+
+  const craft = parts.craftSummary?.trim();
+  if (craft) {
+    return parts.siteName ? `${craft} — ${parts.siteName}` : craft;
+  }
+
+  const site = parts.siteName?.trim();
+  if (site) return `Manpower request — ${site}`;
+
+  return parts.reqNumber ?? "Request";
+}

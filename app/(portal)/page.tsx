@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { StatusBadge, UrgencyBadge } from "@/components/status-badge";
 import { FillProgress } from "@/components/fill-progress";
-import { formatDate } from "@/lib/format";
+import { formatDate, requisitionLabel } from "@/lib/format";
 
 type SiteRef = { name: string; city: string; state: string } | null;
 
@@ -179,7 +179,12 @@ export default async function RequisitionsPage() {
                         {isDraft ? "Draft" : r.req_number}
                       </Link>
                       <div style={{ fontSize: 11.5, color: "var(--steel-dim)" }}>
-                        {r.title ?? "Untitled"}
+                        {requisitionLabel({
+                          title: r.title,
+                          craftSummary: summarizeLines(linesFor.get(r.id) ?? []),
+                          siteName: r.site?.name,
+                          reqNumber: r.req_number,
+                        })}
                       </div>
                     </td>
                     <td>{r.site?.name ?? "—"}</td>

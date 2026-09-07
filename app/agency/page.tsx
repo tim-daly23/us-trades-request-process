@@ -3,7 +3,7 @@ import { requireAgency } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { StatusBadge, UrgencyBadge } from "@/components/status-badge";
 import { FillProgress } from "@/components/fill-progress";
-import { formatDate, relativeDays } from "@/lib/format";
+import { formatDate, relativeDays, requisitionLabel } from "@/lib/format";
 
 type Row = {
   id: string;
@@ -152,7 +152,11 @@ export default async function AgencyQueue() {
                         {r.req_number}
                       </Link>
                       <div style={{ fontSize: 11.5, color: "var(--steel-dim)" }}>
-                        {r.title ?? "Untitled"}
+                        {requisitionLabel({
+                          title: r.title,
+                          siteName: r.site?.name,
+                          reqNumber: r.req_number,
+                        })}
                       </div>
                     </td>
                     <td>{r.customer?.display_name ?? "—"}</td>

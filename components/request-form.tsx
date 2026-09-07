@@ -441,9 +441,9 @@ export function RequestForm({
       )}
 
       {/* --- context --------------------------------------------------- */}
-      <Card title="Scope and notes">
+      <Card title="Job name and scope">
         <Grid>
-          <Field label="Title" className="">
+          <Field label="Job name" className="">
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -451,10 +451,11 @@ export function RequestForm({
               className={inputClass}
             />
           </Field>
-          <Field label="Project">
+          <Field label="Project / unit">
             <input
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
+              placeholder="TA-2026-U7"
               className={inputClass}
             />
           </Field>
@@ -466,6 +467,11 @@ export function RequestForm({
             />
           </Field>
         </Grid>
+
+        <div className="hint" style={{ marginTop: 0, marginBottom: 10 }}>
+          Job name is optional — leave it blank and the request is listed by
+          the craft you asked for and the site.
+        </div>
 
         <div className="mt-4 space-y-4">
           <Field label="Scope of work">

@@ -7,6 +7,7 @@ import {
   formatDate,
   formatMoney,
   formatSchedule,
+  requisitionLabel,
   titleCase,
 } from "@/lib/format";
 
@@ -119,7 +120,17 @@ export default async function RequisitionDetail({
             >
               {req.req_number}
             </div>
-            <h2>{req.title ?? "Untitled request"}</h2>
+            <h2>
+              {requisitionLabel({
+                title: req.title,
+                projectName: req.project_name,
+                craftSummary: (lines ?? [])
+                  .map((l) => `${l.craft_name} ${l.level_name} ×${l.quantity}`)
+                  .join(" · "),
+                siteName: site?.name,
+                reqNumber: req.req_number,
+              })}
+            </h2>
             {site && (
               <div className="sub">
                 {site.name} · {site.address_line1}, {site.city}, {site.state}{" "}

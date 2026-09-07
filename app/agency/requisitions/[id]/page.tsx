@@ -15,6 +15,7 @@ import {
 import { ActionForm } from "@/components/agency/action-form";
 import { StatusBadge, UrgencyBadge } from "@/components/status-badge";
 import { FillProgress } from "@/components/fill-progress";
+import { requisitionLabel } from "@/lib/format";
 
 /**
  * Stage order for the picker. Matches the enum, and the divider marks the line
@@ -165,7 +166,19 @@ export default async function ManageRequisition({
             <div className="mono" style={{ fontSize: 12.5, color: "var(--steel)" }}>
               {req.req_number}
             </div>
-            <h2>{req.title ?? "Untitled request"}</h2>
+            <h2>
+              {requisitionLabel({
+                title: req.title,
+                projectName: req.project_name,
+                craftSummary: (lines ?? [])
+                  .map(
+                    (l) => `${l.craft?.name} ${l.level?.name} ×${l.quantity}`,
+                  )
+                  .join(" · "),
+                siteName: site?.name,
+                reqNumber: req.req_number,
+              })}
+            </h2>
             <div className="sub">
               {customer?.display_name} · {site?.name} · {site?.city}, {site?.state}
             </div>
