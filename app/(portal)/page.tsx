@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { StatusBadge, UrgencyBadge } from "@/components/status-badge";
 import { FillProgress } from "@/components/fill-progress";
-import { formatDate, requisitionLabel } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 
 type SiteRef = { name: string; city: string; state: string } | null;
 
@@ -40,12 +40,6 @@ const OPEN = new Set([
 ]);
 const ON_SITE = new Set(["filled", "active"]);
 const CLOSED = new Set(["completed", "cancelled"]);
-
-function summarizeLines(lines: LineRow[]): string {
-  return lines
-    .map((l) => `${l.craft_name} ${l.level_name} ×${l.quantity}`)
-    .join(" · ");
-}
 
 export default async function RequisitionsPage() {
   const supabase = await createClient();
@@ -142,7 +136,7 @@ export default async function RequisitionsPage() {
         <table className="data-table">
           <thead>
             <tr>
-              <th style={{ width: 140 }}>Request</th>
+              <th style={{ width: 175 }}>Request</th>
               <th style={{ width: 210 }}>Site</th>
               <th style={{ width: 90 }}>Start</th>
               <th style={{ width: 80 }}>Duration</th>
@@ -165,6 +159,9 @@ export default async function RequisitionsPage() {
                 return (
                   <tr key={r.id}>
                     <td>
+                      {/* Identifier only. The craft, site and dates each have
+                          their own column — repeating them here just crowds
+                          the row. */}
                       <Link
                         href={`/requisitions/${r.id}`}
                         className="mono"
@@ -174,18 +171,11 @@ export default async function RequisitionsPage() {
                           fontWeight: 500,
                           textDecoration: "none",
                           borderBottom: "1px dotted var(--steel)",
+                          whiteSpace: "nowrap",
                         }}
                       >
                         {isDraft ? "Draft" : r.req_number}
                       </Link>
-                      <div style={{ fontSize: 11.5, color: "var(--steel-dim)" }}>
-                        {requisitionLabel({
-                          title: r.title,
-                          craftSummary: summarizeLines(linesFor.get(r.id) ?? []),
-                          siteName: r.site?.name,
-                          reqNumber: r.req_number,
-                        })}
-                      </div>
                     </td>
                     <td>{r.site?.name ?? "—"}</td>
                     <td className="mono" style={{ fontSize: 12.5 }}>

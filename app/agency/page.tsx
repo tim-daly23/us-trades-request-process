@@ -3,7 +3,7 @@ import { requireAgency } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { StatusBadge, UrgencyBadge } from "@/components/status-badge";
 import { FillProgress } from "@/components/fill-progress";
-import { formatDate, relativeDays, requisitionLabel } from "@/lib/format";
+import { formatDate, relativeDays } from "@/lib/format";
 
 type Row = {
   id: string;
@@ -111,7 +111,7 @@ export default async function AgencyQueue() {
         <table className="data-table">
           <thead>
             <tr>
-              <th style={{ width: 140 }}>Request</th>
+              <th style={{ width: 175 }}>Request</th>
               <th style={{ width: 150 }}>Customer</th>
               <th style={{ width: 180 }}>Site</th>
               <th style={{ width: 110 }}>Start</th>
@@ -147,17 +147,11 @@ export default async function AgencyQueue() {
                           color: "var(--ink)",
                           textDecoration: "none",
                           borderBottom: "1px dotted var(--steel)",
+                          whiteSpace: "nowrap",
                         }}
                       >
                         {r.req_number}
                       </Link>
-                      <div style={{ fontSize: 11.5, color: "var(--steel-dim)" }}>
-                        {requisitionLabel({
-                          title: r.title,
-                          siteName: r.site?.name,
-                          reqNumber: r.req_number,
-                        })}
-                      </div>
                     </td>
                     <td>{r.customer?.display_name ?? "—"}</td>
                     <td style={{ color: "var(--steel)" }}>
