@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
+import { normalizeSupabaseUrl } from "./url";
 
 /**
  * Service-role client. Bypasses RLS entirely.
@@ -19,9 +20,13 @@ export function createAdminClient() {
         "(Supabase dashboard → Project Settings → API Keys → service_role).",
     );
   }
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, key, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return createClient(
+    normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL!),
+    key,
+    {
+      auth: { autoRefreshToken: false, persistSession: false },
+    },
+  );
 }
 
 export function hasServiceRole() {

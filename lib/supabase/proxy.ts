@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { normalizeSupabaseUrl } from "./url";
 
 /** Paths reachable without a session. */
 const PUBLIC_PATHS = ["/login", "/auth"];
@@ -35,7 +36,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   const supabase = createServerClient(
-    url,
+    normalizeSupabaseUrl(url),
     anonKey,
     {
       cookies: {
