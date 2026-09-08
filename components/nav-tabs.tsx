@@ -13,6 +13,7 @@ const TABS = [
   { href: "/requests", label: "Requests", also: ["/requisitions"] },
   { href: "/workers", label: "Workers" },
   { href: "/sites", label: "Sites" },
+  { href: "/jobs", label: "Job log" },
   { href: "/account", label: "Account" },
 ];
 

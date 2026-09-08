@@ -12,6 +12,7 @@ import { UserRowActions } from "@/components/agency/user-row-actions";
 import { ActionForm } from "@/components/agency/action-form";
 import { NewPortalUserForm } from "@/components/agency/new-portal-user-form";
 import { SafetyCouncilField } from "@/components/safety-council-field";
+import { JobLog, type Job } from "@/components/job-log";
 import { formatMoney, formatSchedule } from "@/lib/format";
 
 export default async function CustomerDetail({
@@ -48,6 +49,15 @@ export default async function CustomerDetail({
       .select("id", { count: "exact", head: true })
       .eq("customer_id", id),
   ]);
+
+  const { data: jobs } = await supabase
+    .from("customer_jobs")
+    .select("*")
+    .eq("customer_id", id)
+    .is("deleted_at", null)
+    .order("status")
+    .order("job_number", { ascending: false })
+    .returns<Job[]>();
 
   const { data: twic } = await supabase
     .from("credentials")
@@ -388,6 +398,9 @@ export default async function CustomerDetail({
           </ActionForm>
         </div>
       </div>
+
+      {/* ------------------------------------------------------ job log */}
+      <JobLog jobs={jobs ?? []} canWrite customerId={id} />
 
       {/* --------------------------------------------------- danger zone */}
       <div className="panel">
