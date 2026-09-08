@@ -27,6 +27,13 @@ and you want somewhere to be wrong that is not the live system.
 Open the SQL Editor and run `scripts/production-setup.sql` in one paste. It is
 every migration plus the craft/level/credential catalogue, in order.
 
+That file is generated — after adding a migration, rebuild it rather than
+appending by hand:
+
+```bash
+node scripts/make-production-setup.js
+```
+
 Then verify, in this order:
 
 - `scripts/verify_schema.sql` — expect every row OK
@@ -55,6 +62,20 @@ console.
 
 Everything after that — customers, sites, portal logins — goes through the
 console.
+
+That first account must be `super_admin`. It is the only role that reaches
+every customer and the only one that can open **Team**, where the rest of the
+staff are created and given their customers.
+
+### Adding the rest of the team
+
+**Agency console → Team.** Create the login, then tick the customers that
+person works on. They see those and nothing else — the scoping is in the
+database (`can_access_customer`), so it holds on every screen and on the REST
+API, not just the ones that remember to filter.
+
+A role change travels in the access token, so it applies at their next
+sign-in. Ticking or unticking a customer applies immediately.
 
 ### Point production at it
 

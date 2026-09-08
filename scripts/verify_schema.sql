@@ -7,13 +7,14 @@
 
 with expected(sort_key, check_name, expected) as (
   values
-    (1, 'tables',      '31'),
-    (2, 'rls_enabled', '31'),
-    (3, 'policies',    '57'),
+    -- Current through 20260909120000_agency_customer_assignments.sql.
+    (1, 'tables',      '33'),
+    (2, 'rls_enabled', '33'),
+    (3, 'policies',    '63'),
     (4, 'views',       '5'),
     (5, 'enum_types',  '19'),
-    (6, 'functions',   '18'),
-    (7, 'triggers',    '15'),
+    (6, 'functions',   '26'),
+    (7, 'triggers',    '16'),
     (8, 'rls_missing', '(none)')
 ),
 actual(check_name, actual) as (

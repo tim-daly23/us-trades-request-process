@@ -7,15 +7,17 @@ const TABS = [
   { href: "/agency", label: "Requests", exact: true },
   { href: "/agency/workers", label: "Workers" },
   { href: "/agency/customers", label: "Customers" },
+  // Only a super admin can open this, so only a super admin is offered it.
+  { href: "/agency/team", label: "Team", adminOnly: true },
   { href: "/", label: "Portal view" },
 ];
 
-export function AgencyNav() {
+export function AgencyNav({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
 
   return (
     <div className="nav-row">
-      {TABS.map((t) => {
+      {TABS.filter((t) => isAdmin || !t.adminOnly).map((t) => {
         const active = t.exact
           ? pathname === t.href
           : t.href !== "/" && pathname.startsWith(t.href);

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { requireAgency } from "@/lib/auth";
+import { isAgencyAdmin, requireAgency } from "@/lib/auth";
 import { AgencyNav } from "@/components/agency/agency-nav";
 import { UtilityNav } from "@/components/utility-nav";
 
@@ -32,7 +32,7 @@ export default async function AgencyLayout({
 
           <div>
             <UtilityNav />
-            <AgencyNav />
+            <AgencyNav isAdmin={isAgencyAdmin(profile)} />
           </div>
         </div>
 

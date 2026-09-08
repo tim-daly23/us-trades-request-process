@@ -1,0 +1,15 @@
+-- =====================================================================
+-- FIRST AGENCY LOGIN
+-- =====================================================================
+-- Create the auth account first (Authentication -> Users -> Add user, with
+-- Auto Confirm User ticked), then run this with that user's id and email.
+-- The email is read from auth.users so the two cannot drift apart.
+--
+--   insert into app_users (id, email, full_name, user_type, agency_role)
+--   select u.id, u.email, 'Your Name', 'agency', 'super_admin'
+--     from auth.users u
+--    where u.id = 'PASTE-THE-AUTH-USER-ID-HERE'
+--   on conflict (id) do nothing;
+--
+-- Sign in, and create every customer and login from the agency console.
+-- =====================================================================

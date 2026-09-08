@@ -1,0 +1,23 @@
+-- =====================================================================
+-- PRODUCTION SETUP — run once, top to bottom, in a NEW Supabase project
+-- =====================================================================
+-- Every migration plus the reference catalogue, concatenated in order. Paste
+-- the whole thing into the SQL Editor of the new project and Run.
+--
+-- Postgres wraps a multi-statement batch in one implicit transaction, so this
+-- is all-or-nothing: a failure anywhere rolls the lot back and you can fix and
+-- re-run rather than ending up half-migrated.
+--
+-- Afterwards, two things are NOT covered by this file and must be done by hand:
+--
+--   1. Authentication -> Hooks -> Customize Access Token (JWT) Claims
+--      Enable it and select public.custom_access_token_hook. Without it every
+--      policy evaluates against a null user_type and returns zero rows.
+--
+--   2. The first agency login. Create the auth user under
+--      Authentication -> Users (Auto Confirm on), then insert its app_users
+--      row — see the template at the end of this file. Everything after that
+--      is done through the console.
+--
+-- Verify with scripts/verify_schema.sql, then scripts/test_rls.sql.
+-- =====================================================================

@@ -57,9 +57,17 @@ select '2. other tenant', * from public.rls_probe(
                     "customer_id":"b0000000-0000-4000-8000-0000000000ff",
                     "customer_role":"customer_admin"}}'::jsonb)
 union all
-select '3. agency staff', * from public.rls_probe(
+select '3. agency super admin', * from public.rls_probe(
   '{"sub":"72a4c929-1c15-40e7-b864-a92e7ed2d901",
     "app_metadata":{"user_type":"agency","agency_role":"super_admin"}}'::jsonb)
+union all
+-- A staff account with no customers assigned. Expect zero customers, sites,
+-- requisitions and lines — and the FULL crafts and workers counts, because the
+-- roster and the reference catalogue belong to US Trades rather than to any
+-- one tenant. If this row shows customers, the assignment scoping is not on.
+select '4. agency, unassigned', * from public.rls_probe(
+  '{"sub":"00000000-0000-4000-8000-00000000beef",
+    "app_metadata":{"user_type":"agency","agency_role":"recruiter"}}'::jsonb)
 order by 1, 2;
 
 

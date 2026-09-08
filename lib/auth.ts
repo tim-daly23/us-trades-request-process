@@ -56,3 +56,38 @@ export async function assertAgency(): Promise<
   }
   return { ok: true, profile };
 }
+
+/**
+ * The unrestricted tier: sees every customer, creates staff, hands out access.
+ *
+ * Mirrors is_agency_admin() in the database, which is where it is actually
+ * enforced. Read the role from the profile row rather than the JWT so a
+ * promotion takes effect on the next page load instead of the next sign-in —
+ * the policies still want the claim, so the sign-in is what makes it real, but
+ * this way the screen and the database agree about who is being told no.
+ */
+export function isAgencyAdmin(profile: Profile | null): boolean {
+  return profile?.user_type === "agency" && profile.agency_role === "super_admin";
+}
+
+/** Gate for screens only an admin may open. */
+export async function requireAgencyAdmin(): Promise<Profile> {
+  const profile = await requireAgency();
+  if (!isAgencyAdmin(profile)) redirect("/agency");
+  return profile;
+}
+
+/** Same check for server actions. */
+export async function assertAgencyAdmin(): Promise<
+  { ok: true; profile: Profile } | { ok: false; error: string }
+> {
+  const guard = await assertAgency();
+  if (!guard.ok) return guard;
+  if (!isAgencyAdmin(guard.profile)) {
+    return {
+      ok: false,
+      error: "Only a super admin can manage the team.",
+    };
+  }
+  return guard;
+}

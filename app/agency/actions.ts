@@ -4,7 +4,7 @@ import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { assertAgency } from "@/lib/auth";
+import { assertAgency, isAgencyAdmin } from "@/lib/auth";
 
 type Result<T = void> =
   | ({ ok: true } & (T extends void ? object : { data: T }))
@@ -360,6 +360,12 @@ export async function createPortalUser(
   if (userType === "agency" && !role) {
     return { ok: false, error: "Staff users need a role." };
   }
+  // RLS would refuse the app_users insert anyway, but the auth account is
+  // created first — so check here rather than making an account and rolling
+  // it straight back.
+  if (userType === "agency" && !isAgencyAdmin(guard.profile)) {
+    return { ok: false, error: "Only a super admin can create staff logins." };
+  }
 
   // 24 bytes of base64url: plenty of entropy, and safe to read aloud or paste.
   const password = randomBytes(18).toString("base64url");
@@ -444,6 +450,7 @@ export async function createPortalUser(
   }
 
   if (customerId) revalidatePath(`/agency/customers/${customerId}`);
+  if (userType === "agency") revalidatePath("/agency/team");
   return { ok: true, data: { email, password } };
 }
 
