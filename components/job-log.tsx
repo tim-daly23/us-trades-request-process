@@ -134,19 +134,19 @@ export function JobLog({
         )}
 
         <div style={{ overflowX: "auto" }}>
-          <table className="data-table" style={{ minWidth: 1100 }}>
+          <table className="data-table" style={{ minWidth: 1340 }}>
             <thead>
               <tr>
-                <th style={{ width: 80 }}>Job #</th>
-                <th style={{ width: 110 }}>Status</th>
-                <th style={{ width: 150 }}>Customer</th>
-                <th>Description</th>
-                <th style={{ width: 170 }}>Site</th>
-                <th style={{ width: 140 }}>PM</th>
+                <th style={{ width: 74 }}>Job #</th>
+                <th style={{ width: 104 }}>Status</th>
+                <th style={{ width: 140 }}>Customer</th>
+                <th style={{ minWidth: 240 }}>Description</th>
+                <th style={{ width: 180 }}>Site</th>
+                <th style={{ width: 130 }}>PM</th>
                 <th style={{ width: 160 }}>Site contact</th>
-                <th style={{ width: 80 }}>Per diem</th>
-                <th style={{ width: 60 }}>TWIC</th>
-                {canWrite && <th style={{ width: 60 }} />}
+                <th style={{ width: 92 }}>Per diem</th>
+                <th style={{ width: 64 }}>TWIC</th>
+                {canWrite && <th style={{ width: 78 }} />}
               </tr>
             </thead>
             <tbody>
@@ -190,7 +190,9 @@ export function JobLog({
                         </div>
                       )}
                     </td>
-                    <td className="mono">{formatMoney(j.per_diem_rate)}</td>
+                    <td className="mono" style={{ whiteSpace: "nowrap" }}>
+                      {formatMoney(j.per_diem_rate)}
+                    </td>
                     <td>
                       {j.twic_required ? (
                         <span className="badge submitted">Yes</span>
@@ -199,7 +201,7 @@ export function JobLog({
                       )}
                     </td>
                     {canWrite && (
-                      <td>
+                      <td style={{ whiteSpace: "nowrap" }}>
                         <button
                           type="button"
                           className="action-btn"
