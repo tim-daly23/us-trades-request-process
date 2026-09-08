@@ -19,13 +19,29 @@ const bool = (v: FormDataEntryValue | null) => v === "on" || v === "true";
  * allow_requester_site_create switched on — some accounts want their site list
  * controlled centrally rather than growing every time someone raises a request.
  */
-async function canManageSites(): Promise<
-  { ok: true; customerId: string } | { ok: false; error: string }
-> {
+async function canManageSites(
+  form?: FormData,
+): Promise<{ ok: true; customerId: string } | { ok: false; error: string }> {
   const profile = await getProfile();
   if (!profile) return { ok: false, error: "Not signed in." };
-  if (profile.user_type !== "customer" || !profile.customer_id) {
-    return { ok: false, error: "Use the agency console to manage sites." };
+
+  // Staff acting from the customer's own screens name the tenant explicitly —
+  // the preview bar supplies it. created_by still records the staff member, so
+  // the change is attributed to whoever actually made it.
+  if (profile.user_type === "agency") {
+    const chosen = form?.get("customer_id");
+    const id = typeof chosen === "string" ? chosen.trim() : "";
+    if (!id) {
+      return {
+        ok: false,
+        error: "Choose a customer in the preview bar first.",
+      };
+    }
+    return { ok: true, customerId: id };
+  }
+
+  if (!profile.customer_id) {
+    return { ok: false, error: "This account is not attached to a customer." };
   }
 
   if (profile.customer_role === "viewer") {
@@ -52,7 +68,7 @@ async function canManageSites(): Promise<
 }
 
 export async function createCustomerSite(form: FormData): Promise<Result> {
-  const guard = await canManageSites();
+  const guard = await canManageSites(form);
   if (!guard.ok) return guard;
 
   const name = nz(form.get("name"));
@@ -81,7 +97,7 @@ export async function createCustomerSite(form: FormData): Promise<Result> {
 }
 
 export async function updateCustomerSite(form: FormData): Promise<Result> {
-  const guard = await canManageSites();
+  const guard = await canManageSites(form);
   if (!guard.ok) return guard;
 
   const id = nz(form.get("id"));
@@ -108,7 +124,7 @@ export async function updateCustomerSite(form: FormData): Promise<Result> {
 }
 
 export async function addCustomerSiteContact(form: FormData): Promise<Result> {
-  const guard = await canManageSites();
+  const guard = await canManageSites(form);
   if (!guard.ok) return guard;
 
   const siteId = nz(form.get("site_id"));

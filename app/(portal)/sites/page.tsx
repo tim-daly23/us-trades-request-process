@@ -69,11 +69,13 @@ export default async function CustomerSitesPage() {
 
   const isAgency = profile?.user_type === "agency";
   const role = profile?.customer_role;
-  const canManage =
-    !scope.isPreview &&
-    (role === "customer_admin" ||
-    role === "approver" ||
-      (role === "requester" && customer?.allow_requester_site_create === true));
+  // Staff manage a customer's sites here too, provided one is selected — the
+  // console keeps the fuller form, this is for quick corrections in context.
+  const canManage = isAgency
+    ? !!scope.customerId
+    : role === "customer_admin" ||
+      role === "approver" ||
+      (role === "requester" && customer?.allow_requester_site_create === true);
 
   const rows = sites ?? [];
 
@@ -92,11 +94,12 @@ export default async function CustomerSitesPage() {
         <div className="panel-head">
           <div>
             <h2>Sites</h2>
-            <div className="sub">
-              {isAgency && !scope.customerId
-                ? `${rows.length} across every customer — choose one in the preview bar to see a single portal`
-                : `${rows.length} on file`}
-            </div>
+            {isAgency && !scope.customerId && (
+              <div className="sub">
+                Every customer&apos;s sites — choose one in the preview bar to
+                see a single portal.
+              </div>
+            )}
           </div>
         </div>
 
@@ -201,6 +204,9 @@ export default async function CustomerSitesPage() {
               submitLabel="Add site"
               resetOnSuccess
             >
+              {isAgency && scope.customerId && (
+                <input type="hidden" name="customer_id" value={scope.customerId} />
+              )}
               <div
                 style={{
                   display: "grid",
@@ -256,6 +262,9 @@ export default async function CustomerSitesPage() {
                   <div style={{ marginTop: 12 }}>
                     <ActionForm action={updateCustomerSite} submitLabel="Save site" submitClass="action-btn">
                       <input type="hidden" name="id" value={s.id} />
+                      {isAgency && scope.customerId && (
+                        <input type="hidden" name="customer_id" value={scope.customerId} />
+                      )}
                       <div
                         style={{
                           display: "grid",
@@ -306,6 +315,9 @@ export default async function CustomerSitesPage() {
                         resetOnSuccess
                       >
                         <input type="hidden" name="site_id" value={s.id} />
+                        {isAgency && scope.customerId && (
+                          <input type="hidden" name="customer_id" value={scope.customerId} />
+                        )}
                         <div
                           style={{
                             display: "grid",
@@ -357,7 +369,7 @@ export default async function CustomerSitesPage() {
         <div className="panel">
           <div className="notice-warn">
             {isAgency
-              ? "This is the customer's view. Use Edit on any row, or the Customers section of the console, to change a site."
+              ? "Choose a customer in the preview bar to add or change their sites."
               : "Your account keeps its site list centrally. Ask an admin at your company, or your US Trades rep, to add or change a site."}
           </div>
         </div>
