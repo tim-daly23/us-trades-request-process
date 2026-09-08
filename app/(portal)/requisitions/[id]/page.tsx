@@ -204,7 +204,9 @@ export default async function RequisitionDetail({
             value={formatSchedule(req.days_per_week, req.hours_per_day)}
           />
           <Field label="Per diem" value={formatMoney(req.per_diem_rate)} />
-          <div>
+          {/* Full width: a dropdown squeezed into a 150px grid cell truncates
+              its own options, which is the one thing a picker must not do. */}
+          <div style={{ gridColumn: "1 / -1" }}>
             <dt
               style={{
                 fontSize: 12,
@@ -225,7 +227,6 @@ export default async function RequisitionDetail({
             </dd>
           </div>
           <Field label="Project" value={req.project_name ?? "—"} />
-          <Field label="PO" value={req.po_number ?? "—"} />
           <Field label="Site contact" value={contactLine} />
         </dl>
       </div>

@@ -76,8 +76,9 @@ export function RequestJobPicker({
           padding: "4px 6px",
           border: "1.3px solid var(--line-strong)",
           background: "var(--paper)",
-          fontSize: 12.5,
-          maxWidth: 230,
+          fontSize: 13,
+          width: "100%",
+          maxWidth: 420,
         }}
       >
         <option value="">
@@ -85,9 +86,7 @@ export function RequestJobPicker({
         </option>
         {jobs.map((j) => (
           <option key={j.id} value={j.id}>
-            {[j.job_number, j.end_customer, j.description]
-              .filter(Boolean)
-              .join(" · ")}
+            {[j.job_number, j.end_customer].filter(Boolean).join(" · ")}
           </option>
         ))}
       </select>

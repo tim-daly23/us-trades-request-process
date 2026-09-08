@@ -55,7 +55,6 @@ export function RequestForm({
   const [siteId, setSiteId] = useState("");
   const [title, setTitle] = useState("");
   const [projectName, setProjectName] = useState("");
-  const [poNumber, setPoNumber] = useState("");
   const [urgency, setUrgency] =
     useState<(typeof URGENCIES)[number]["value"]>("standard");
   const [startDate, setStartDate] = useState("");
@@ -149,7 +148,7 @@ export function RequestForm({
         siteId,
         title,
         projectName,
-        poNumber,
+        poNumber: "",
         urgency,
         startDate,
         endDate,
@@ -482,13 +481,6 @@ export function RequestForm({
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
               placeholder="TA-2026-U7"
-              className={inputClass}
-            />
-          </Field>
-          <Field label="PO number">
-            <input
-              value={poNumber}
-              onChange={(e) => setPoNumber(e.target.value)}
               className={inputClass}
             />
           </Field>
