@@ -8,6 +8,7 @@ const TABS = [
   { href: "/agency/workers", label: "Workers" },
   { href: "/agency/customers", label: "Customers" },
   { href: "/", label: "Portal view" },
+  { href: "/account", label: "Account" },
 ];
 
 export function AgencyNav() {
