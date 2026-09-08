@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getPortalScope } from "@/lib/preview";
+import Link from "next/link";
 import { getProfile } from "@/lib/auth";
 import { ActionForm } from "@/components/agency/action-form";
 import {
@@ -65,6 +66,7 @@ export default async function CustomerSitesPage() {
       .maybeSingle(),
   ]);
 
+  const isAgency = profile?.user_type === "agency";
   const role = profile?.customer_role;
   const canManage =
     !scope.isPreview &&
@@ -89,7 +91,11 @@ export default async function CustomerSitesPage() {
         <div className="panel-head">
           <div>
             <h2>Sites</h2>
-            <div className="sub">{rows.length} on file</div>
+            <div className="sub">
+              {isAgency && !scope.customerId
+                ? `${rows.length} across every customer — choose one in the preview bar to see a single portal`
+                : `${rows.length} on file`}
+            </div>
           </div>
         </div>
 
@@ -100,12 +106,13 @@ export default async function CustomerSitesPage() {
               <th style={{ width: 230 }}>Address</th>
               <th style={{ width: 200 }}>Site contact</th>
               <th style={{ width: 110 }}>Status</th>
+              {isAgency && <th style={{ width: 80 }} />}
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
               <tr className="empty-row">
-                <td colSpan={4}>
+                <td colSpan={isAgency ? 5 : 4}>
                   No sites yet — a request has to point at one.
                 </td>
               </tr>
@@ -160,6 +167,13 @@ export default async function CustomerSitesPage() {
                         {s.status}
                       </span>
                     </td>
+                    {isAgency && (
+                      <td>
+                        <Link href={`/agency/sites/${s.id}`} className="action-btn">
+                          Edit
+                        </Link>
+                      </td>
+                    )}
                   </tr>
                 );
               })
@@ -369,8 +383,8 @@ export default async function CustomerSitesPage() {
       ) : (
         <div className="panel">
           <div className="notice-warn">
-            {scope.isPreview
-              ? "Staff preview is read-only. Manage this customer's sites from the console."
+            {isAgency
+              ? "This is the customer's view. Use Edit on any row, or the Customers section of the console, to change a site."
               : "Your account keeps its site list centrally. Ask an admin at your company, or your US Trades rep, to add or change a site."}
           </div>
         </div>
