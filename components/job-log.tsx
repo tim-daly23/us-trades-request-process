@@ -134,13 +134,12 @@ export function JobLog({
         )}
 
         <div style={{ overflowX: "auto" }}>
-          <table className="data-table" style={{ minWidth: 1340 }}>
+          <table className="data-table" style={{ minWidth: 1080 }}>
             <thead>
               <tr>
                 <th style={{ width: 74 }}>Job #</th>
                 <th style={{ width: 104 }}>Status</th>
-                <th style={{ width: 140 }}>Customer</th>
-                <th style={{ minWidth: 240 }}>Description</th>
+                <th style={{ minWidth: 240 }}>Customer &amp; job</th>
                 <th style={{ width: 180 }}>Site</th>
                 <th style={{ width: 130 }}>PM</th>
                 <th style={{ width: 160 }}>Site contact</th>
@@ -152,7 +151,7 @@ export function JobLog({
             <tbody>
               {rows.length === 0 ? (
                 <tr className="empty-row">
-                  <td colSpan={canWrite ? 10 : 9}>
+                  <td colSpan={canWrite ? 9 : 8}>
                     {jobs.length === 0
                       ? "No jobs logged yet."
                       : "Nothing matches that search."}
@@ -169,8 +168,14 @@ export function JobLog({
                         {j.status}
                       </span>
                     </td>
-                    <td>{j.end_customer ?? "—"}</td>
-                    <td style={{ color: "var(--steel)" }}>{j.description ?? "—"}</td>
+                    <td>
+                      <div>{j.end_customer ?? "—"}</div>
+                      {j.description && (
+                        <div style={{ fontSize: 12, color: "var(--steel-dim)" }}>
+                          {j.description}
+                        </div>
+                      )}
+                    </td>
                     <td style={{ color: "var(--steel)" }}>
                       {j.site_name ?? "—"}
                       {j.location && (
