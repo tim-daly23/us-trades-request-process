@@ -265,10 +265,19 @@ export async function addPlacement(form: FormData): Promise<Result> {
   const supabase = await createClient();
   const { data: line } = await supabase
     .from("requisition_lines")
-    .select("requisition_id, customer_id")
+    .select("requisition_id, customer_id, start_date")
     .eq("id", lineId)
     .maybeSingle();
   if (!line) return { ok: false, error: "Line not found." };
+
+  // Default the start to the line's own date, or the request's. Crews rarely
+  // all start on the same day, but the request date is the right first guess —
+  // it is then changed per worker where it differs.
+  const { data: req } = await supabase
+    .from("requisitions")
+    .select("start_date")
+    .eq("id", line.requisition_id)
+    .maybeSingle();
 
   const { error } = await supabase.from("placements").insert({
     requisition_line_id: lineId,
@@ -276,6 +285,8 @@ export async function addPlacement(form: FormData): Promise<Result> {
     customer_id: line.customer_id,
     worker_id: workerId,
     stage: "identified",
+    scheduled_start_date:
+      nz(form.get("scheduled_start_date")) ?? line.start_date ?? req?.start_date ?? null,
     created_by: guard.profile.id,
   });
 
@@ -299,6 +310,14 @@ export async function addPlacement(form: FormData): Promise<Result> {
  * and logs the transition to placement_events, so this only has to set the
  * stage and any dates that go with it.
  */
+/**
+ * Update one worker's placement: stage, and the dates that belong to them
+ * rather than to the request.
+ *
+ * Start dates are per worker on purpose — a crew of twelve rarely all walks
+ * through the gate on the same morning, and the customer needs to see who is
+ * actually expected when.
+ */
 export async function setPlacementStage(form: FormData): Promise<Result> {
   const guard = await assertAgency();
   if (!guard.ok) return guard;
@@ -308,7 +327,17 @@ export async function setPlacementStage(form: FormData): Promise<Result> {
   const requisitionId = nz(form.get("requisition_id"));
   if (!id || !stage) return { ok: false, error: "Missing placement or stage." };
 
-  const patch: Record<string, unknown> = { stage };
+  const scheduledStart = nz(form.get("scheduled_start_date"));
+  const scheduledEnd = nz(form.get("scheduled_end_date"));
+  if (scheduledStart && scheduledEnd && scheduledEnd < scheduledStart) {
+    return { ok: false, error: "That end date is before the start date." };
+  }
+
+  const patch: Record<string, unknown> = {
+    stage,
+    scheduled_start_date: scheduledStart,
+    scheduled_end_date: scheduledEnd,
+  };
   if (stage === "started") patch.actual_start_date = new Date().toISOString().slice(0, 10);
   if (stage === "completed" || stage === "ended_early") {
     patch.actual_end_date = new Date().toISOString().slice(0, 10);

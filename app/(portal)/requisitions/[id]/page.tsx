@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { StatusBadge, UrgencyBadge } from "@/components/status-badge";
+import { PlacementStageBadge } from "@/components/placement-stage-badge";
 import { FillProgress } from "@/components/fill-progress";
 import {
   formatDate,
@@ -65,7 +66,7 @@ export default async function RequisitionDetail({
     ? `${primaryContact.name}${primaryContact.phone ? ` · ${primaryContact.phone}` : ""}`
     : "—";
 
-  const [{ data: lines }, { data: reqs }] = await Promise.all([
+  const [{ data: lines }, { data: reqs }, { data: crew }] = await Promise.all([
     supabase
       .from("requisition_lines_visible")
       .select("*")
@@ -78,6 +79,15 @@ export default async function RequisitionDetail({
         "is_required, state_code, credential:credentials(name, short_label)",
       )
       .eq("requisition_id", id),
+    // Only ever through the view: it filters to placements actually submitted
+    // to this customer and redacts names per their account settings.
+    supabase
+      .from("customer_candidate_view")
+      .select(
+        "placement_id, stage, first_name, last_initial, last_name, phone, craft_name, level_name, scheduled_start_date, actual_start_date",
+      )
+      .eq("requisition_id", id)
+      .order("scheduled_start_date", { nullsFirst: false }),
   ]);
 
   const totals = (lines ?? []).reduce(
@@ -226,6 +236,58 @@ export default async function RequisitionDetail({
           </tbody>
         </table>
       </div>
+
+      {!!crew?.length && (
+        <div className="panel">
+          <div className="panel-head">
+            <div>
+              <h2>Crew</h2>
+              <div className="sub">
+                Who is assigned, and when each of them starts. Start dates are
+                per person — a crew rarely all begins on the same day.
+              </div>
+            </div>
+          </div>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Worker</th>
+                <th style={{ width: 220 }}>Craft &amp; level</th>
+                <th style={{ width: 150 }}>Starts</th>
+                <th style={{ width: 190 }}>Stage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {crew.map((c) => (
+                <tr key={c.placement_id}>
+                  <td style={{ fontWeight: 500 }}>
+                    {c.first_name} {c.last_name ?? c.last_initial}
+                    {c.phone && (
+                      <div className="mono" style={{ fontSize: 11.5, color: "var(--steel)" }}>
+                        {c.phone}
+                      </div>
+                    )}
+                  </td>
+                  <td style={{ color: "var(--steel)" }}>
+                    {c.craft_name} · {c.level_name}
+                  </td>
+                  <td className="mono" style={{ fontSize: 12.5 }}>
+                    {formatDate(c.actual_start_date ?? c.scheduled_start_date)}
+                    {c.actual_start_date && (
+                      <div style={{ fontSize: 11, color: "var(--green)" }}>
+                        on site
+                      </div>
+                    )}
+                  </td>
+                  <td>
+                    <PlacementStageBadge stage={c.stage} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {!!reqs?.length && (
         <div className="panel">

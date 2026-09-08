@@ -74,7 +74,17 @@ type Placement = {
   stage: string;
   is_customer_visible: boolean;
   credential_ready: boolean;
+  scheduled_start_date: string | null;
+  scheduled_end_date: string | null;
+  actual_start_date: string | null;
   worker: { id: string; first_name: string; last_name: string; phone: string | null } | null;
+};
+
+const cellControl: React.CSSProperties = {
+  padding: "4px 6px",
+  border: "1.3px solid var(--line-strong)",
+  background: "var(--paper)",
+  fontSize: 12.5,
 };
 
 export default async function ManageRequisition({
@@ -117,6 +127,7 @@ export default async function ManageRequisition({
       .from("placements")
       .select(
         `id, requisition_line_id, stage, is_customer_visible, credential_ready,
+         scheduled_start_date, scheduled_end_date, actual_start_date,
          worker:workers(id, first_name, last_name, phone)`,
       )
       .eq("requisition_id", id)
@@ -420,15 +431,17 @@ export default async function ManageRequisition({
               <thead>
                 <tr>
                   <th>Worker</th>
-                  <th style={{ width: 120 }}>Visible</th>
-                  <th style={{ width: 230 }}>Stage</th>
-                  <th style={{ width: 90 }} />
+                  <th style={{ width: 100 }}>Visible</th>
+                  <th style={{ width: 175 }}>Stage</th>
+                  <th style={{ width: 145 }}>Starts</th>
+                  <th style={{ width: 145 }}>Ends</th>
+                  <th style={{ width: 150 }} />
                 </tr>
               </thead>
               <tbody>
                 {rows.length === 0 ? (
                   <tr className="empty-row">
-                    <td colSpan={4}>Nobody placed against this line yet.</td>
+                    <td colSpan={6}>Nobody placed against this line yet.</td>
                   </tr>
                 ) : (
                   rows.map((p) => (
@@ -448,37 +461,53 @@ export default async function ManageRequisition({
                           {p.is_customer_visible ? "Customer" : "Internal"}
                         </span>
                       </td>
-                      <td>
+                      {/* Stage and both dates save together — they are usually
+                          changed in the same breath ("he's confirmed, starting
+                          the 14th") and two forms would mean two round trips. */}
+                      <td colSpan={4}>
                         <ActionForm
                           action={setPlacementStage}
-                          submitLabel="Set"
+                          submitLabel="Save"
                           submitClass="action-btn"
                           inline
                         >
                           <input type="hidden" name="id" value={p.id} />
                           <input type="hidden" name="requisition_id" value={id} />
-                          <select
-                            name="stage"
-                            defaultValue={p.stage}
-                            className="mini-select"
+                          <span
                             style={{
-                              padding: "4px 6px",
-                              border: "1.3px solid var(--line-strong)",
-                              background: "var(--paper)",
-                              fontSize: 12.5,
-                              marginRight: 6,
-                              maxWidth: 165,
+                              display: "inline-flex",
+                              gap: 6,
+                              alignItems: "center",
+                              flexWrap: "wrap",
                             }}
                           >
-                            {STAGES.map((s) => (
-                              <option key={s.value} value={s.value}>
-                                {s.label}
-                              </option>
-                            ))}
-                          </select>
+                            <select
+                              name="stage"
+                              defaultValue={p.stage}
+                              style={cellControl}
+                            >
+                              {STAGES.map((s) => (
+                                <option key={s.value} value={s.value}>
+                                  {s.label}
+                                </option>
+                              ))}
+                            </select>
+                            <input
+                              type="date"
+                              name="scheduled_start_date"
+                              defaultValue={p.scheduled_start_date ?? ""}
+                              title="Start date for this worker"
+                              style={cellControl}
+                            />
+                            <input
+                              type="date"
+                              name="scheduled_end_date"
+                              defaultValue={p.scheduled_end_date ?? ""}
+                              title="End date for this worker"
+                              style={cellControl}
+                            />
+                          </span>{" "}
                         </ActionForm>
-                      </td>
-                      <td>
                         <ActionForm
                           action={removePlacement}
                           submitLabel="Remove"
@@ -489,6 +518,11 @@ export default async function ManageRequisition({
                           <input type="hidden" name="id" value={p.id} />
                           <input type="hidden" name="requisition_id" value={id} />
                         </ActionForm>
+                        {p.actual_start_date && (
+                          <div style={{ fontSize: 11.5, color: "var(--green)", marginTop: 4 }}>
+                            actually started {p.actual_start_date}
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))
