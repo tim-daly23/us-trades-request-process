@@ -14,6 +14,7 @@ type Row = {
   start_date: string;
   customer: { display_name: string; slug: string } | null;
   site: { name: string } | null;
+  job: { job_number: string } | null;
 };
 
 type LineRow = {
@@ -46,7 +47,8 @@ export default async function AgencyRequests() {
       .select(
         `id, req_number, title, status, urgency, start_date,
          customer:customers(display_name, slug),
-         site:sites(name)`,
+         site:sites(name),
+         job:customer_jobs(job_number)`,
       )
       .is("deleted_at", null)
       .order("start_date", { ascending: true })
@@ -130,6 +132,7 @@ export default async function AgencyRequests() {
             <tr>
               <th style={{ width: 175 }}>Request</th>
               <th style={{ width: 150 }}>Customer</th>
+              <th style={{ width: 90 }}>Job #</th>
               <th style={{ width: 180 }}>Site</th>
               <th style={{ width: 110 }}>Start</th>
               <th>Craft &amp; level</th>
@@ -140,7 +143,7 @@ export default async function AgencyRequests() {
           <tbody>
             {rows.length === 0 ? (
               <tr className="empty-row">
-                <td colSpan={7}>No requests yet.</td>
+                <td colSpan={8}>No requests yet.</td>
               </tr>
             ) : (
               rows.map((r) => {
@@ -171,6 +174,11 @@ export default async function AgencyRequests() {
                       </Link>
                     </td>
                     <td>{r.customer?.display_name ?? "—"}</td>
+                    <td className="mono" style={{ fontSize: 12.5 }}>
+                      {r.job?.job_number ?? (
+                        <span style={{ color: "var(--steel-dim)" }}>—</span>
+                      )}
+                    </td>
                     <td style={{ color: "var(--steel)" }}>
                       {r.site?.name ?? "—"}
                     </td>

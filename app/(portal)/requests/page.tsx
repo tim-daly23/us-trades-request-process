@@ -17,6 +17,7 @@ type Requisition = {
   duration_weeks: number | string | null;
   is_ongoing: boolean;
   site: SiteRef;
+  job: { job_number: string } | null;
 };
 
 type FillRow = {
@@ -58,7 +59,8 @@ export default async function RequisitionsPage() {
           .from("requisitions")
           .select(
             `id, req_number, title, status, urgency, start_date, duration_weeks,
-             is_ongoing, site:sites(name, city, state)`,
+             is_ongoing, site:sites(name, city, state),
+             job:customer_jobs(job_number)`,
           ),
       )
         .order("start_date", { ascending: true })
@@ -150,6 +152,7 @@ export default async function RequisitionsPage() {
           <thead>
             <tr>
               <th style={{ width: 175 }}>Request</th>
+              <th style={{ width: 90 }}>Job #</th>
               <th style={{ width: 210 }}>Site</th>
               <th style={{ width: 90 }}>Start</th>
               <th style={{ width: 80 }}>Duration</th>
@@ -161,7 +164,7 @@ export default async function RequisitionsPage() {
           <tbody>
             {rows.length === 0 ? (
               <tr className="empty-row">
-                <td colSpan={7}>
+                <td colSpan={8}>
                   No requests yet — raise one and it will appear here.
                 </td>
               </tr>
@@ -189,6 +192,11 @@ export default async function RequisitionsPage() {
                       >
                         {isDraft ? "Draft" : r.req_number}
                       </Link>
+                    </td>
+                    <td className="mono" style={{ fontSize: 12.5 }}>
+                      {r.job?.job_number ?? (
+                        <span style={{ color: "var(--steel-dim)" }}>—</span>
+                      )}
                     </td>
                     <td>{r.site?.name ?? "—"}</td>
                     <td className="mono" style={{ fontSize: 12.5 }}>
