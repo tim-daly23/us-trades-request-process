@@ -109,23 +109,21 @@ export default async function CustomerDashboard() {
   const onSite = visible.filter((c) => ON_SITE_STAGES.has(c.stage));
   const inOnboarding = visible.filter((c) => ONBOARDING_STAGES.has(c.stage));
 
-  const startingSoon = live
-    .filter((r) => {
-      const d = relativeDays(r.start_date);
-      return d !== null && !d.includes("ago");
-    })
-    .slice(0, 5);
+  // Grouped by where the work actually is, not by status: a request whose
+  // start date has passed is underway whatever anyone remembered to click.
+  const today = new Date().toISOString().slice(0, 10);
 
-  const needsAttention = live.filter((r) => {
-    const f = fillFor.get(r.id);
-    const days = relativeDays(r.start_date);
-    return (
-      f &&
-      f.total_open > 0 &&
-      days !== null &&
-      (days === "today" || days === "tomorrow" || /^in [0-9] days$/.test(days))
-    );
-  });
+  const upcoming = live
+    .filter((r) => r.start_date > today)
+    .sort((a, b) => a.start_date.localeCompare(b.start_date));
+
+  const current = live
+    .filter((r) => r.start_date <= today)
+    .sort((a, b) => a.start_date.localeCompare(b.start_date));
+
+  const completed = rows
+    .filter((r) => CLOSED.has(r.status))
+    .sort((a, b) => b.start_date.localeCompare(a.start_date));
 
   return (
     <>
@@ -139,9 +137,14 @@ export default async function CustomerDashboard() {
             Where your manpower stands today.
           </div>
         </div>
-        <Link href="/requisitions/new" className="btn-primary">
-          New request
-        </Link>
+        <span style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <Link href="/requests" className="action-btn">
+            All requests
+          </Link>
+          <Link href="/requisitions/new" className="btn-primary">
+            New request
+          </Link>
+        </span>
       </div>
 
       <div className="stat-row">
@@ -196,129 +199,135 @@ export default async function CustomerDashboard() {
         </div>
       )}
 
-      {needsAttention.length > 0 && (
-        <div className="panel">
-          <div className="panel-head">
-            <div>
-              <h2>Starting soon with spots open</h2>
-              <div className="sub">
-                These start within the week and are not fully crewed.
-              </div>
-            </div>
-          </div>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th style={{ width: 175 }}>Request</th>
-                <th>Site</th>
-                <th style={{ width: 120 }}>Start</th>
-                <th style={{ width: 160 }}>Quantity filled</th>
-              </tr>
-            </thead>
-            <tbody>
-              {needsAttention.map((r) => {
-                const f = fillFor.get(r.id);
-                return (
-                  <tr key={r.id} style={{ background: "var(--pending-dim)" }}>
-                    <td>
-                      <ReqLink id={r.id} number={r.req_number} />
-                    </td>
-                    <td>{r.site?.name ?? "—"}</td>
-                    <td>
-                      <span className="mono" style={{ fontSize: 12.5 }}>
-                        {formatDate(r.start_date).replace(/,.*$/, "")}
-                      </span>
-                      <div style={{ fontSize: 11, color: "var(--steel)" }}>
-                        {relativeDays(r.start_date)}
-                      </div>
-                    </td>
-                    <td>
-                      {f && (
-                        <FillProgress
-                          requested={f.total_requested}
-                          filled={f.total_filled}
-                          onboarding={f.total_onboarding}
-                        />
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <RequestGroup
+        title="Upcoming starts"
+        empty="Nothing scheduled yet."
+        rows={upcoming}
+        fillFor={fillFor}
+      />
 
-      <div className="panel">
-        <div className="panel-head">
-          <div>
-            <h2>Next to start</h2>
-            <div className="sub">Your upcoming work, soonest first.</div>
-          </div>
-          <Link href="/requests" className="action-btn">
-            All requests
-          </Link>
-        </div>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th style={{ width: 175 }}>Request</th>
-              <th>Site</th>
-              <th style={{ width: 120 }}>Start</th>
-              <th style={{ width: 160 }}>Quantity filled</th>
-              <th style={{ width: 130 }}>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {startingSoon.length === 0 ? (
-              <tr className="empty-row">
-                <td colSpan={5}>
-                  Nothing upcoming. Raise a request and it will show here.
-                </td>
-              </tr>
-            ) : (
-              startingSoon.map((r) => {
-                const f = fillFor.get(r.id);
-                return (
-                  <tr key={r.id}>
-                    <td>
-                      <ReqLink id={r.id} number={r.req_number} />
-                    </td>
-                    <td>{r.site?.name ?? "—"}</td>
-                    <td>
-                      <span className="mono" style={{ fontSize: 12.5 }}>
-                        {formatDate(r.start_date).replace(/,.*$/, "")}
-                      </span>
-                      <div style={{ fontSize: 11, color: "var(--steel)" }}>
-                        {relativeDays(r.start_date)}
-                      </div>
-                    </td>
-                    <td>
-                      {f && f.total_requested > 0 ? (
-                        <FillProgress
-                          requested={f.total_requested}
-                          filled={f.total_filled}
-                          onboarding={f.total_onboarding}
-                        />
-                      ) : (
-                        <span style={{ color: "var(--steel-dim)" }}>—</span>
-                      )}
-                    </td>
-                    <td>
-                      <StatusBadge
-                        status={r.status}
-                        requested={f?.total_requested}
-                        filled={f?.total_filled}
-                      />
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+      <RequestGroup
+        title="Current projects"
+        empty="Nothing underway."
+        rows={current}
+        fillFor={fillFor}
+      />
+
+      <RequestGroup
+        title="Completed projects"
+        empty="Nothing completed yet."
+        rows={completed}
+        fillFor={fillFor}
+        muted
+      />
     </>
+  );
+}
+
+/**
+ * One grouping of requests.
+ *
+ * A row is flagged amber when it starts within the week and is not fully
+ * crewed — the thing worth acting on, kept in place rather than split into its
+ * own panel where it would repeat the row.
+ */
+function RequestGroup({
+  title,
+  empty,
+  rows,
+  fillFor,
+  muted,
+}: {
+  title: string;
+  empty: string;
+  rows: Req[];
+  fillFor: Map<string, Fill>;
+  muted?: boolean;
+}) {
+  return (
+    <div className="panel">
+      <div className="panel-head">
+        <div>
+          <h2>{title}</h2>
+        </div>
+        <span className="mono" style={{ fontSize: 13, color: "var(--steel)" }}>
+          {rows.length}
+        </span>
+      </div>
+
+      <table className="data-table">
+        <thead>
+          <tr>
+            <th style={{ width: 175 }}>Request</th>
+            <th>Site</th>
+            <th style={{ width: 120 }}>Start</th>
+            <th style={{ width: 160 }}>Quantity filled</th>
+            <th style={{ width: 130 }}>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.length === 0 ? (
+            <tr className="empty-row">
+              <td colSpan={5}>{empty}</td>
+            </tr>
+          ) : (
+            rows.map((r) => {
+              const f = fillFor.get(r.id);
+              const when = relativeDays(r.start_date);
+              const short =
+                !muted &&
+                f &&
+                f.total_open > 0 &&
+                when !== null &&
+                (when === "today" ||
+                  when === "tomorrow" ||
+                  /^in [0-6] days$/.test(when));
+              return (
+                <tr
+                  key={r.id}
+                  style={short ? { background: "var(--pending-dim)" } : undefined}
+                >
+                  <td>
+                    <ReqLink id={r.id} number={r.req_number} />
+                  </td>
+                  <td style={muted ? { color: "var(--steel)" } : undefined}>
+                    {r.site?.name ?? "—"}
+                  </td>
+                  <td>
+                    <span className="mono" style={{ fontSize: 12.5 }}>
+                      {formatDate(r.start_date).replace(/,.*$/, "")}
+                    </span>
+                    {when && (
+                      <div style={{ fontSize: 11, color: "var(--steel)" }}>
+                        {when}
+                      </div>
+                    )}
+                  </td>
+                  <td>
+                    {f && f.total_requested > 0 ? (
+                      <FillProgress
+                        requested={f.total_requested}
+                        filled={f.total_filled}
+                        onboarding={f.total_onboarding}
+                      />
+                    ) : (
+                      <span style={{ color: "var(--steel-dim)" }}>—</span>
+                    )}
+                  </td>
+                  <td>
+                    <StatusBadge
+                      status={r.status}
+                      requested={f?.total_requested}
+                      filled={f?.total_filled}
+                    />
+                  </td>
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
