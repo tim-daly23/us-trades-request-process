@@ -199,9 +199,6 @@ export default async function RequisitionDetail({
         <div className="panel-head">
           <div>
             <h2>Craft requested</h2>
-            <div className="sub">
-              Each line is sourced separately — craft and level together.
-            </div>
           </div>
         </div>
 
@@ -242,10 +239,6 @@ export default async function RequisitionDetail({
           <div className="panel-head">
             <div>
               <h2>Crew</h2>
-              <div className="sub">
-                Who is assigned, and when each of them starts. Start dates are
-                per person — a crew rarely all begins on the same day.
-              </div>
             </div>
           </div>
           <table className="data-table">
@@ -294,9 +287,6 @@ export default async function RequisitionDetail({
           <div className="panel-head">
             <div>
               <h2>Credentials required</h2>
-              <div className="sub">
-                Every worker on this request must hold these before badging.
-              </div>
             </div>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
