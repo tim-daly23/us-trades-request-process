@@ -66,9 +66,8 @@ export default async function RequisitionDetail({
   }[];
   const primaryContact =
     siteContacts.find((c) => c.is_primary) ?? siteContacts[0];
-  const contactLine = primaryContact
-    ? `${primaryContact.name}${primaryContact.phone ? ` · ${primaryContact.phone}` : ""}`
-    : "—";
+  const contactLine = primaryContact?.name ?? "—";
+  const contactPhone = primaryContact?.phone ?? null;
 
   const { data: jobs } = await supabase
     .from("customer_jobs")
@@ -185,7 +184,7 @@ export default async function RequisitionDetail({
         <dl
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
             gap: "14px 24px",
             margin: 0,
           }}
@@ -204,9 +203,7 @@ export default async function RequisitionDetail({
             value={formatSchedule(req.days_per_week, req.hours_per_day)}
           />
           <Field label="Per diem" value={formatMoney(req.per_diem_rate)} />
-          {/* Full width: a dropdown squeezed into a 150px grid cell truncates
-              its own options, which is the one thing a picker must not do. */}
-          <div style={{ gridColumn: "1 / -1" }}>
+          <div>
             <dt
               style={{
                 fontSize: 12,
@@ -227,7 +224,26 @@ export default async function RequisitionDetail({
             </dd>
           </div>
           <Field label="Project" value={req.project_name ?? "—"} />
-          <Field label="Site contact" value={contactLine} />
+          <div>
+            <dt
+              style={{
+                fontSize: 12,
+                color: "var(--steel)",
+                marginBottom: 3,
+                fontWeight: 500,
+              }}
+            >
+              Site contact
+            </dt>
+            <dd style={{ margin: 0, fontSize: 13.5 }}>
+              {contactLine}
+              {contactPhone && (
+                <div className="mono" style={{ fontSize: 12.5, color: "var(--steel)" }}>
+                  {contactPhone}
+                </div>
+              )}
+            </dd>
+          </div>
         </dl>
       </div>
 

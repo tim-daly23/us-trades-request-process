@@ -76,9 +76,8 @@ export function RequestJobPicker({
           padding: "4px 6px",
           border: "1.3px solid var(--line-strong)",
           background: "var(--paper)",
-          fontSize: 13,
+          fontSize: 12.5,
           width: "100%",
-          maxWidth: 420,
         }}
       >
         <option value="">
