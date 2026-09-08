@@ -41,6 +41,7 @@ export default async function RequisitionDetail({
       `id, req_number, title, project_name, po_number, status, urgency,
        start_date, end_date, duration_weeks, shift, hours_per_day, days_per_week,
        per_diem_rate, scope_of_work, special_instructions, submitted_at,
+       job:customer_jobs(job_number, end_customer, description),
        site:sites(name, address_line1, city, state, postal_code,
                   contacts:site_contacts(name, phone, role, is_primary))`,
     )
@@ -53,6 +54,10 @@ export default async function RequisitionDetail({
   if (!req) notFound();
 
   const site = Array.isArray(req.site) ? req.site[0] : req.site;
+  const job = Array.isArray(req.job) ? req.job[0] : req.job;
+  const jobLabel = job
+    ? [job.job_number, job.end_customer].filter(Boolean).join(" · ")
+    : "—";
 
   // The primary site contact, shown so a customer can see who US Trades will
   // be dealing with at the gate.
@@ -191,6 +196,7 @@ export default async function RequisitionDetail({
             value={formatSchedule(req.days_per_week, req.hours_per_day)}
           />
           <Field label="Per diem" value={formatMoney(req.per_diem_rate)} />
+          <Field label="Job #" value={jobLabel} />
           <Field label="Project" value={req.project_name ?? "—"} />
           <Field label="PO" value={req.po_number ?? "—"} />
           <Field label="Site contact" value={contactLine} />

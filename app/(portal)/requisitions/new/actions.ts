@@ -94,6 +94,7 @@ export async function createRequisition(
     .insert({
       customer_id: customerId,
       site_id: input.siteId,
+      customer_job_id: nullable(input.jobId),
       title: nullable(input.title),
       project_name: nullable(input.projectName),
       po_number: nullable(input.poNumber),

@@ -5,6 +5,7 @@ import { getProfile } from "@/lib/auth";
 import type {
   CraftOption,
   CustomerOption,
+  JobOption,
   CredentialOption,
   LevelOption,
   SiteOption,
@@ -19,6 +20,7 @@ type CustomerCredentialRow = {
   sort_order: number;
   credential: {
     id: string;
+    code: string;
     name: string;
     short_label: string | null;
     requires_state: boolean;
@@ -63,7 +65,7 @@ export default async function NewRequisitionPage() {
         .select(
           `credential_id, is_enabled, is_mandatory, default_checked,
            label_override, sort_order,
-           credential:credentials(id, name, short_label, requires_state, is_active)`,
+           credential:credentials(id, code, name, short_label, requires_state, is_active)`,
         )
         .eq("is_enabled", true)
         .order("sort_order")
@@ -82,10 +84,23 @@ export default async function NewRequisitionPage() {
         .returns<CustomerOption[]>()
     : { data: null };
 
+  // Open jobs only: a request against a job that is finished or cancelled is
+  // almost certainly a mistake, and the list is long enough already.
+  const { data: jobs } = await supabase
+    .from("customer_jobs")
+    .select(
+      "id, customer_id, job_number, end_customer, description, per_diem_rate, twic_required",
+    )
+    .is("deleted_at", null)
+    .not("status", "in", '("Complete","Cancelled")')
+    .order("job_number", { ascending: false })
+    .returns<JobOption[]>();
+
   let credentials: CredentialOption[] = (configured ?? [])
     .filter((row) => row.credential?.is_active)
     .map((row) => ({
       id: row.credential_id,
+      code: row.credential!.code,
       label:
         row.label_override ??
         row.credential!.short_label ??
@@ -100,13 +115,14 @@ export default async function NewRequisitionPage() {
   if (credentials.length === 0) {
     const { data: global } = await supabase
       .from("credentials")
-      .select("id, name, short_label, requires_state")
+      .select("id, code, name, short_label, requires_state")
       .is("customer_id", null)
       .eq("is_active", true)
       .order("sort_order");
 
     credentials = (global ?? []).map((c) => ({
       id: c.id,
+      code: c.code,
       label: c.short_label ?? c.name,
       mandatory: false,
       defaultChecked: false,
@@ -146,6 +162,7 @@ export default async function NewRequisitionPage() {
 
       <RequestForm
         customers={customers ?? []}
+        jobs={jobs ?? []}
         sites={sites}
         crafts={crafts ?? []}
         levels={levels ?? []}

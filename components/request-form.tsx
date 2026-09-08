@@ -7,6 +7,7 @@ import { formatSchedule } from "@/lib/format";
 import type {
   CraftOption,
   CustomerOption,
+  JobOption,
   CredentialOption,
   DraftLine,
   LevelOption,
@@ -30,6 +31,7 @@ const newRow = (): DraftLine => ({
 
 export function RequestForm({
   customers,
+  jobs,
   sites,
   crafts,
   levels,
@@ -37,6 +39,7 @@ export function RequestForm({
 }: {
   /** Empty for customer users — their tenant is fixed. */
   customers: CustomerOption[];
+  jobs: JobOption[];
   sites: SiteOption[];
   crafts: CraftOption[];
   levels: LevelOption[];
@@ -48,6 +51,7 @@ export function RequestForm({
 
   const isAgency = customers.length > 0;
   const [customerId, setCustomerId] = useState("");
+  const [jobId, setJobId] = useState("");
   const [siteId, setSiteId] = useState("");
   const [title, setTitle] = useState("");
   const [projectName, setProjectName] = useState("");
@@ -72,6 +76,32 @@ export function RequestForm({
   const visibleSites = isAgency
     ? sites.filter((s) => s.customer_id === customerId)
     : sites;
+  const visibleJobs = isAgency
+    ? jobs.filter((j) => j.customer_id === customerId)
+    : jobs;
+
+  /**
+   * Choosing a job carries across what the job already establishes: its per
+   * diem, and TWIC if that job needs it. Both are still editable — the job is
+   * a starting point, not a constraint.
+   */
+  function onJobChange(id: string) {
+    setJobId(id);
+    const job = jobs.find((j) => j.id === id);
+    if (!job) return;
+
+    if (job.per_diem_rate != null) {
+      setPerDiemRate(String(Number(job.per_diem_rate)));
+    }
+    if (job.twic_required) {
+      const twic = credentials.find((c) => c.code === "TWIC");
+      if (twic) {
+        setCredentialIds((prev) =>
+          prev.includes(twic.id) ? prev : [...prev, twic.id],
+        );
+      }
+    }
+  }
 
   /**
    * Choosing a site replaces the schedule defaults and adds that site's
@@ -115,6 +145,7 @@ export function RequestForm({
     startTransition(async () => {
       const result = await createRequisition({
         customerId,
+        jobId,
         siteId,
         title,
         projectName,
@@ -185,6 +216,26 @@ export function RequestForm({
               {visibleSites.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name} — {s.city}, {s.state}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <Field label="Job #">
+            <select
+              value={jobId}
+              onChange={(e) => onJobChange(e.target.value)}
+              className={inputClass}
+              disabled={isAgency && !customerId}
+            >
+              <option value="">
+                {visibleJobs.length === 0 ? "No jobs logged" : "Not linked to a job"}
+              </option>
+              {visibleJobs.map((j) => (
+                <option key={j.id} value={j.id}>
+                  {j.job_number}
+                  {j.end_customer ? ` · ${j.end_customer}` : ""}
+                  {j.description ? ` · ${j.description}` : ""}
                 </option>
               ))}
             </select>

@@ -99,7 +99,8 @@ export default async function ManageRequisition({
   const { data: req } = await supabase
     .from("requisitions")
     .select(
-      `*, customer:customers(display_name, slug), site:sites(name, city, state)`,
+      `*, customer:customers(display_name, slug), site:sites(name, city, state),
+        job:customer_jobs(id, job_number, end_customer)`,
     )
     .eq("id", id)
     .maybeSingle();
@@ -112,6 +113,7 @@ export default async function ManageRequisition({
     { data: crafts },
     { data: levels },
     { data: staff },
+    { data: jobs },
   ] = await Promise.all([
     supabase
       .from("requisition_lines")
@@ -146,6 +148,12 @@ export default async function ManageRequisition({
       .eq("user_type", "agency")
       .eq("is_active", true)
       .order("email"),
+    supabase
+      .from("customer_jobs")
+      .select("id, job_number, end_customer")
+      .eq("customer_id", req.customer_id)
+      .is("deleted_at", null)
+      .order("job_number", { ascending: false }),
   ]);
 
   const byLine = new Map<string, Placement[]>();
@@ -157,6 +165,7 @@ export default async function ManageRequisition({
   }
 
   const customer = Array.isArray(req.customer) ? req.customer[0] : req.customer;
+  const job = Array.isArray(req.job) ? req.job[0] : req.job;
   const site = Array.isArray(req.site) ? req.site[0] : req.site;
 
   return (
@@ -197,6 +206,12 @@ export default async function ManageRequisition({
             </h2>
             <div className="sub">
               {customer?.display_name} · {site?.name} · {site?.city}, {site?.state}
+              {job && (
+                <>
+                  {" · job "}
+                  <span className="mono">{job.job_number}</span>
+                </>
+              )}
             </div>
           </div>
           <div style={{ display: "flex", gap: 6 }}>
@@ -298,6 +313,20 @@ export default async function ManageRequisition({
             <label className="field">
               <span>Title</span>
               <input name="title" defaultValue={req.title ?? ""} />
+            </label>
+            <label className="field">
+              <span>Customer job #</span>
+              <select
+                name="customer_job_id"
+                defaultValue={req.customer_job_id ?? ""}
+              >
+                <option value="">Not linked to a job</option>
+                {(jobs ?? []).map((j) => (
+                  <option key={j.id} value={j.id}>
+                    {[j.job_number, j.end_customer].filter(Boolean).join(" · ")}
+                  </option>
+                ))}
+              </select>
             </label>
             <label className="field">
               <span>Project</span>

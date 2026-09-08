@@ -56,6 +56,7 @@ export async function updateRequisition(form: FormData): Promise<Result> {
       scope_of_work: nz(form.get("scope_of_work")),
       special_instructions: nz(form.get("special_instructions")),
       owner_user_id: nz(form.get("owner_user_id")),
+      customer_job_id: nz(form.get("customer_job_id")),
     })
     .eq("id", id);
 

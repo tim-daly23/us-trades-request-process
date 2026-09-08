@@ -17,11 +17,23 @@ export type SiteOption = {
 
 export type CustomerOption = { id: string; display_name: string };
 
+export type JobOption = {
+  id: string;
+  customer_id: string;
+  job_number: string;
+  end_customer: string | null;
+  description: string | null;
+  per_diem_rate: number | string | null;
+  twic_required: boolean;
+};
+
 export type CraftOption = { id: string; name: string; category: string | null };
 export type LevelOption = { id: string; name: string; rank: number };
 
 export type CredentialOption = {
   id: string;
+  /** Needed so the form can react to a job requiring TWIC. */
+  code: string;
   label: string;
   /** Enforced by the customer's configuration; cannot be unchecked. */
   mandatory: boolean;
@@ -41,6 +53,8 @@ export type RequisitionInput = {
   /** Agency staff raise requests on a customer's behalf, so they name one.
    *  Ignored for customer users, whose tenant comes from their profile. */
   customerId?: string;
+  /** The customer's own job number this request belongs to, if any. */
+  jobId: string;
   siteId: string;
   title: string;
   projectName: string;
