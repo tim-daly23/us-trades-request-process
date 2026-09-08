@@ -71,6 +71,7 @@ export async function createCustomerSite(form: FormData): Promise<Result> {
     state: nz(form.get("state")) ?? "—",
     postal_code: nz(form.get("postal_code")) ?? "—",
     safety_council_required: bool(form.get("safety_council_required")),
+    safety_council_name: nz(form.get("safety_council_name")),
     created_by: profile?.id,
   });
 
@@ -96,6 +97,7 @@ export async function updateCustomerSite(form: FormData): Promise<Result> {
       state: nz(form.get("state")) ?? "—",
       postal_code: nz(form.get("postal_code")) ?? "—",
       safety_council_required: bool(form.get("safety_council_required")),
+      safety_council_name: nz(form.get("safety_council_name")),
       status: nz(form.get("status")) ?? "active",
     })
     .eq("id", id);

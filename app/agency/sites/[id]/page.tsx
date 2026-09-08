@@ -9,6 +9,7 @@ import {
   deleteSiteContact,
 } from "@/app/agency/actions";
 import { ActionForm } from "@/components/agency/action-form";
+import { SafetyCouncilField } from "@/components/safety-council-field";
 
 type Contact = {
   id: string;
@@ -182,14 +183,6 @@ export default async function SiteDetail({
                 }
               />
             </label>
-            <label className="field">
-              <span>Safety council</span>
-              <input
-                name="safety_council_name"
-                defaultValue={site.safety_council_name ?? ""}
-                placeholder="Houston Area Safety Council"
-              />
-            </label>
           </div>
 
           <fieldset
@@ -207,7 +200,7 @@ export default async function SiteDetail({
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
-                marginBottom: 8,
+                marginBottom: 12,
                 fontSize: 12.5,
               }}
             >
@@ -222,22 +215,10 @@ export default async function SiteDetail({
                 request for it
               </span>
             </label>
-            <label
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                fontSize: 12.5,
-              }}
-            >
-              <input
-                type="checkbox"
-                name="safety_council_required"
-                defaultChecked={site.safety_council_required ?? false}
-                style={{ width: 16, height: 16 }}
-              />
-              <span>Safety council training required at this site</span>
-            </label>
+            <SafetyCouncilField
+              defaultChecked={site.safety_council_required ?? false}
+              defaultValue={site.safety_council_name ?? ""}
+            />
           </fieldset>
 
           <label className="field">

@@ -3,6 +3,7 @@ import { getPortalScope } from "@/lib/preview";
 import Link from "next/link";
 import { getProfile } from "@/lib/auth";
 import { ActionForm } from "@/components/agency/action-form";
+import { SafetyCouncilField } from "@/components/safety-council-field";
 import {
   createCustomerSite,
   updateCustomerSite,
@@ -230,22 +231,7 @@ export default async function CustomerSitesPage() {
                   <input name="postal_code" placeholder="77520" />
                 </label>
               </div>
-              <label
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  marginBottom: 12,
-                  fontSize: 12.5,
-                }}
-              >
-                <input
-                  type="checkbox"
-                  name="safety_council_required"
-                  style={{ width: 16, height: 16 }}
-                />
-                <span>Safety council training required at this site</span>
-              </label>
+              <SafetyCouncilField />
             </ActionForm>
           </div>
 
@@ -305,23 +291,10 @@ export default async function CustomerSitesPage() {
                           </select>
                         </label>
                       </div>
-                      <label
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          marginBottom: 12,
-                          fontSize: 12.5,
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          name="safety_council_required"
-                          defaultChecked={s.safety_council_required ?? false}
-                          style={{ width: 16, height: 16 }}
-                        />
-                        <span>Safety council training required</span>
-                      </label>
+                      <SafetyCouncilField
+                        defaultChecked={s.safety_council_required ?? false}
+                        defaultValue={s.safety_council_name ?? ""}
+                      />
                     </ActionForm>
 
                     <div style={{ marginTop: 14 }}>

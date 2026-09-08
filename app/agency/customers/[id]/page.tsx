@@ -11,6 +11,7 @@ import {
 import { UserRowActions } from "@/components/agency/user-row-actions";
 import { ActionForm } from "@/components/agency/action-form";
 import { NewPortalUserForm } from "@/components/agency/new-portal-user-form";
+import { SafetyCouncilField } from "@/components/safety-council-field";
 import { formatMoney, formatSchedule } from "@/lib/format";
 
 export default async function CustomerDetail({
@@ -376,10 +377,7 @@ export default async function CustomerDetail({
                 name="requires_twic"
                 label="TWIC card is required to enter this site"
               />
-              <Check
-                name="safety_council_required"
-                label="Safety council training required at this site"
-              />
+              <SafetyCouncilField />
             </fieldset>
 
             <div className="hint" style={{ marginTop: 0, marginBottom: 12 }}>
