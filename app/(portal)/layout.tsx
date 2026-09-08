@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { NavTabs } from "@/components/nav-tabs";
+import { UtilityNav } from "@/components/utility-nav";
 import { PreviewBar } from "@/components/preview-bar";
 import { getPortalScope, listCustomersForPreview } from "@/lib/preview";
 
@@ -62,15 +63,14 @@ export default async function PortalLayout({
           </div>
 
           <div>
-            <div className="nav-label">
-              {isAgency ? (
+            {isAgency ? (
+              <div className="nav-label">
                 <Link href="/agency" style={{ color: "var(--brand-red)" }}>
                   → Agency console
                 </Link>
-              ) : (
-                (profile?.full_name ?? user.email)
-              )}
-            </div>
+              </div>
+            ) : null}
+            <UtilityNav label={profile?.full_name ?? user.email ?? undefined} />
             <NavTabs />
           </div>
         </div>

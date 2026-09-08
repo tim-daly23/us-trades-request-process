@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { requireAgency } from "@/lib/auth";
 import { AgencyNav } from "@/components/agency/agency-nav";
+import { UtilityNav } from "@/components/utility-nav";
 
 export default async function AgencyLayout({
   children,
@@ -30,7 +31,7 @@ export default async function AgencyLayout({
           </div>
 
           <div>
-            <div className="nav-label">US Trades Project Team</div>
+            <UtilityNav />
             <AgencyNav />
           </div>
         </div>

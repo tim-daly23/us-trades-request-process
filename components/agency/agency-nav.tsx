@@ -8,7 +8,6 @@ const TABS = [
   { href: "/agency/workers", label: "Workers" },
   { href: "/agency/customers", label: "Customers" },
   { href: "/", label: "Portal view" },
-  { href: "/account", label: "Account" },
 ];
 
 export function AgencyNav() {
@@ -30,11 +29,6 @@ export function AgencyNav() {
           </Link>
         );
       })}
-      <form action="/auth/signout" method="post">
-        <button type="submit" className="nav-btn">
-          Sign out
-        </button>
-      </form>
     </div>
   );
 }

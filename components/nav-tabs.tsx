@@ -14,7 +14,6 @@ const TABS = [
   { href: "/workers", label: "Workers" },
   { href: "/sites", label: "Sites" },
   { href: "/jobs", label: "Job log" },
-  { href: "/account", label: "Account" },
 ];
 
 export function NavTabs() {
@@ -37,11 +36,6 @@ export function NavTabs() {
           </Link>
         );
       })}
-      <form action="/auth/signout" method="post">
-        <button type="submit" className="nav-btn">
-          Sign out
-        </button>
-      </form>
     </div>
   );
 }
