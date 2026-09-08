@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getPortalScope } from "@/lib/preview";
 import { formatDate } from "@/lib/format";
+import { OnSiteControls } from "@/components/onsite-controls";
 
 /**
  * The customer's workforce.
@@ -140,6 +141,9 @@ export default async function CustomerWorkersPage() {
                   {g.key === "onboarding" && (
                     <th style={{ width: 120 }}>Credentials</th>
                   )}
+                  {(g.key === "onboarding" || g.key === "onsite") && (
+                    <th style={{ width: 140 }} />
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -195,6 +199,15 @@ export default async function CustomerWorkersPage() {
                         >
                           {r.credential_ready ? "Ready" : "Outstanding"}
                         </span>
+                      </td>
+                    )}
+                    {(g.key === "onboarding" || g.key === "onsite") && (
+                      <td>
+                        <OnSiteControls
+                          placementId={r.placement_id}
+                          stage={r.stage}
+                          workerName={`${r.first_name} ${r.last_name ?? r.last_initial}`}
+                        />
                       </td>
                     )}
                   </tr>

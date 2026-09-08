@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { StatusBadge, UrgencyBadge } from "@/components/status-badge";
 import { PlacementStageBadge } from "@/components/placement-stage-badge";
+import { OnSiteControls } from "@/components/onsite-controls";
 import { FillProgress } from "@/components/fill-progress";
 import {
   formatDate,
@@ -247,7 +248,8 @@ export default async function RequisitionDetail({
                 <th>Worker</th>
                 <th style={{ width: 220 }}>Craft &amp; level</th>
                 <th style={{ width: 150 }}>Starts</th>
-                <th style={{ width: 190 }}>Stage</th>
+                <th style={{ width: 170 }}>Stage</th>
+                <th style={{ width: 140 }} />
               </tr>
             </thead>
             <tbody>
@@ -274,6 +276,13 @@ export default async function RequisitionDetail({
                   </td>
                   <td>
                     <PlacementStageBadge stage={c.stage} />
+                  </td>
+                  <td>
+                    <OnSiteControls
+                      placementId={c.placement_id}
+                      stage={c.stage}
+                      workerName={`${c.first_name} ${c.last_name ?? c.last_initial}`}
+                    />
                   </td>
                 </tr>
               ))}
