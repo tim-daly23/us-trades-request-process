@@ -333,10 +333,6 @@ export default async function ManageRequisition({
               <input name="project_name" defaultValue={req.project_name ?? ""} />
             </label>
             <label className="field">
-              <span>PO number</span>
-              <input name="po_number" defaultValue={req.po_number ?? ""} />
-            </label>
-            <label className="field">
               <span>Cost code</span>
               <input name="cost_code" defaultValue={req.cost_code ?? ""} />
             </label>

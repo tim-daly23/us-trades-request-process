@@ -97,7 +97,6 @@ export async function createRequisition(
       customer_job_id: nullable(input.jobId),
       title: nullable(input.title),
       project_name: nullable(input.projectName),
-      po_number: nullable(input.poNumber),
       status,
       urgency: input.urgency,
       start_date: input.startDate,

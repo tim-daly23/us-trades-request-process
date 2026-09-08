@@ -58,7 +58,6 @@ export type RequisitionInput = {
   siteId: string;
   title: string;
   projectName: string;
-  poNumber: string;
   urgency: "standard" | "urgent" | "emergency";
   startDate: string;
   endDate: string;

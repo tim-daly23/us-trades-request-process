@@ -148,7 +148,6 @@ export function RequestForm({
         siteId,
         title,
         projectName,
-        poNumber: "",
         urgency,
         startDate,
         endDate,

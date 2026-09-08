@@ -43,7 +43,6 @@ export async function updateRequisition(form: FormData): Promise<Result> {
     .update({
       title: nz(form.get("title")),
       project_name: nz(form.get("project_name")),
-      po_number: nz(form.get("po_number")),
       cost_code: nz(form.get("cost_code")),
       urgency: nz(form.get("urgency")) ?? "standard",
       start_date: start,

@@ -40,7 +40,7 @@ export default async function RequisitionDetail({
   const { data: req } = await supabase
     .from("requisitions")
     .select(
-      `id, req_number, title, project_name, po_number, status, urgency,
+      `id, req_number, title, project_name, status, urgency,
        start_date, end_date, duration_weeks, shift, hours_per_day, days_per_week,
        per_diem_rate, scope_of_work, special_instructions, submitted_at,
        customer_job_id, job:customer_jobs(job_number, end_customer, description),
