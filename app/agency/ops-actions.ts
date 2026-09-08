@@ -241,12 +241,11 @@ export async function createWorker(form: FormData): Promise<Result<string>> {
       preferred_name: nz(form.get("preferred_name")),
       email: nz(form.get("email")),
       phone: nz(form.get("phone")),
-      status: nz(form.get("status")) ?? "candidate",
-      home_city: nz(form.get("home_city")),
-      home_state: nz(form.get("home_state")),
+      // The roster no longer asks for a status — anyone added here is someone
+      // we could place today, so they go straight in as available.
+      status: "available",
       primary_craft_id: nz(form.get("primary_craft_id")),
       primary_level_id: nz(form.get("primary_level_id")),
-      years_experience: num(form.get("years_experience")),
       notes: nz(form.get("notes")),
       created_by: guard.profile.id,
     })
@@ -276,12 +275,8 @@ export async function updateWorker(form: FormData): Promise<Result> {
       last_name: nz(form.get("last_name")),
       email: nz(form.get("email")),
       phone: nz(form.get("phone")),
-      status: nz(form.get("status")) ?? "candidate",
-      home_city: nz(form.get("home_city")),
-      home_state: nz(form.get("home_state")),
       primary_craft_id: nz(form.get("primary_craft_id")),
       primary_level_id: nz(form.get("primary_level_id")),
-      years_experience: num(form.get("years_experience")),
       notes: nz(form.get("notes")),
     })
     .eq("id", id);

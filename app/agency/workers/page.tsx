@@ -9,22 +9,9 @@ type Worker = {
   last_name: string;
   email: string | null;
   phone: string | null;
-  status: string;
-  home_city: string | null;
-  home_state: string | null;
-  years_experience: number | string | null;
   do_not_return: boolean;
   craft: { name: string } | null;
   level: { name: string } | null;
-};
-
-const TONE: Record<string, string> = {
-  available: "approved",
-  assigned: "working",
-  candidate: "submitted",
-  lead: "pending",
-  inactive: "inactive",
-  do_not_return: "declined",
 };
 
 export default async function WorkersPage() {
@@ -53,8 +40,7 @@ export default async function WorkersPage() {
       supabase
         .from("workers")
         .select(
-          `id, first_name, last_name, email, phone, status, home_city, home_state,
-           years_experience, do_not_return,
+          `id, first_name, last_name, email, phone, do_not_return,
            craft:crafts!workers_primary_craft_id_fkey(name),
            level:levels!workers_primary_level_id_fkey(name)`,
         )
@@ -83,18 +69,15 @@ export default async function WorkersPage() {
           <thead>
             <tr>
               <th>Name</th>
-              <th style={{ width: 200 }}>Craft &amp; level</th>
-              <th style={{ width: 150 }}>Home</th>
-              <th style={{ width: 70 }}>Yrs</th>
-              <th style={{ width: 180 }}>Contact</th>
-              <th style={{ width: 70 }}>TWIC</th>
-              <th style={{ width: 120 }}>Status</th>
+              <th style={{ width: 240 }}>Craft &amp; level</th>
+              <th style={{ width: 200 }}>Contact</th>
+              <th style={{ width: 80 }}>TWIC</th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
               <tr className="empty-row">
-                <td colSpan={7}>
+                <td colSpan={4}>
                   No workers yet — add the first one below, then place them
                   against a requisition line.
                 </td>
@@ -114,12 +97,6 @@ export default async function WorkersPage() {
                     {w.craft?.name ?? "—"}
                     {w.level?.name ? ` · ${w.level.name}` : ""}
                   </td>
-                  <td style={{ color: "var(--steel)" }}>
-                    {[w.home_city, w.home_state].filter(Boolean).join(", ") || "—"}
-                  </td>
-                  <td className="mono">
-                    {w.years_experience ? Number(w.years_experience) : "—"}
-                  </td>
                   <td style={{ fontSize: 12 }}>
                     <div className="mono">{w.phone ?? "—"}</div>
                     <div style={{ color: "var(--steel-dim)" }}>{w.email ?? ""}</div>
@@ -130,11 +107,6 @@ export default async function WorkersPage() {
                     ) : (
                       <span style={{ color: "var(--steel-dim)" }}>—</span>
                     )}
-                  </td>
-                  <td>
-                    <span className={`badge ${TONE[w.status] ?? "inactive"}`}>
-                      {w.status.replace(/_/g, " ")}
-                    </span>
                   </td>
                 </tr>
               ))
@@ -202,28 +174,6 @@ export default async function WorkersPage() {
                     {l.name}
                   </option>
                 ))}
-              </select>
-            </label>
-            <label className="field">
-              <span>Years experience</span>
-              <input name="years_experience" type="number" min="0" step="0.5" />
-            </label>
-            <label className="field">
-              <span>Home city</span>
-              <input name="home_city" placeholder="Beaumont" />
-            </label>
-            <label className="field">
-              <span>Home state</span>
-              <input name="home_state" maxLength={2} placeholder="TX" />
-            </label>
-            <label className="field">
-              <span>Status</span>
-              <select name="status" defaultValue="available">
-                <option value="lead">Lead</option>
-                <option value="candidate">Candidate</option>
-                <option value="available">Available</option>
-                <option value="assigned">Assigned</option>
-                <option value="inactive">Inactive</option>
               </select>
             </label>
           </div>
