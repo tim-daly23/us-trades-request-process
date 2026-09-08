@@ -56,6 +56,14 @@ export default async function RequisitionDetail({
   if (!req) notFound();
 
   const site = Array.isArray(req.site) ? req.site[0] : req.site;
+  const job = Array.isArray(req.job) ? req.job[0] : req.job;
+
+  // The project is what the job is for, so it comes from the linked job rather
+  // than being typed a second time — pick job 3498 and the project reads
+  // "Citgo Luling Terminal Reactivation Phase 2". project_name remains the
+  // fallback for requests raised before the job log existed.
+  const projectLabel = job?.description ?? req.project_name ?? "—";
+
   // The primary site contact, shown so a customer can see who US Trades will
   // be dealing with at the gate.
   const siteContacts = (site?.contacts ?? []) as {
@@ -145,7 +153,7 @@ export default async function RequisitionDetail({
             <h2>
               {requisitionLabel({
                 title: req.title,
-                projectName: req.project_name,
+                projectName: job?.description ?? req.project_name,
                 craftSummary: (lines ?? [])
                   .map((l) => `${l.craft_name} ${l.level_name} ×${l.quantity}`)
                   .join(" · "),
@@ -223,7 +231,7 @@ export default async function RequisitionDetail({
               />
             </dd>
           </div>
-          <Field label="Project" value={req.project_name ?? "—"} />
+          <Field label="Project" value={projectLabel} />
           <div>
             <dt
               style={{

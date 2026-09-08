@@ -54,7 +54,6 @@ export function RequestForm({
   const [jobId, setJobId] = useState("");
   const [siteId, setSiteId] = useState("");
   const [title, setTitle] = useState("");
-  const [projectName, setProjectName] = useState("");
   const [urgency, setUrgency] =
     useState<(typeof URGENCIES)[number]["value"]>("standard");
   const [startDate, setStartDate] = useState("");
@@ -147,7 +146,7 @@ export function RequestForm({
         jobId,
         siteId,
         title,
-        projectName,
+        projectName: "",
         urgency,
         startDate,
         endDate,
@@ -475,19 +474,12 @@ export function RequestForm({
               className={inputClass}
             />
           </Field>
-          <Field label="Project / unit">
-            <input
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              placeholder="TA-2026-U7"
-              className={inputClass}
-            />
-          </Field>
         </Grid>
 
         <div className="hint" style={{ marginTop: 0, marginBottom: 10 }}>
-          Job name is optional — leave it blank and the request is listed by
-          the craft you asked for and the site.
+          Job name is optional — leave it blank and the request is listed by the
+          craft you asked for and the site. The project comes from whichever job
+          number you pick.
         </div>
 
         <div className="mt-4 space-y-4">
