@@ -24,10 +24,13 @@ export default async function JobLogPage() {
     .returns<Job[]>();
 
   const isAgency = profile?.user_type === "agency";
-  // Staff read the log here but write it from the console, so the customer's
-  // own screens stay the customer's record of what they did.
-  const canWrite =
-    !isAgency && profile?.customer_role !== "viewer" && !!profile?.customer_id;
+
+  // Unlike sites, this log is shared by design — the whole point is that a job
+  // number is agreed without an email — so staff write it here too, provided a
+  // customer is selected so we know whose log it is.
+  const canWrite = isAgency
+    ? !!scope.customerId
+    : profile?.customer_role !== "viewer" && !!profile?.customer_id;
 
   return (
     <>
@@ -41,7 +44,20 @@ export default async function JobLogPage() {
         </div>
       </div>
 
-      <JobLog jobs={jobs ?? []} canWrite={canWrite} />
+      {isAgency && !scope.customerId && (
+        <div className="panel">
+          <div className="notice-warn">
+            Choose a customer in the preview bar to see and add to their job
+            log. Without one this is every customer&apos;s jobs at once.
+          </div>
+        </div>
+      )}
+
+      <JobLog
+        jobs={jobs ?? []}
+        canWrite={canWrite}
+        customerId={isAgency ? (scope.customerId ?? undefined) : undefined}
+      />
     </>
   );
 }
