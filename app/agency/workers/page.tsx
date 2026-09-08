@@ -31,6 +31,23 @@ export default async function WorkersPage() {
   await requireAgency();
   const supabase = await createClient();
 
+  const { data: twic } = await supabase
+    .from("credentials")
+    .select("id")
+    .eq("code", "TWIC")
+    .is("customer_id", null)
+    .maybeSingle();
+
+  const { data: twicHolders } = twic
+    ? await supabase
+        .from("worker_credentials")
+        .select("worker_id")
+        .eq("credential_id", twic.id)
+        .in("state", ["verified", "submitted"])
+    : { data: [] };
+
+  const hasTwic = new Set((twicHolders ?? []).map((r) => r.worker_id));
+
   const [{ data: workers }, { data: crafts }, { data: levels }] =
     await Promise.all([
       supabase
@@ -57,8 +74,7 @@ export default async function WorkersPage() {
           <div>
             <h2>Workers</h2>
             <div className="sub">
-              {rows.length} on file. Candidates and employees are the same
-              record — status is what changes.
+              {rows.length} on file, {hasTwic.size} with a TWIC.
             </div>
           </div>
         </div>
@@ -71,13 +87,14 @@ export default async function WorkersPage() {
               <th style={{ width: 150 }}>Home</th>
               <th style={{ width: 70 }}>Yrs</th>
               <th style={{ width: 180 }}>Contact</th>
+              <th style={{ width: 70 }}>TWIC</th>
               <th style={{ width: 120 }}>Status</th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
               <tr className="empty-row">
-                <td colSpan={6}>
+                <td colSpan={7}>
                   No workers yet — add the first one below, then place them
                   against a requisition line.
                 </td>
@@ -106,6 +123,13 @@ export default async function WorkersPage() {
                   <td style={{ fontSize: 12 }}>
                     <div className="mono">{w.phone ?? "—"}</div>
                     <div style={{ color: "var(--steel-dim)" }}>{w.email ?? ""}</div>
+                  </td>
+                  <td>
+                    {hasTwic.has(w.id) ? (
+                      <span className="badge submitted">TWIC</span>
+                    ) : (
+                      <span style={{ color: "var(--steel-dim)" }}>—</span>
+                    )}
                   </td>
                   <td>
                     <span className={`badge ${TONE[w.status] ?? "inactive"}`}>
@@ -203,6 +227,19 @@ export default async function WorkersPage() {
               </select>
             </label>
           </div>
+
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              marginBottom: 13,
+              fontSize: 12.5,
+            }}
+          >
+            <input type="checkbox" name="has_twic" style={{ width: 16, height: 16 }} />
+            <span>Holds a TWIC card</span>
+          </label>
 
           <label className="field">
             <span>Notes</span>

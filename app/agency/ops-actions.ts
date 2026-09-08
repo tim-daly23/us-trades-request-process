@@ -12,6 +12,7 @@ const nz = (v: FormDataEntryValue | null): string | null => {
   const s = typeof v === "string" ? v.trim() : "";
   return s === "" ? null : s;
 };
+const bool = (v: FormDataEntryValue | null) => v === "on" || v === "true";
 const num = (v: FormDataEntryValue | null): number | null => {
   const s = nz(v);
   if (s === null) return null;
@@ -178,6 +179,49 @@ export async function updateRequisitionLine(form: FormData): Promise<Result> {
 // Workers
 // =====================================================================
 
+/**
+ * TWIC is recorded as a credential rather than a column on workers.
+ *
+ * worker_credentials already exists for exactly this, and going through it
+ * means the card gets an expiry, a document and a verification state later
+ * without moving the data. A boolean on workers would have to be migrated the
+ * first time someone asks when a card runs out — and TWIC cards run out every
+ * five years.
+ */
+async function setWorkerTwic(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  workerId: string,
+  hasTwic: boolean,
+  verifiedBy: string,
+) {
+  const { data: twic } = await supabase
+    .from("credentials")
+    .select("id")
+    .eq("code", "TWIC")
+    .is("customer_id", null)
+    .maybeSingle();
+  if (!twic) return;
+
+  if (hasTwic) {
+    await supabase.from("worker_credentials").upsert(
+      {
+        worker_id: workerId,
+        credential_id: twic.id,
+        state: "verified",
+        verified_by: verifiedBy,
+        verified_at: new Date().toISOString(),
+      },
+      { onConflict: "worker_id,credential_id,state_code" },
+    );
+  } else {
+    await supabase
+      .from("worker_credentials")
+      .delete()
+      .eq("worker_id", workerId)
+      .eq("credential_id", twic.id);
+  }
+}
+
 export async function createWorker(form: FormData): Promise<Result<string>> {
   const guard = await assertAgency();
   if (!guard.ok) return guard;
@@ -210,6 +254,9 @@ export async function createWorker(form: FormData): Promise<Result<string>> {
     .single();
 
   if (error) return { ok: false, error: error.message };
+
+  await setWorkerTwic(supabase, data.id, bool(form.get("has_twic")), guard.profile.id);
+
   revalidatePath("/agency/workers");
   return { ok: true, data: data.id };
 }
@@ -240,6 +287,9 @@ export async function updateWorker(form: FormData): Promise<Result> {
     .eq("id", id);
 
   if (error) return { ok: false, error: error.message };
+
+  await setWorkerTwic(supabase, id, bool(form.get("has_twic")), guard.profile.id);
+
   revalidatePath("/agency/workers");
   return { ok: true };
 }
