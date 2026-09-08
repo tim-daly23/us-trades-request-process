@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { StatusBadge, UrgencyBadge } from "@/components/status-badge";
 import { PlacementStageBadge } from "@/components/placement-stage-badge";
 import { OnSiteControls } from "@/components/onsite-controls";
+import { StartDateCell } from "@/components/start-date-cell";
 import { FillProgress } from "@/components/fill-progress";
 import {
   formatDate,
@@ -266,13 +267,12 @@ export default async function RequisitionDetail({
                   <td style={{ color: "var(--steel)" }}>
                     {c.craft_name} · {c.level_name}
                   </td>
-                  <td className="mono" style={{ fontSize: 12.5 }}>
-                    {formatDate(c.actual_start_date ?? c.scheduled_start_date)}
-                    {c.actual_start_date && (
-                      <div style={{ fontSize: 11, color: "var(--green)" }}>
-                        on site
-                      </div>
-                    )}
+                  <td>
+                    <StartDateCell
+                      placementId={c.placement_id}
+                      stage={c.stage}
+                      value={c.actual_start_date ?? c.scheduled_start_date}
+                    />
                   </td>
                   <td>
                     <PlacementStageBadge stage={c.stage} />

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getPortalScope } from "@/lib/preview";
 import { formatDate } from "@/lib/format";
 import { OnSiteControls } from "@/components/onsite-controls";
+import { StartDateCell } from "@/components/start-date-cell";
 
 /**
  * The customer's workforce.
@@ -185,11 +186,19 @@ export default async function CustomerWorkersPage() {
                         {numberFor.get(r.requisition_id) ?? "—"}
                       </Link>
                     </td>
-                    <td className="mono" style={{ fontSize: 12.5 }}>
-                      {formatDate(
-                        g.key === "onsite"
-                          ? (r.actual_start_date ?? r.scheduled_start_date)
-                          : r.scheduled_start_date,
+                    <td>
+                      {g.key === "review" || g.key === "finished" ? (
+                        <span className="mono" style={{ fontSize: 12.5 }}>
+                          {formatDate(
+                            r.actual_start_date ?? r.scheduled_start_date,
+                          )}
+                        </span>
+                      ) : (
+                        <StartDateCell
+                          placementId={r.placement_id}
+                          stage={r.stage}
+                          value={r.actual_start_date ?? r.scheduled_start_date}
+                        />
                       )}
                     </td>
                     {g.key === "onboarding" && (
