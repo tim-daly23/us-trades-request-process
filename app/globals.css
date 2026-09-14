@@ -405,6 +405,15 @@
     opacity: 0.3;
     cursor: default;
   }
+  /* Destructive variant. Opt-in, so a delete never reads the same as a save. */
+  .action-btn.danger {
+    border-color: var(--brand-red);
+    color: var(--brand-red);
+  }
+  .action-btn.danger:hover {
+    background: var(--brand-red);
+    color: #fff;
+  }
 
   /* ---- Notices ---- */
   .gate {

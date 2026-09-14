@@ -267,16 +267,32 @@ export async function updateWorker(form: FormData): Promise<Result> {
   const id = nz(form.get("id"));
   if (!id) return { ok: false, error: "Missing worker." };
 
+  const first = nz(form.get("first_name"));
+  const last = nz(form.get("last_name"));
+  if (!first || !last) {
+    return { ok: false, error: "First and last name are required." };
+  }
+
   const supabase = await createClient();
+
+  const { data: current } = await supabase
+    .from("workers")
+    .select("status")
+    .eq("id", id)
+    .is("deleted_at", null)
+    .maybeSingle();
+  if (!current) return { ok: false, error: "Worker not found." };
+
   const { error } = await supabase
     .from("workers")
     .update({
-      first_name: nz(form.get("first_name")),
-      last_name: nz(form.get("last_name")),
+      first_name: first,
+      last_name: last,
       email: nz(form.get("email")),
       phone: nz(form.get("phone")),
       primary_craft_id: nz(form.get("primary_craft_id")),
       primary_level_id: nz(form.get("primary_level_id")),
+      status: nextWorkerStatus(current.status, bool(form.get("is_active"))),
       notes: nz(form.get("notes")),
     })
     .eq("id", id);
@@ -284,6 +300,58 @@ export async function updateWorker(form: FormData): Promise<Result> {
   if (error) return { ok: false, error: error.message };
 
   await setWorkerTwic(supabase, id, bool(form.get("has_twic")), guard.profile.id);
+
+  revalidatePath("/agency/workers");
+  return { ok: true };
+}
+
+/**
+ * The roster asks one question — are they active — but the column underneath
+ * holds six values, and most of them are still wanted.
+ *
+ * Turning someone off always means 'inactive'. Turning them back on means
+ * 'available' only if they were switched off; someone already assigned or on a
+ * shortlist keeps the more specific status rather than being flattened to
+ * available every time their phone number is corrected.
+ */
+function nextWorkerStatus(current: string, active: boolean): string {
+  if (!active) return "inactive";
+  return current === "inactive" ? "available" : current;
+}
+
+/**
+ * Remove a worker from the roster.
+ *
+ * Hard delete where it is safe, soft delete where it is not. placements.worker_id
+ * has no ON DELETE clause, so anyone who has ever been put against a line cannot
+ * be removed outright without taking that history with them — and a placement
+ * record is what proves who was on site and when. Those are marked deleted
+ * instead, which takes them off every list the same way.
+ */
+export async function deleteWorker(form: FormData): Promise<Result> {
+  const guard = await assertAgency();
+  if (!guard.ok) return guard;
+
+  const id = nz(form.get("id"));
+  if (!id) return { ok: false, error: "Missing worker." };
+
+  const supabase = await createClient();
+
+  const { count } = await supabase
+    .from("placements")
+    .select("id", { count: "exact", head: true })
+    .eq("worker_id", id);
+
+  if (count && count > 0) {
+    const { error } = await supabase
+      .from("workers")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) return { ok: false, error: error.message };
+  } else {
+    const { error } = await supabase.from("workers").delete().eq("id", id);
+    if (error) return { ok: false, error: error.message };
+  }
 
   revalidatePath("/agency/workers");
   return { ok: true };
