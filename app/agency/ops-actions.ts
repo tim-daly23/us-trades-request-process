@@ -187,39 +187,72 @@ export async function updateRequisitionLine(form: FormData): Promise<Result> {
  * without moving the data. A boolean on workers would have to be migrated the
  * first time someone asks when a card runs out — and TWIC cards run out every
  * five years.
+ *
+ * Read the row first rather than upserting. The unique index on
+ * worker_credentials is on `(worker_id, credential_id, coalesce(state_code, ''))`
+ * — an expression — and ON CONFLICT can only name a constraint that matches
+ * exactly, so an upsert on those three column names has nothing to conflict
+ * against and errors out.
+ *
+ * Returns an error message, or null. It used to return nothing and discard
+ * every error, which is how the broken upsert went unnoticed: the tick was
+ * accepted, the save reported success, and no credential was written.
  */
 async function setWorkerTwic(
   supabase: Awaited<ReturnType<typeof createClient>>,
   workerId: string,
   hasTwic: boolean,
   verifiedBy: string,
-) {
-  const { data: twic } = await supabase
+): Promise<string | null> {
+  const { data: twic, error: lookupError } = await supabase
     .from("credentials")
     .select("id")
     .eq("code", "TWIC")
     .is("customer_id", null)
     .maybeSingle();
-  if (!twic) return;
+
+  if (lookupError) return lookupError.message;
+  if (!twic) {
+    return "The TWIC credential is missing from the catalogue — run supabase/seed.sql.";
+  }
+
+  const { data: existing, error: readError } = await supabase
+    .from("worker_credentials")
+    .select("id")
+    .eq("worker_id", workerId)
+    .eq("credential_id", twic.id)
+    .limit(1)
+    .maybeSingle();
+
+  if (readError) return readError.message;
 
   if (hasTwic) {
-    await supabase.from("worker_credentials").upsert(
-      {
-        worker_id: workerId,
-        credential_id: twic.id,
-        state: "verified",
-        verified_by: verifiedBy,
-        verified_at: new Date().toISOString(),
-      },
-      { onConflict: "worker_id,credential_id,state_code" },
-    );
-  } else {
-    await supabase
+    const card = {
+      state: "verified",
+      verified_by: verifiedBy,
+      verified_at: new Date().toISOString(),
+    };
+    const { error } = existing
+      ? await supabase
+          .from("worker_credentials")
+          .update(card)
+          .eq("id", existing.id)
+      : await supabase.from("worker_credentials").insert({
+          worker_id: workerId,
+          credential_id: twic.id,
+          ...card,
+        });
+    if (error) return error.message;
+  } else if (existing) {
+    const { error } = await supabase
       .from("worker_credentials")
       .delete()
       .eq("worker_id", workerId)
       .eq("credential_id", twic.id);
+    if (error) return error.message;
   }
+
+  return null;
 }
 
 export async function createWorker(form: FormData): Promise<Result<string>> {
@@ -254,9 +287,24 @@ export async function createWorker(form: FormData): Promise<Result<string>> {
 
   if (error) return { ok: false, error: error.message };
 
-  await setWorkerTwic(supabase, data.id, bool(form.get("has_twic")), guard.profile.id);
+  const twicError = await setWorkerTwic(
+    supabase,
+    data.id,
+    bool(form.get("has_twic")),
+    guard.profile.id,
+  );
 
   revalidatePath("/agency/workers");
+
+  // The worker exists either way, so say precisely that — reporting a plain
+  // failure would suggest nothing was added and invite a duplicate.
+  if (twicError) {
+    return {
+      ok: false,
+      error: `${first} ${last} was added, but the TWIC was not recorded: ${twicError}`,
+    };
+  }
+
   return { ok: true, data: data.id };
 }
 
@@ -299,9 +347,22 @@ export async function updateWorker(form: FormData): Promise<Result> {
 
   if (error) return { ok: false, error: error.message };
 
-  await setWorkerTwic(supabase, id, bool(form.get("has_twic")), guard.profile.id);
+  const twicError = await setWorkerTwic(
+    supabase,
+    id,
+    bool(form.get("has_twic")),
+    guard.profile.id,
+  );
 
   revalidatePath("/agency/workers");
+
+  if (twicError) {
+    return {
+      ok: false,
+      error: `Details saved, but the TWIC was not recorded: ${twicError}`,
+    };
+  }
+
   return { ok: true };
 }
 
