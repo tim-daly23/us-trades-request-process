@@ -66,7 +66,7 @@ export function WorkerRow({
         </td>
         <td>
           {worker.has_twic ? (
-            <span className="badge submitted">TWIC</span>
+            <span className="badge approved">TWIC</span>
           ) : (
             <span style={{ color: "var(--steel-dim)" }}>—</span>
           )}
