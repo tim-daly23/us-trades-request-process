@@ -396,6 +396,9 @@
     background: transparent;
     color: var(--ink);
     cursor: pointer;
+    /* Also used on links, which would otherwise arrive underlined and inline. */
+    display: inline-block;
+    text-decoration: none;
   }
   .action-btn:hover {
     background: var(--ink);
@@ -443,4 +446,96 @@
   .fill-onboarding {
     background: var(--amber);
   }
+
+  /* ---- Printable reports ---- */
+  /*
+   * A report route renders inside the agency layout like any other screen, so
+   * printing means hiding the console around it rather than escaping it.
+   * !important throughout: these have to beat the on-screen rules they undo,
+   * and a print stylesheet that loses a specificity argument fails silently
+   * on paper where nobody sees it until it is already in someone's hand.
+   */
+  .report-sheet {
+    background: #fff;
+  }
+  .report-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+  }
+  .report-head h1 {
+    font-family: var(--font-barlow), sans-serif;
+    font-size: 22px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin: 0;
+  }
+  .report-meta {
+    font-size: 11.5px;
+    color: var(--steel);
+    text-align: right;
+    line-height: 1.5;
+  }
+  .report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .report-table th {
+    font-family: var(--font-barlow), sans-serif;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: left;
+    padding: 5px 8px;
+    border-bottom: 1.5px solid var(--ink);
+    white-space: nowrap;
+  }
+  .report-table td {
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  /* Keep a row whole rather than splitting a name across two sheets. */
+  .report-table tr {
+    break-inside: avoid;
+  }
+
+  @media print {
+    .brand-stripe,
+    .masthead,
+    .no-print {
+      display: none !important;
+    }
+    .shell {
+      max-width: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    body {
+      background: #fff !important;
+    }
+    /* Repeat the column headings at the top of every sheet. */
+    .report-table thead {
+      display: table-header-group;
+    }
+    .report-table th {
+      border-bottom-color: #000 !important;
+    }
+    .report-table td {
+      border-bottom-color: #ccc !important;
+    }
+  }
+}
+
+/*
+ * Page setup. Deliberately outside @layer: @page carries no selector, so it
+ * cannot outrank a utility the way an unlayered rule would — the house rule
+ * above is about selectors.
+ */
+@page {
+  margin: 0.55in 0.5in;
 }

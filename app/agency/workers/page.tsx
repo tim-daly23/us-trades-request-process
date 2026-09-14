@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireAgency } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createWorker } from "@/app/agency/ops-actions";
@@ -94,6 +95,9 @@ export default async function WorkersPage() {
               TWIC.
             </div>
           </div>
+          <Link href="/agency/workers/print" className="action-btn">
+            Printable roster
+          </Link>
         </div>
 
         <table className="data-table">
