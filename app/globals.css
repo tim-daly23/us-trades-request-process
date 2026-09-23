@@ -447,6 +447,21 @@
     background: var(--amber);
   }
 
+  /*
+   * Opt-in link styling. There is deliberately no bare `a { }` rule in this
+   * file: unlayered CSS outranks every Tailwind utility, and a global anchor
+   * colour once turned the red button's own label red.
+   */
+  .link {
+    color: var(--steel);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--steel);
+  }
+  .link:hover {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+
   /* ---- Printable reports ---- */
   /*
    * A report route renders inside the agency layout like any other screen, so

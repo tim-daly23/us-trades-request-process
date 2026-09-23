@@ -67,6 +67,51 @@ That first account must be `super_admin`. It is the only role that reaches
 every customer and the only one that can open **Team**, where the rest of the
 staff are created and given their customers.
 
+### Enable password resets
+
+The portal has a "Forgot your password?" flow, but it cannot work until three
+things are set in the Supabase dashboard. Until they are, the form still says
+"check your email" — deliberately, since telling a stranger whether an address
+has an account is a way to find out who US Trades works with — and no email
+arrives.
+
+**1. Custom SMTP.** *Project Settings → Authentication → SMTP Settings.*
+Supabase's built-in sender is capped at a handful of messages an hour and is
+explicitly not for production. Point it at whatever sends ustrades.com mail,
+with a from-address on your own domain — reset links from a stranger's domain
+get deleted, or filtered before anyone sees them.
+
+**2. Site URL.** *Authentication → URL Configuration.* Set it to the portal's
+address for that project (the Vercel production URL, or `portal.ustrades.com`
+once the domain is live). The reset link is built from this — if it is wrong
+or still `localhost`, every link in every email points at the wrong place.
+
+**3. The reset email template.** *Authentication → Email Templates → Reset
+Password.* Replace the link with:
+
+```html
+<a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password">
+  Set a new password
+</a>
+```
+
+This is the part that is easy to miss. The default template uses
+`{{ .ConfirmationURL }}`, which returns the session in the part of the URL
+after the `#` — and that fragment is never sent to the server, so the portal
+cannot see it and the link appears to do nothing. `{{ .TokenHash }}` is
+verified server-side instead.
+
+Both Supabase projects need all three, with their own Site URL.
+
+Once it is set up: sign-in page → **Forgot your password?** → email → link →
+choose a new password → straight into the portal, signed in. The link works
+once and expires; a used or stale one lands back on the request form with an
+explanation rather than a dead end.
+
+You keep the admin-side **Reset password** button on each customer's logins
+for the cases this does not cover — somebody who has left the company, or an
+address nobody can get into any more.
+
 ### Adding the rest of the team
 
 **Agency console → Team.** Create the login, then tick the customers that

@@ -2,8 +2,15 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { normalizeSupabaseUrl } from "./url";
 
-/** Paths reachable without a session. */
-const PUBLIC_PATHS = ["/login", "/auth"];
+/**
+ * Paths reachable without a session.
+ *
+ * /reset-password is deliberately NOT here: it is only ever arrived at from
+ * /auth/confirm, which verifies the emailed token and leaves a session behind.
+ * Reaching it without one means the link was bad, and the gate below sends
+ * them somewhere that says so.
+ */
+const PUBLIC_PATHS = ["/login", "/auth", "/forgot-password"];
 
 /**
  * Refreshes the Supabase session on every request and gates private routes.

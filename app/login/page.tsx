@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -117,8 +118,13 @@ function LoginForm() {
             </button>
 
             <div className="hint">
-              Need access for someone on your team? Your account admin can
-              invite them. Trouble signing in? Contact your US Trades rep.
+              <Link href="/forgot-password" className="link">
+                Forgot your password?
+              </Link>
+            </div>
+
+            <div className="hint">
+              Need access for someone on your team? Contact your US Trades rep.
             </div>
           </form>
         </div>
