@@ -75,7 +75,10 @@ things are set in the Supabase dashboard. Until they are, the form still says
 has an account is a way to find out who US Trades works with — and no email
 arrives.
 
-**1. Custom SMTP.** *Project Settings → Authentication → SMTP Settings.*
+**1. Custom SMTP.** *Authentication → Emails*, under the NOTIFICATIONS
+heading in the sidebar. (Older Supabase guides — and older versions of this
+file — send you to Project Settings → Authentication → SMTP Settings. It
+moved.)
 Supabase's built-in sender is capped at a handful of messages an hour and is
 explicitly not for production. Point it at whatever sends ustrades.com mail,
 with a from-address on your own domain — reset links from a stranger's domain
@@ -86,8 +89,9 @@ address for that project (the Vercel production URL, or `portal.ustrades.com`
 once the domain is live). The reset link is built from this — if it is wrong
 or still `localhost`, every link in every email points at the wrong place.
 
-**3. The reset email template.** *Authentication → Email Templates → Reset
-Password.* Replace the link with:
+**3. The reset email template.** Same *Authentication → Emails* page as step
+1, under the templates section — pick **Reset Password**. Replace the link
+with:
 
 ```html
 <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password">
