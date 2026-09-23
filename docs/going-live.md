@@ -75,14 +75,52 @@ things are set in the Supabase dashboard. Until they are, the form still says
 has an account is a way to find out who US Trades works with — and no email
 arrives.
 
-**1. Custom SMTP.** *Authentication → Emails*, under the NOTIFICATIONS
-heading in the sidebar. (Older Supabase guides — and older versions of this
-file — send you to Project Settings → Authentication → SMTP Settings. It
-moved.)
-Supabase's built-in sender is capped at a handful of messages an hour and is
-explicitly not for production. Point it at whatever sends ustrades.com mail,
-with a from-address on your own domain — reset links from a stranger's domain
-get deleted, or filtered before anyone sees them.
+**1. Custom SMTP, via Resend.** Supabase's built-in sender is capped at a
+handful of messages an hour and is explicitly not for production.
+
+We send through Resend rather than through the Microsoft 365 mailboxes that
+carry ustrades.com mail. Two reasons: Microsoft disables SMTP AUTH by default
+and is retiring basic auth for it, so the connection frequently just refuses;
+and it would mean storing the password to a real ustrades.com mailbox inside
+Supabase. An API key is revocable and grants nothing but sending.
+
+*In Resend:*
+
+1. **Domains → Add Domain.** Take the **subdomain** option — `send.ustrades.com`,
+   not the bare `ustrades.com`. This matters: verifying the apex needs an SPF
+   TXT record there, ustrades.com already has one for Microsoft 365, and a
+   domain may only carry one `v=spf1` record. Adding a second does not add
+   Resend — it breaks authentication for all existing company mail. The
+   subdomain keeps the two apart entirely.
+2. Add the DNS records it shows you (an MX and a TXT on the subdomain, plus a
+   DKIM TXT) wherever ustrades.com DNS is hosted. Verification takes minutes
+   to a few hours.
+3. **API Keys → Create API Key**, with sending permission. It is shown once.
+   Put it straight into Supabase — it does not belong in this repo, in
+   `.env.local`, or in a chat window.
+
+*In Supabase — Authentication → Emails*, under the NOTIFICATIONS heading in
+the sidebar. (Older Supabase guides, and older versions of this file, say
+Project Settings → Authentication → SMTP Settings. It moved.) Enable custom
+SMTP and enter:
+
+| Field | Value |
+|---|---|
+| Host | `smtp.resend.com` |
+| Port | `587` |
+| Username | `resend` |
+| Password | the Resend API key |
+| Sender email | `noreply@send.ustrades.com` |
+| Sender name | `US Trades` |
+
+The sender address has to be on the domain Resend verified. If that is the
+subdomain, the address is `@send.ustrades.com` — recipients see the display
+name, so the mail still reads as "US Trades".
+
+Free tier is 3,000 messages a month, 100 a day, which is far more password
+resets than this will ever generate. Separately, *Authentication → Rate
+Limits* caps outbound auth email per hour; the default is fine to start with
+and is the first thing to check if resets stop arriving in a busy week.
 
 **2. Site URL.** *Authentication → URL Configuration.* Set it to the portal's
 address for that project (the Vercel production URL, or `portal.ustrades.com`
