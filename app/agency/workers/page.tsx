@@ -64,10 +64,6 @@ export default async function WorkersPage() {
   const craftList = crafts ?? [];
   const levelList = levels ?? [];
 
-  const activeCount = rows.filter(
-    (w) => w.status !== "inactive" && !w.do_not_return,
-  ).length;
-
   const rowData: WorkerRowData[] = rows.map((w) => ({
     id: w.id,
     first_name: w.first_name,
@@ -84,6 +80,53 @@ export default async function WorkersPage() {
     has_twic: hasTwic.has(w.id),
   }));
 
+  const isActive = (w: WorkerRowData) =>
+    w.status !== "inactive" && !w.do_not_return;
+
+  const active = rowData.filter(isActive);
+  const inactive = rowData.filter((w) => !isActive(w));
+  const activeTwic = active.filter((w) => w.has_twic).length;
+
+  const table = (list: WorkerRowData[], empty: string) => (
+    <table className="data-table">
+      <colgroup>
+        <col />
+        <col style={{ width: 230 }} />
+        <col style={{ width: 200 }} />
+        <col style={{ width: 80 }} />
+        <col style={{ width: 90 }} />
+        <col style={{ width: 80 }} />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Craft &amp; level</th>
+          <th>Contact</th>
+          <th>TWIC</th>
+          <th>Active</th>
+          <th />
+        </tr>
+      </thead>
+      <tbody>
+        {list.length === 0 ? (
+          <tr className="empty-row">
+            <td colSpan={COLUMNS}>{empty}</td>
+          </tr>
+        ) : (
+          list.map((w) => (
+            <WorkerRow
+              key={w.id}
+              worker={w}
+              crafts={craftList}
+              levels={levelList}
+              columnCount={COLUMNS}
+            />
+          ))
+        )}
+      </tbody>
+    </table>
+  );
+
   return (
     <>
       <div className="panel">
@@ -91,8 +134,7 @@ export default async function WorkersPage() {
           <div>
             <h2>Workers</h2>
             <div className="sub">
-              {rows.length} on file, {activeCount} active, {hasTwic.size} with a
-              TWIC.
+              {active.length} active, {activeTwic} with a TWIC.
             </div>
           </div>
           <Link href="/agency/workers/print" className="action-btn">
@@ -100,47 +142,32 @@ export default async function WorkersPage() {
           </Link>
         </div>
 
-        <table className="data-table">
-          <colgroup>
-            <col />
-            <col style={{ width: 230 }} />
-            <col style={{ width: 200 }} />
-            <col style={{ width: 80 }} />
-            <col style={{ width: 90 }} />
-            <col style={{ width: 80 }} />
-          </colgroup>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Craft &amp; level</th>
-              <th>Contact</th>
-              <th>TWIC</th>
-              <th>Active</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {rowData.length === 0 ? (
-              <tr className="empty-row">
-                <td colSpan={COLUMNS}>
-                  No workers yet — add the first one below, then place them
-                  against a requisition line.
-                </td>
-              </tr>
-            ) : (
-              rowData.map((w) => (
-                <WorkerRow
-                  key={w.id}
-                  worker={w}
-                  crafts={craftList}
-                  levels={levelList}
-                  columnCount={COLUMNS}
-                />
-              ))
-            )}
-          </tbody>
-        </table>
+        {table(
+          active,
+          "Nobody active — add a worker below, or reopen the inactive list.",
+        )}
       </div>
+
+      {inactive.length > 0 && (
+        <div className="panel">
+          {/*
+            Collapsed by default. These are people you are not placing this
+            week, so they should not be in the way of the ones you are — but
+            they are still on file, and reactivating someone is a tick in the
+            same edit panel as everywhere else.
+          */}
+          <details className="disclosure">
+            <summary>
+              Inactive
+              <span className="count">
+                {inactive.length}{" "}
+                {inactive.length === 1 ? "worker" : "workers"}, not shown above
+              </span>
+            </summary>
+            {table(inactive, "")}
+          </details>
+        </div>
+      )}
 
       <div className="panel">
         <div className="panel-head">
